@@ -1,5 +1,5 @@
 # spinnovators
-# Prime Minister for a Day 
+# [Prime] Minister for a Day 
 ##  Budget Management System
 ### Title: OpenBudget
 This is a command-line application that allows the user to view, edit, and analyze the Greek state budget, focusing on Ministry of Environment and Energy — as if someone were the *Prime Minister for a day*.  
