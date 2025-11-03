@@ -5,7 +5,7 @@
 This is a command-line application that allows the user to view, edit, and analyze the Greek state budget, focusing on Ministry of Environment and Energy — as if someone were the *Prime Minister for a day*.  
 The program provides an overview of key budget categories, supports the introduction of changes, checks for rule violations and compares made-up scenarios. 
 ## Main Features
-### 3. Budget Overview:
+### 1. Budget Overview:
 Displays all main categories of the national budget (e.g. Education, Health, Defense, Infrastructure, etc.).
 ### 2. Data Editing and Updates
 Users can input changes directly through the command line. The system allows simulation of revised budget allocations — for instance, increasing investments in renewable energy or reducing defense spending — and automatically recalculates totals and balances.
