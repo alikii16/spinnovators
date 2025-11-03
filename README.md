@@ -1,4 +1,4 @@
-# spinnovators
+# spinnovator
 # [Prime] Minister for a Day 
 ##  Budget Management System
 ### Title: OpenBudget
