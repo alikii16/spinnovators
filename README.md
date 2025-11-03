@@ -21,9 +21,7 @@ Compare the current budget with the previous year’s data, highlighting increas
 Simulate hypothetical “what-if” cases and analyze impacts on Technology, Health, and Environment pillars.
 ### 8. ESG Score Evaluation
 Evaluate Environmental, Social, and Governance (ESG) indicators to measure how sustainable and responsible the proposed budget changes are.
-### 9. Social Impact Assessment
-Estimate outcomes of budgetary changes on various social groups — including students, unemployed citizens, and pensioners.
-### 10. Results and Conclusions
+### 9. Results and Conclusions
 Summarizes user actions and outlines potential long-term effects, balancing economic growth, social welfare, and environmental protection.
 
 ---
