@@ -1,4 +1,4 @@
-gitpackage gr.det.spinnovators;
+package gr.det.spinnovators;
 
 /**
  * Hello world!
