@@ -3,7 +3,7 @@ package gr.det.spinnovators;
 import java.util.Scanner;
 
 public class FirstLogin {
-    public static void login(String[] args) {
+    public static void login() {
         Scanner input = new Scanner(System.in);
 
         String minister = "Minister";
