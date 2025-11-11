@@ -10,50 +10,31 @@ public class FirstLogin {
         String passwordMinister = "m1n1st3r";
         String passwordEmployee = "3mpl0y33";
 
+        boolean isValid;
 
-        String username;
+        do {
+             String username;
+             String password;
+             
+             System.out.print("Εισάγετε όνομα χρήστη: ");
+             username = input.nextLine();
 
-        
-        System.out.print("Εισάγετε όνομα χρήστη: ");
-        username = input.nextLine();
+             System.out.print("Εισάγετε κωδικό: ");
+             password = input.nextLine();
             
-        if (username.equals(minister)) {
-            String password;
-            boolean isValid = false;
-        
-            do {
-                System.out.print("Εισάγετε κωδικό: ");
-                password = input.nextLine();
-            
-                if (password.equals(passwordMinister)) {
+             if (username.equals(minister) && password.equals(passwordMinister)) {
                     isValid = true;
+                    System.out.println("Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ.");
+                } else if (!username.equals(minister) && password.equals(passwordEmployee)) {
+                    isValid = true;
+                    System.out.println("Επιτυχής σύνδεση! Καλωσήρθατε " + username + ".");
                 } else {
                     isValid = false;
-                    System.out.println("Λάθος κωδικός. Προσπαθήστε ξανά.");
+                    System.out.println("Λάθος όνομα ή κωδικό. Προσπαθήστε ξανά.");
                 }
-            } while (!isValid);
+             
+        } while (!isValid); 
 
-        } else {
-            String password;
-            boolean isValid = false;
-
-            do {
-                System.out.println("Εισάγετε κωδικό: ");
-                password = input.nextLine();
-
-                if (password.equals(passwordEmployee)) {
-                    isValid = true;
-                } else {
-                    isValid = false;
-                    System.out.println("Λάθος κωδικός. Προσπαθήστε ξανά.");
-                }
-            } while (!isValid); 
-
-        }
-
-    System.out.println("Επιτυχής σύνδεση! Καλωσήρθατε.");
     input.close();
-
     }
-
 }
