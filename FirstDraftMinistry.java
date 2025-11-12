@@ -8,7 +8,7 @@ import java.util.*;
 public class FirstDraftMinistry {
 
 	private static final String MAIN_FILE = "json.file"; //Final variable in order to describe our file's name 
-	private static Gson gson = new Gson();//Gson library from Google! 
+	private static Gson gson = new Gson();//Gson library from Google 
 	public static void main(String[] args) {
 
 		Scanner sc = new Scanner(System.in); //Reads user's key
