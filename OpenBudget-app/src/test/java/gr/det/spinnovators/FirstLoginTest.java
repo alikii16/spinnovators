@@ -15,8 +15,7 @@ public class FirstLoginTest {
            System.setOut(new PrintStream(outputStream));
             FirstLogin.login();
              String output = outputStream.toString();
-              assertTrue(output.contains("Valid Login"),"Expected suvvessful login message");              
-              assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε."),"Expected suvvessful login message");              
+              assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."),"Expected successful login message for Minister");
     }
 
     @Test
@@ -27,8 +26,7 @@ public class FirstLoginTest {
         System.setOut(new PrintStream(outputStream));
         FirstLogin.login();
         String output = outputStream.toString();
-        assertTrue(output.contains("Valid Login"),"Expected successful login message");
-        assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε."),"Expected successful login message");
+        assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε employeeUsername."),"Expected successful login message");
     }
 
     @Test
@@ -39,8 +37,6 @@ public class FirstLoginTest {
         System.setOut(new PrintStream(outputStream));
         FirstLogin.login();
         String output = outputStream.toString();
-        assertTrue(output.contains("Wrong Password"),"Expected wrong password message");
-    }
-        assertTrue(output.contains("Λάθος κωδικός. Προσπαθήστε ξανά."),"Expected wrong password message");
+        assertTrue(output.contains("Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."),"Expected wrong password message");
     }
 }
