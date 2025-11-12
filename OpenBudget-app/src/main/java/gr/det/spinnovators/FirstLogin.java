@@ -30,11 +30,11 @@ public class FirstLogin {
                     System.out.println("Επιτυχής σύνδεση! Καλωσήρθατε " + username + ".");
                 } else {
                     isValid = false;
-                    System.out.println("Λάθος όνομα ή κωδικό. Προσπαθήστε ξανά.");
+                    System.out.println("Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά.");
                 }
              
         } while (!isValid); 
 
     input.close();
     }
-
+}
