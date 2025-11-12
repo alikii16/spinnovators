@@ -1,0 +1,267 @@
+{
+  "env_ministry_total_budget": {
+    "2025": 2341227000.00,
+    "2024": 1823158000.00,
+    "2023": 1707333000.00
+  },
+  "data_by_year": {
+    "2025": {
+      "executive_coordination_and_investments": {
+        "ministerial_secretariats_and_offices": {
+          "personnel_costs": 2256000.00,
+          "purchase_of_goods_and_services": 1725000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units": {
+          "personnel_costs": 6194250.00,
+          "purchase_of_goods_and_services": 2219350.00,
+          "credits_under_allocation": 5616800.00,
+          "permanent_assets": 26250.00
+        },
+        "recovery_and_resilience_fund_expenses": {
+          "credits_under_allocation": 26559000.00
+        }
+      },
+      "natural_environment_and_water_protection": {
+        "general_secretariat_for_natural_environment_and_water": {
+          "personnel_costs": 3934000.00,
+          "transfers": 40995000.00,
+          "purchase_of_goods_and_services": 995000.00,
+          "credits_under_allocation": 264706000.00,
+          "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_waste_management": {
+          "personnel_costs": 3680000.00,
+          "purchase_of_goods_and_services": 363000.00,
+          "credits_under_allocation": 50750000.00,
+          "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_forestry": {
+          "personnel_costs": 77594000.00,
+          "community_benefits": 0.00,
+          "transfers": 2345000.00,
+          "purchase_of_goods_and_services": 12259000.00,
+          "credits_under_allocation": 16290000.00,
+          "permanent_assets": 157000.00
+        },
+        "other_units_minister_secretary": {
+          "personnel_costs": 991080.00,
+          "purchase_of_goods_and_services": 156660.00,
+          "credits_under_allocation": 802400.00,
+          "permanent_assets": 4200.00
+        },
+        "recovery_and_resilience_fund_expenses": {
+          "credits_under_allocation": 564140400.00
+        }
+      },
+      "spatial_planning_and_urban_environment": {
+        "general_secretariat_for_spatial_and_urban_planning": {
+          "personnel_costs": 4660000.00,
+          "purchase_of_goods_and_services": 978000.00,
+          "credits_under_allocation": 90949000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units_sp_ue": {
+          "personnel_costs": 495540.00,
+          "purchase_of_goods_and_services": 78330.00,
+          "credits_under_allocation": 802400.00,
+          "permanent_assets": 2100.00
+        },
+        "recovery_and_resilience_fund_expenses_sp_ue": {
+          "credits_under_allocation": 503940000.00
+        }
+      },
+      "energy_and_mineral_resources_management": {
+        "general_secretariat_for_energy_and_mineral_resources": {
+          "personnel_costs": 2608000.00,
+          "community_benefits": 2733000.00,
+          "transfers": 146600000.00,
+          "purchase_of_goods_and_services": 997000.00,
+          "credits_under_allocation": 235961000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units_energy_mgt": {
+          "personnel_costs": 578130.00,
+          "purchase_of_goods_and_services": 156660.00,
+          "credits_under_allocation": 802400.00,
+          "permanent_assets": 2450.00
+        },
+        "recovery_and_resilience_fund_expenses_energy_mgt": {
+          "credits_under_allocation": 267360600.00
+        }
+      }
+    },
+    "2024": {
+      "executive_coordination_and_investments": {
+        "ministerial_secretariats_and_offices": {
+          "personnel_costs": 2181000.00,
+          "purchase_of_goods_and_services": 1622000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units": {
+          "personnel_costs": 7173560.00,
+          "purchase_of_goods_and_services": 2297550.00,
+          "credits_under_allocation": 1470000.00,
+          "permanent_assets": 11100.00
+        },
+        "recovery_and_resilience_fund_expenses": {
+          "credits_under_allocation": 7980000.00
+        }
+      },
+      "natural_environment_and_water_protection": {
+        "general_secretariat_for_natural_environment_and_water": {
+          "personnel_costs": 4854000.00,
+          "transfers": 25995000.00,
+          "purchase_of_goods_and_services": 1087000.00,
+          "credits_under_allocation": 126701000.00,
+          "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_waste_management": {
+          "personnel_costs": 621000.00,
+          "purchase_of_goods_and_services": 338000.00,
+          "credits_under_allocation": 26000000.00,
+          "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_forestry": {
+          "personnel_costs": 74354000.00,
+          "community_benefits": 0.00,
+          "transfers": 2345000.00,
+          "purchase_of_goods_and_services": 8723000.00,
+          "credits_under_allocation": 27480000.00,
+          "permanent_assets": 177000.00
+        },
+        "other_units_minister_secretary": {
+          "personnel_costs": 1163280.00,
+          "purchase_of_goods_and_services": 162180.00,
+          "credits_under_allocation": 210000.00,
+          "permanent_assets": 1800.00
+        },
+        "recovery_and_resilience_fund_expenses": {
+          "credits_under_allocation": 151620000.00
+        }
+      },
+      "spatial_planning_and_urban_environment": {
+        "general_secretariat_for_spatial_and_urban_planning": {
+          "personnel_costs": 5968000.00,
+          "purchase_of_goods_and_services": 1018000.00,
+          "credits_under_allocation": 53700000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units_sp_ue": {
+          "personnel_costs": 581640.00,
+          "purchase_of_goods_and_services": 81090.00,
+          "credits_under_allocation": 210000.00,
+          "permanent_assets": 900.00
+        },
+        "recovery_and_resilience_fund_expenses_sp_ue": {
+          "credits_under_allocation": 191520000.00
+        }
+      },
+      "energy_and_mineral_resources_management": {
+        "general_secretariat_for_energy_and_mineral_resources": {
+          "personnel_costs": 2608000.00,
+          "community_benefits": 2733000.00,
+          "transfers": 139619000.00,
+          "purchase_of_goods_and_services": 912000.00,
+          "credits_under_allocation": 500699000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units_energy_mgt": {
+          "personnel_costs": 775520.00,
+          "purchase_of_goods_and_services": 162180.00,
+          "credits_under_allocation": 210000.00,
+          "permanent_assets": 1200.00
+        },
+        "recovery_and_resilience_fund_expenses_energy_mgt": {
+          "credits_under_allocation": 446880000.00
+        }
+      }
+    },
+    "2023": {
+      "executive_coordination_and_investments": {
+        "ministerial_secretariats_and_offices": {
+          "personnel_costs": 2092000.00,
+          "purchase_of_goods_and_services": 1408000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units": {
+          "personnel_costs": 9114000.00,
+          "purchase_of_goods_and_services": 1739000.00,
+          "credits_under_allocation": 37153900.00,
+          "permanent_assets": 15000.00
+        },
+        "recovery_and_resilience_fund_expenses": {
+          "credits_under_allocation": 6890980.00
+        }
+      },
+      "natural_environment_and_water_protection": {
+        "general_secretariat_for_natural_environment_and_water": {
+          "personnel_costs": 3732000.00,
+          "transfers": 28284000.00,
+          "purchase_of_goods_and_services": 936000.00,
+          "credits_under_allocation": 157865000.00,
+          "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_waste_management": {
+          "personnel_costs": 380000.00,
+          "purchase_of_goods_and_services": 282000.00,
+          "credits_under_allocation": 104500000.00,
+          "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_forestry": {
+          "personnel_costs": 74354000.00,
+          "community_benefits": 15000.00,
+          "transfers": 0.00,
+          "purchase_of_goods_and_services": 25723000.00,
+          "credits_under_allocation": 13150000.00,
+          "permanent_assets": 177000.00
+        },
+        "other_units_minister_secretary": {
+          "personnel_costs": 0.00,
+          "purchase_of_goods_and_services": 0.00,
+          "credits_under_allocation": 5307700.00,
+          "permanent_assets": 0.00
+        },
+        "recovery_and_resilience_fund_expenses": {
+          "credits_under_allocation": 103364700.00
+        }
+      },
+      "spatial_planning_and_urban_environment": {
+        "general_secretariat_for_spatial_and_urban_planning": {
+          "personnel_costs": 5569000.00,
+          "purchase_of_goods_and_services": 952000.00,
+          "credits_under_allocation": 104500000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units_sp_ue": {
+          "personnel_costs": 0.00,
+          "purchase_of_goods_and_services": 0.00,
+          "credits_under_allocation": 5307700.00,
+          "permanent_assets": 0.00
+        },
+        "recovery_and_resilience_fund_expenses_sp_ue": {
+          "credits_under_allocation": 165383520.00
+        }
+      },
+      "energy_and_mineral_resources_management": {
+        "general_secretariat_for_energy_and_mineral_resources": {
+          "personnel_costs": 2939000.00,
+          "community_benefits": 2718000.00,
+          "transfers": 131826000.00,
+          "purchase_of_goods_and_services": 830000.00,
+          "credits_under_allocation": 293588000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units_energy_mgt": {
+          "personnel_costs": 0.00,
+          "purchase_of_goods_and_services": 0.00,
+          "credits_under_allocation": 5307700.00,
+          "permanent_assets": 0.00
+        },
+        "recovery_and_resilience_fund_expenses_energy_mgt": {
+          "credits_under_allocation": 413458800.00
+        }
+      }
+    }
+  }
+}
