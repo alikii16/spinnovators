@@ -261,6 +261,18 @@ public class MinistryDataInput {
         this.budgetAmount23[i] = helpBudgetAmount23[i];
        }
     }
+    
+    public String[] getNames25() { return Names25; }
+    public double[] getBudgetAmount25() { return budgetAmount25; }
+    public int getSize25() { return size25; }
+
+    public String[] getNames24() { return Names24; }
+    public double[] getBudgetAmount24() { return budgetAmount24; }
+    public int getSize24() { return size24; }
+
+    public String[] getNames23() { return Names23; }
+    public double[] getBudgetAmount23() { return budgetAmount23; }
+    public int getSize23() { return size23; }
 
 }
 
