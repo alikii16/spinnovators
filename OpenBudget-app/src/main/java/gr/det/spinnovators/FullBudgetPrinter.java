@@ -53,7 +53,7 @@ public class FullBudgetPrinter {
 
             totalBudget = 0;
 
-            System.out.println("\n--- ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΕΤΟΥΣ " + year + "---");
+            .out.println("\n--- ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΕΤΟΥΣ " + year + "---");
             int size = this.data.getSize23();
             String[] names = this.data.getNames23();
             double[] amounts = this.data.getBudgetAmount23();
