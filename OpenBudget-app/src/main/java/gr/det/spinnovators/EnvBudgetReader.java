@@ -24,7 +24,7 @@ import java.io.FileNotFoundException; /* Reads the JSON file */
 import java.io.FileReader; /* Exception thrown if the file path does not exist */
 import java.util.Map; /* We use a Map<String, Object> structure to store the JSON after we read it */
 
-public class BudgetReader { 
+public class EnvBudgetReader { 
 
 	private final String filePath; /* A field that stores the path of the JSON file */ 
 	private Map<String,Object> BudgetData; /* A field that stores the loaded JSON data. */
