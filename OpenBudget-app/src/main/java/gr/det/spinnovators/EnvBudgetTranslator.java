@@ -10,7 +10,7 @@ public class EnvBudgetTranslator {
 // The name of the properties file located in src/main/resources
   private static final String BUNDLE_NAME = "env_budget_translations";
 // ResourceBundle holds the key-translations
-  private final ResourceBundle categoryBundle;
+  private ResourceBundle categoryBundle;
   
   public EnvBudgetTranslator() {
         try {
