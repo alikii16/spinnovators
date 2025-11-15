@@ -34,7 +34,5 @@ public class FirstLogin {
                 }
              
         } while (!isValid); 
-
-    input.close();
     }
 }
