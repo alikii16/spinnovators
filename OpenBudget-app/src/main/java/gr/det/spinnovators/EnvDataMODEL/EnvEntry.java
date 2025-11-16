@@ -22,7 +22,7 @@ public class EnvEntry {
         return amount;
     }
 
-    // Will be used for BudgetService updates
+    // Will be critically used for BudgetService updates
     public void setAmount(double amount) {
         this.amount = amount;
     }
