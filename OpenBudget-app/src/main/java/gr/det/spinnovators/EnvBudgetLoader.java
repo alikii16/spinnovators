@@ -40,12 +40,14 @@ public class EnvBudgetLoader {
             Map<String, Object> rootMap = gson.fromJson(reader, mapType);
 
             // Validation that the JSON root contains the necessary keys
-            if (rootMap == null || !rootMap.containsKey("data_by_year")) {
+            
+	    if (rootMap == null || !rootMap.containsKey("data_by_year")) {
                  throw new EnvDataLoadException("Error: The structure of the JSON file is invalid (missing 'data_by_year').");
             }
 
             // Extraction and conversion to Model Objects
-            Map<String, Double> totalBudget = extractTotalBudget((Map<String, Object>) rootMap.get("env_ministry_total_budget"));
+            
+	    Map<String, Double> totalBudget = extractTotalBudget((Map<String, Object>) rootMap.get("env_ministry_total_budget"));
             Map<String, EnvYear> dataByYear = extractYears((Map<String, Object>) rootMap.get("data_by_year"));
 
             return new EnvBudgetData(dataByYear, totalBudget);
@@ -60,58 +62,79 @@ public class EnvBudgetLoader {
     }
 
     /** Helper method for extracting the total budget. */
-    private Map<String, Double> extractTotalBudget(Map<String, Object> budgetMap) {
+    private Map<String, Double> transformTotalBudget(Map<String, Object> budgetMap) {
         Map<String, Double> totalBudget = new HashMap<>();
+
         if (budgetMap != null) {
-            // Gson reads all decimal numbers as Double
+            // Use for-each loop over entrySet()
             for (Map.Entry<String, Object> entry : budgetMap.entrySet()) {
-            String year = entry.getKey();
-            Object amount = entry.getValue();
-            
-            // Cast the amount to Double as read by Gson
-            if (amount instanceof Double) {
-                totalBudget.put(year, (Double) amount);
+                String year = entry.getKey();
+                Object amount = entry.getValue();
+                
+                if (amount instanceof Double) {
+                    totalBudget.put(year, (Double) amount);
+                }
             }
-          }
         }
         return totalBudget;
     }
 
     /** Helper method for creating EnvYear objects. */
-    private Map<String, EnvYear> extractYears(Map<String, Object> yearsMap) {
-        Map<String, EnvYear> envYears = new HashMap<>();
-        if (yearsMap != null) {
-            yearsMap.forEach((year, sectorsMap) -> {
+    
+    private Map<String, EnvYear> transformYears(Map<String, Object> yearsMap) {
+        
+	    Map<String, EnvYear> envYears = new HashMap<>();
+        
+	if (yearsMap != null) {
+            for (Map.Entry<String, Object> entry : yearsMap.entrySet()) {
+                String year = entry.getKey();
                 // sectorsMap: Map<String, Object> -> Key: SectorKey, Value: UnitsMap
-                List<EnvSector> sectors = extractSectors((Map<String, Object>) sectorsMap);
+                
+                // Cast the value to the next inner map type
+                Map<String, Object> sectorsMap = (Map<String, Object>) entry.getValue();
+                
+                List<EnvSector> sectors = transformSectors(sectorsMap);
                 envYears.put(year, new EnvYear(year, sectors));
-            });
+            }
         }
         return envYears;
     }
 
     /** Helper method for creating EnvSector objects. */
-    private List<EnvSector> extractSectors(Map<String, Object> sectorsMap) {
+    
+    private List<EnvSector> transformSectors(Map<String, Object> sectorsMap) {
         List<EnvSector> sectors = new ArrayList<>();
-        if (sectorsMap != null) {
-            sectorsMap.forEach((sectorKey, unitsMap) -> {
+        
+	if (sectorsMap != null) {
+           for (Map.Entry<String, Object> entry : sectorsMap.entrySet()) {
+                String sectorKey = entry.getKey();
                 // unitsMap: Map<String, Object> -> Key: UnitKey, Value: EntriesMap
-                List<EnvUnit> units = extractUnits((Map<String, Object>) unitsMap);
+                
+                // Cast the value to the next inner map type
+                Map<String, Object> unitsMap = (Map<String, Object>) entry.getValue();
+                
+                List<EnvUnit> units = transformUnits(unitsMap);
                 sectors.add(new EnvSector(sectorKey, units));
-            });
+            }
         }
         return sectors;
     }
 
     /** Helper method for creating EnvUnit objects. */
-    private List<EnvUnit> extractUnits(Map<String, Object> unitsMap) {
+    private List<EnvUnit> transformUnits(Map<String, Object> unitsMap) {
         List<EnvUnit> units = new ArrayList<>();
-        if (unitsMap != null) {
-            unitsMap.forEach((unitKey, entriesMap) -> {
+        
+	if (unitsMap != null) {
+            for (Map.Entry<String, Object> entry : unitsMap.entrySet()) {
+                String unitKey = entry.getKey();
                 // entriesMap: Map<String, Object> -> Key: EntryKey, Value: Amount (Double)
-                List<EnvEntry> entries = extractEntries((Map<String, Object>) entriesMap);
+                
+                // Cast the value to the next inner map type
+                Map<String, Object> entriesMap = (Map<String, Object>) entry.getValue();
+                
+                List<EnvEntry> entries = transformEntries(entriesMap);
                 units.add(new EnvUnit(unitKey, entries));
-            });
+            }
         }
         return units;
     }
@@ -119,12 +142,18 @@ public class EnvBudgetLoader {
     /** Helper method for creating EnvEntry objects. */
     private List<EnvEntry> extractEntries(Map<String, Object> entriesMap) {
         List<EnvEntry> entries = new ArrayList<>();
-        if (entriesMap != null) {
-            entriesMap.forEach((entryKey, amount) -> {
-                // Cast the amount to Double as read by Gson
-                entries.add(new EnvEntry(entryKey, (Double) amount));
-            });
-        }
+        
+	if (entriesMap != null) {
+            for (Map.Entry<String, Object> entry : entriesMap.entrySet()) {
+                String entryKey = entry.getKey();
+                Object amount = entry.getValue();
+                
+                // Gson reads all decimal numbers as Double, so we cast it.
+                if (amount instanceof Double) {
+                    entries.add(new EnvEntry(entryKey, (Double) amount));
+                }
+            }
+        }       }
         return entries;
     }
 }
