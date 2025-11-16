@@ -1,6 +1,6 @@
 package gr.det.spinnovators.service;
 
-import gr.det.spinnovators.model.*;
+import gr.det.spinnovators.EnvDataMODEL.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
