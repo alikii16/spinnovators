@@ -89,7 +89,9 @@ The application also includes a **hierarchical and detailed structure** for the 
 - Enables **scenario testing**: modify amounts and observe impacts on total budgets.  
 - Integrates **translation services** for internationalization or clear Greek descriptions.
 
+---
 ## JSON and Translation Files
+---
 
 ### 1. Main JSON file (env_budget_data.json)
 - Contains hierarchical budget data per year.  
@@ -124,7 +126,9 @@ permanent_assets=Πάγια Περιουσιακά Στοιχεία
 - The Project Object Model (pom.xml) manages the project's dependencies and build process.
 - Java 17, dependencies for Gson and JUnit, plugins for testing and execution.
 
+--- 
 ##  System Capabilities and Constraints
+---
 
 ### a. Capabilities
 - Budget Review: Displays budget data for 2023, 2024, and 2025.
@@ -137,6 +141,7 @@ permanent_assets=Πάγια Περιουσιακά Στοιχεία
 - Data Persistence: Changes are currently not saved back to the JSON file. Modifications are only valid for the current application session.
 - Scope: The system focuses exclusively on the budget of the Ministry of Environment and Energy (ΥΠΕΝ).
   
+---
 ## Future Extensions
 The current system lays a foundation for advanced features:
 - Interactive command-line editing for Environment Ministry entries.  
