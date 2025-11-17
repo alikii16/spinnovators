@@ -1,5 +1,7 @@
-import java.io.InputStream;
+package gr.det.spinnovators;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -12,7 +14,6 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
-import gr.det.spinnovators.EnvDataLoadException;
 import gr.det.spinnovators.EnvDataMODEL.EnvBudgetData;
 import gr.det.spinnovators.EnvDataMODEL.EnvEntry;
 import gr.det.spinnovators.EnvDataMODEL.EnvSector;
