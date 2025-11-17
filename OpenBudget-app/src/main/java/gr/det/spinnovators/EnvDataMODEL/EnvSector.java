@@ -1,4 +1,4 @@
-package gr.det.spinnovators.EnvDataMODEL;
+package gr.det.spinnovators.envdatamodel;
 
 import java.util.List;
 
@@ -7,9 +7,9 @@ import java.util.List;
  */
 
 public class EnvSector {
-    
-    private String jsonKey;
-    private List<EnvUnit> units;
+
+    private final String jsonKey;
+    private final List<EnvUnit> units;
 
     public EnvSector(String jsonKey, List<EnvUnit> units) {
         this.jsonKey = jsonKey;
