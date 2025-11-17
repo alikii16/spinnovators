@@ -1,12 +1,11 @@
 package gr.det.spinnovators.EnvDataMODEL;
-
 /**
  * Represents the smallest budget entry (e.g., "personnel_costs")
  * Holds only the JSON key and the amount.
  */
 public class EnvEntry {
 
-    private String jsonKey;   // Example: "personnel_costs"
+    private final String jsonKey;   // Example: "personnel_costs"
     private double amount;    // Example: 2256000.00
 
     public EnvEntry(String jsonKey, double amount) {
