@@ -1,6 +1,6 @@
-import java.util.Map;
+package gr.det.spinnovators.envdatamodel;
 
-import gr.det.spinnovators.EnvDataMODEL.EnvYear;
+import java.util.Map;
 
 /**
  * Model class that stores all budget data grouped by year.
