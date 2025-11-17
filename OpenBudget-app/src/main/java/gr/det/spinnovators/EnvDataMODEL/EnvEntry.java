@@ -1,4 +1,4 @@
-package gr.det.spinnovators.envdatamodel;
+package gr.det.spinnovators.EnvDataMODEL;
 /**
  * Represents the smallest budget entry (e.g., "personnel_costs")
  * Holds only the JSON key and the amount.
