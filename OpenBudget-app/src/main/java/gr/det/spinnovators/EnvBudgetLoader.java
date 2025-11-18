@@ -36,6 +36,7 @@ public class EnvBudgetLoader {
      * @throws EnvDataLoadException If file reading, file lookup, or JSON parsing fails.
      */
 
+    @SuppressWarnings("unchecked") //Suppresses unchecked cast warnings. Necessary for Gson's complex Map reading.
     public EnvBudgetData loadBudget() throws EnvDataLoadException {
         // Using the ClassLoader to find the file within the classpath (e.g., src/main/resources)
 
@@ -98,8 +99,10 @@ public class EnvBudgetLoader {
     }
     return totalBudget;
 }
-
     /** Transforms the raw Map of years into structured EnvYear objects */
+
+    @SuppressWarnings("unchecked") //Suppresses unchecked cast warnings. Necessary for Gson's complex Map reading.
+
     private Map<String, EnvYear> transformYears(Map<String, Object> yearsMap) {
 
         Map<String, EnvYear> envYears = new HashMap<>();
@@ -118,6 +121,9 @@ public class EnvBudgetLoader {
     }
 
     /** Transforms the raw Map of sectors into structured EnvSector objects. */
+
+    @SuppressWarnings("unchecked") //Suppresses unchecked cast warnings. Necessary for Gson's complex Map reading.
+
     private List<EnvSector> transformSectors(Map<String, Object> sectorsMap) {
 
         List<EnvSector> sectors = new ArrayList<>();
@@ -135,6 +141,9 @@ public class EnvBudgetLoader {
     }
 
     /** Helper method for creating EnvUnit objects. */
+
+    @SuppressWarnings("unchecked") //Suppresses unchecked cast warnings. Necessary for Gson's complex Map reading.
+
     private List<EnvUnit> transformUnits(Map<String, Object> unitsMap) {
 
         List<EnvUnit> units = new ArrayList<>();
