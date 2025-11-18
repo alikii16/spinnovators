@@ -1,4 +1,4 @@
-package gr.det.spinnovators.EnvDataMODEL;
+package gr.det.spinnovators.envdatamodel;
 
 import java.util.Map;
 
