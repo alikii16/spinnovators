@@ -2,9 +2,6 @@ package gr.det.spinnovators;
 
 public class MinistryDataInput {
 
-<<<<<<< HEAD
-}
-=======
     private static final int max_ministries = 40;
 
     private String[] Names25;
@@ -279,4 +276,3 @@ public class MinistryDataInput {
 
 }
 
->>>>>>> 0caf0b3851a7296b88be2ddea05eb3ab1b83da3b
