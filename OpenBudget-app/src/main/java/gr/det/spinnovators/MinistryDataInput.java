@@ -1,6 +1,8 @@
 package gr.det.spinnovators;
 
-// σχολιο
+  /**
+   * LEIPEI SXOLIO
+   */
 public class MinistryDataInput {
     
   private static final int max_ministries = 40;
@@ -19,6 +21,9 @@ public class MinistryDataInput {
 
   // constructors
 
+  /**
+   * LEIPEI SXOLIO
+   */
   public MinistryDataInput() {
 
     // YEAR 2025
