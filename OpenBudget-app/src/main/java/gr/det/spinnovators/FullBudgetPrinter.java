@@ -2,7 +2,7 @@ package gr.det.spinnovators;
 
 public class FullBudgetPrinter {
 
-    //δημιουργω μεταβλητη data που θελω να δεχεται τα δεδομενα τησ κλασησ MinistryDataInput
+    //Create variable data that receives the data from class MinistryDataInput
     private MinistryDataInput data;
 
     public FullBudgetPrinter(MinistryDataInput dataToUse) {
@@ -10,7 +10,7 @@ public class FullBudgetPrinter {
     }
 
     public void ShowBudget(String year) {
-        // χρηση τησ συναρτησης, διοτι το year ειναι string (ελεγχει αν ειναι οι ιδιοι χαρακτηρεσ, οχι η ιδια διευθυνση)
+        // use of function, because the variable year is a string (it checks if the characters are the same, not in the same diirection)
         
         double totalBudget;
 
@@ -24,7 +24,7 @@ public class FullBudgetPrinter {
             double[] amounts = this.data.getBudgetAmount25();
 
             for (int i = 0; i < size; i++) {
-                // μορφοποιησεις για εμφάνιση ανω κατω τελείας, συμβόλου ευρώ, σωστής απεικόνισης ποσών και αλλαγή γραμμής
+                // modifications for display of colon, euro sign, correct display of amounts and line break
                 System.out.printf("%s: %,.2f €\n", names[i], amounts[i]);
                 totalBudget = totalBudget + amounts[i];
             }

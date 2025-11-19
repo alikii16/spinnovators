@@ -20,7 +20,7 @@ public class MinistryDataInput {
 
     public MinistryDataInput() {
 
-        // ΕΤΟΣ 2025
+        // YEAR 2025
 
         this.Names25 = new String[max_ministries];
         this.budgetAmount25 = new double[max_ministries];
@@ -101,7 +101,7 @@ public class MinistryDataInput {
 
 
 
-        // ΕΤΟΣ 2024
+        // YEAR 2024
 
 
         this.Names24 = new String[max_ministries];
@@ -183,7 +183,7 @@ public class MinistryDataInput {
 
 
 
-        //ΕΤΟΣ 2023
+        // YEAR 2023
 
 
         this.Names23 = new String[max_ministries];
