@@ -20,21 +20,23 @@ public class App {
 
         Scanner scanner = new Scanner(System.in);
         String chosenYear;
+        String tempChosenYear = "0000";
 
         do {
             System.out.println("================================="); 
             System.out.print("Ποιού έτους τον προϋπολογισμό θα θέλατε να δείτε; (2023, 2024 ή 2025): "); 
             chosenYear = scanner.nextLine();
 
+
             if (!chosenYear.equals("0000")) {
                 printer.ShowBudget(chosenYear);
+                tempChosenYear = chosenYear;
             } else if (!chosenYear.equals("2023") && !chosenYear.equals("2024") && !chosenYear.equals("2025") && !chosenYear.equals("0000")) {
                 System.out.println("Μη έγκυρη επιλογή. Δοκιμάστε ξανά.");
             } else {
                 System.out.println("Θα εμφανιστεί ο προϋπολογισμός του Υπουργείου Περιβάλλοντος και Ενέργειας.");
                 
-                printer.ShowBudget(chosenYear);
-                envPrinter.printYearlyBudget(chosenYear);
+                envPrinter.printYearlyBudget(tempChosenYear);
 
             }
 
