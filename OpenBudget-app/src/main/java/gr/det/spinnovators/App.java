@@ -2,8 +2,17 @@ package gr.det.spinnovators;
 
 import java.util.Scanner;  
 
+import gr.det.spinnovators.envdatamodel.EnvBudgetData;
+
+
 public class App {
     public static void main( String[] args ) {
+
+        EnvBudgetTranslator translator = new EnvBudgetTranslator();
+        EnvBudgetLoader envLoader = new EnvBudgetLoader();
+        EnvBudgetData envBudgetData = envLoader.loadBudget();
+        EnvBudgetPrinter envPrinter = new EnvBudgetPrinter(envBudgetData, translator);
+
         FirstLogin.login();
     
         MinistryDataInput allData = new MinistryDataInput(); 
@@ -23,6 +32,10 @@ public class App {
                 System.out.println("Μη έγκυρη επιλογή. Δοκιμάστε ξανά.");
             } else {
                 System.out.println("Θα εμφανιστεί ο προϋπολογισμός του Υπουργείου Περιβάλλοντος και Ενέργειας.");
+                
+                printer.ShowBudget(chosenYear);
+                envPrinter.printYearlyBudget(chosenYear);
+
             }
 
         } while (!chosenYear.equals("0000"));
