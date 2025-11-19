@@ -1,8 +1,8 @@
 package gr.det.spinnovators;
 
-  /**
-   * LEIPEI SXOLIO
-   */
+/**
+ * LEIPEI SXOLIO.
+ */
 public class MinistryDataInput {
     
   private static final int max_ministries = 40;
@@ -22,7 +22,7 @@ public class MinistryDataInput {
   // constructors
 
   /**
-   * LEIPEI SXOLIO
+   * LEIPEI SXOLIO.
    */
   public MinistryDataInput() {
 
