@@ -37,7 +37,7 @@ public class EnvBudgetLoader {
      */
 
     @SuppressWarnings("unchecked") //Suppresses unchecked cast warnings. Necessary for Gson's complex Map reading.
-    public EnvBudgetData loadBudget() throws EnvDataLoadException {
+    public EnvBudgetData loadBudget() {
         // Defining the empty fallback model for stability
       
         EnvBudgetData emptyModel = new EnvBudgetData(Map.of(), Map.of());
