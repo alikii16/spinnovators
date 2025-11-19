@@ -1,4 +1,5 @@
 package gr.det.spinnovators;
+
 // σχολιο
 public class MinistryDataInput {
     
@@ -16,11 +17,11 @@ public class MinistryDataInput {
   private double[] budgetAmount23;
   private int size23;
 
-// constructors
+  // constructors
 
   public MinistryDataInput() {
 
-// YEAR 2025
+    // YEAR 2025
 
     this.names25 = new String[max_ministries];
     this.budgetAmount25 = new double[max_ministries];
@@ -176,7 +177,7 @@ public class MinistryDataInput {
       this.budgetAmount24[i] = helpBudgetAmount24[i];
     }
 
-// YEAR 2023
+    // YEAR 2023
 
     this.names23 = new String[max_ministries];
     this.budgetAmount23 = new double[max_ministries];
@@ -257,29 +258,36 @@ public class MinistryDataInput {
   public String[] getNames25() {
     return names25; 
   }
+
   public double[] getBudgetAmount25() {
     return budgetAmount25;
   }
+
   public int getSize25() {
     return size25; 
   }
+
   public String[] getNames24() {
     return names24;
   }
+
   public double[] getBudgetAmount24() {
     return budgetAmount24;
   }
+
   public int getSize24() {
     return size24;
   }
+
   public String[] getNames23() {
     return names23;
   }
+
   public double[] getBudgetAmount23() {
     return budgetAmount23;
   }
+
   public int getSize23() { 
     return size23;
   }
 }
-
