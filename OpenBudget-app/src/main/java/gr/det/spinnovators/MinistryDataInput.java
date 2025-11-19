@@ -2,7 +2,7 @@ package gr.det.spinnovators;
 
 public class MinistryDataInput {
 
-    private static final int max_ministries = 30;
+    private static final int max_ministries = 40;
 
     private String[] Names25;
     private double[] budgetAmount25;
