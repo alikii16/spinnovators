@@ -30,20 +30,26 @@ public class EnvBudgetLoader {
     private static final String JSON_FILE_NAME = "env_budget_data.json";
     private final Gson gson = new Gson();
 
-    /**
+   /**
      * The main method. Reads the JSON and initiates the transformation.
-     * @return The fully constructed EnvBudgetData object.
-     * @throws EnvDataLoadException If file reading, file lookup, or JSON parsing fails.
+     * It handles all exceptions internally, returning an empty model on failure.
+     * @return The fully constructed EnvBudgetData object, or an empty object on error.
      */
 
     @SuppressWarnings("unchecked") //Suppresses unchecked cast warnings. Necessary for Gson's complex Map reading.
     public EnvBudgetData loadBudget() throws EnvDataLoadException {
+        // Defining the empty fallback model for stability
+      
+        EnvBudgetData emptyModel = new EnvBudgetData(Map.of(), Map.of());
+
         // Using the ClassLoader to find the file within the classpath (e.g., src/main/resources)
 
         InputStream is = getClass().getResourceAsStream(JSON_FILE_NAME);
 
         if (is == null) {
-        throw new EnvDataLoadException("Error: JSON file not found: " + JSON_FILE_NAME + ". Ensure it is in src/main/resources.");
+        // Error: JSON file not found. Return the empty model.
+            System.err.println("Error: JSON file not found: " + JSON_FILE_NAME);
+            return emptyModel;
         }
 
         // Starting try-with-resources block for automatic resource closing.
@@ -59,8 +65,10 @@ public class EnvBudgetLoader {
 
             // Validation that the JSON root contains the necessary key
             if (rootMap == null || !rootMap.containsKey("data_by_year")) {
-                 throw new EnvDataLoadException("Error: The structure of the JSON file is invalid (missing 'data_by_year').");
+                System.err.println("Error: JSON structure is invalid (missing 'data_by_year').");
+                 return emptyModel;
             }
+
 
             // Extraction and conversion to Model Objects using the helper methods
             Map<String, Double> totalBudget = transformTotalBudget((Map<String, Object>) rootMap.get("env_ministry_total_budget"));
@@ -70,13 +78,20 @@ public class EnvBudgetLoader {
             return new EnvBudgetData(dataByYear, totalBudget);
 
         } catch (IOException e) {
-            // Error during closing or reading the stream
-            throw new EnvDataLoadException("I/O error during file loading or closing resources.", e);
+            // I/O error during file loading or closing resources.
+            System.err.println("I/O error during file loading: " + e.getMessage());
+            return emptyModel;
         } catch (JsonSyntaxException e) {
-            // Error if the JSON content is not correctly formatted
-            throw new EnvDataLoadException("JSON syntax error. Check commas and braces.", e);
+            // Error if the JSON content is not correctly formatted.
+            System.err.println("JSON syntax error: " + e.getMessage());
+            return emptyModel;
+        } catch (Exception e) {
+             // Catch all other unexpected errors (e.g., casting issues during transformation)
+            System.err.println("Unexpected error during data transformation: " + e.getMessage());
+            return emptyModel;
         }
     }
+
 
     /** Helper method to transform the raw budget total map into a typed Map<String, Double> */
     private Map<String, Double> transformTotalBudget(Map<String, Object> budgetMap) {
