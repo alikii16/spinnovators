@@ -44,7 +44,7 @@ public class EnvBudgetLoader {
 
         // Using the ClassLoader to find the file within the classpath (e.g., src/main/resources)
 
-        InputStream is = getClass().getResourceAsStream(JSON_FILE_NAME);
+        InputStream is = getClass().getClassLoader().getResourceAsStream(JSON_FILE_NAME);
 
         if (is == null) {
         // Error: JSON file not found. Return the empty model.
