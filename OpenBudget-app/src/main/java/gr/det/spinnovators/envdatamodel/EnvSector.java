@@ -8,30 +8,35 @@ import java.util.List;
 
 public class EnvSector {
 
-    private final String jsonKey;
-    private final List<EnvUnit> units;
+  private final String jsonKey;
+  private final List<EnvUnit> units;
 
-    public EnvSector(String jsonKey, List<EnvUnit> units) {
-        this.jsonKey = jsonKey;
-        this.units = units;
-    }
+  public EnvSector(String jsonKey, List<EnvUnit> units) {
+    this.jsonKey = jsonKey;
+    this.units = units;
+  }
 
-    public String getJsonKey() {
-        return jsonKey;
-    }
+  public String getJsonKey() {
+    return jsonKey;
+  }
 
-    public List<EnvUnit> getUnits() {
-        return units;
-    }
+  public List<EnvUnit> getUnits() {
+    return units;
+  }
 
-    // Helper method: locate a unit by its key
-    public EnvUnit getUnitByKey(String key) {
-        if (key == null) return null; // NullPointerException
-        for (EnvUnit unit : units) {
-            if (key.equals(unit.getJsonKey())) {
-                return unit;
-            }
-        }
-        return null; // Unit not found
+  // Helper method: locate a unit by its key
+  /*
+   *javadoc.
+   */
+  public EnvUnit getUnitByKey(String key) {
+    if (key == null) {
+      return null; // NullPointerException
     }
+    for (EnvUnit unit : units) {
+      if (key.equals(unit.getJsonKey())) {
+        return unit;
+      }
+    }
+    return null; // Unit not found
+  }
 }
