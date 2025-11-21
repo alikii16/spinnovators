@@ -1,17 +1,30 @@
 package gr.det.spinnovators;
 
-public class FullBudgetPrinter {
+public final class FullBudgetPrinter {
 
-    //δημιουργω μεταβλητη data που θελω να δεχεται τα δεδομενα τησ κλασησ MinistryDataInput
+    /**
+     *Creates variable data that receives the data from class MinistryDataInput.
+     */
     private MinistryDataInput data;
 
-    public FullBudgetPrinter(MinistryDataInput dataToUse) {
+    /**
+     * Constructor for FullBudgetPrinter.
+     * @param dataToUse The MinistryDataInput object containing budget
+     * data.
+     */
+    public FullBudgetPrinter(final MinistryDataInput dataToUse) {
         this.data = dataToUse;
     }
 
-    public void ShowBudget(String year) {
-        // χρηση τησ συναρτησης, διοτι το year ειναι string (ελεγχει αν ειναι οι ιδιοι χαρακτηρεσ, οχι η ιδια διευθυνση)
-        
+    /**
+     * Displays the full bufget for the specified year.
+     * @param year The year for which to display the budget.
+     * (e.g. 2023, 2024, 2025).
+     */
+
+    public void showBudget(final String year) {
+        //checks if the characters are the same,
+        // not in the same diirection-string.
         double totalBudget;
 
         if ("2025".equals(year)) {
@@ -24,14 +37,19 @@ public class FullBudgetPrinter {
             double[] amounts = this.data.getBudgetAmount25();
 
             for (int i = 0; i < size; i++) {
-                // μορφοποιησεις για εμφάνιση ανω κατω τελείας, συμβόλου ευρώ, σωστής απεικόνισης ποσών και αλλαγή γραμμής
-                System.out.printf("%s: %,.2f €\n", names[i], amounts[i]);
+                // modifications for display of colon, euro sign,
+                // correct display of amounts and line break
+                System.out.printf(
+                    "%s: %,.2f €\n", names[i], amounts[i]
+                );
                 totalBudget = totalBudget + amounts[i];
             }
 
-            System.out.println("-------------------------------------------------------------------------");
-            System.out.printf("%s: %,.2f €\n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget);
-        
+            System.out.println("-------------------------");
+            System.out.printf(
+                "%s: %,.2f €\n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget
+            );
+
         } else if ("2024".equals(year)) {
 
             totalBudget = 0;
@@ -46,8 +64,10 @@ public class FullBudgetPrinter {
                 totalBudget = totalBudget + amounts[i];
             }
 
-            System.out.println("-------------------------------------------------------------------------");
-            System.out.printf(" * %-55s: %,.2f €\n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget);
+            System.out.println("----------------------------");
+            System.out.printf(
+                " * %-55s: %,.2f €\n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget
+            );
 
         } else if ("2023".equals(year)) {
 
@@ -63,15 +83,15 @@ public class FullBudgetPrinter {
                 totalBudget = totalBudget + amounts[i];
             }
 
-            System.out.println("-------------------------------------------------------------------------");
-            System.out.printf(" * %-55s: %,.2f €\n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget);
+            System.out.println("----------------------------");
+            System.out.printf(
+                " * %-55s: %,.2f €\n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget
+            );
 
         } else {
 
             System.out.println("Δεν υπάρχουν δεδομένα για το έτος " + year);
 
         }
-            
     }
-
 }
