@@ -17,7 +17,7 @@ public class FullBudgetPrinterTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
 
-        printer.ShowBudget("2025");
+        printer.showBudget("2025");
 
         String output = outputStream.toString();
         assertTrue(output.contains("--- ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΕΤΟΥΣ 2025 ---"));
@@ -32,7 +32,7 @@ public class FullBudgetPrinterTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
        
-        printer.ShowBudget("2024");
+        printer.showBudget("2024");
 
         String output = outputStream.toString();
         assertTrue(output.contains("--- ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΕΤΟΥΣ 2024 ---"));
@@ -47,7 +47,7 @@ public class FullBudgetPrinterTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
        
-        printer.ShowBudget("2023");
+        printer.showBudget("2023");
 
         String output = outputStream.toString();
         assertTrue(output.contains("--- ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΕΤΟΥΣ 2023 ---"));
@@ -62,7 +62,7 @@ public class FullBudgetPrinterTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
 
-        printer.ShowBudget("2022");
+        printer.showBudget("2022");
 
         String output = outputStream.toString();
         assertTrue(output.contains("Δεν υπάρχουν δεδομένα για το έτος 2022"));

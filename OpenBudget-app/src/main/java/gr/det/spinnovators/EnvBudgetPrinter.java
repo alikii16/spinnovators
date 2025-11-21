@@ -1,10 +1,10 @@
 package gr.det.spinnovators;
 
-import gr.det.spinnovators.envdatamodel.EnvBudgetData;
-import gr.det.spinnovators.envdatamodel.EnvEntry;
-import gr.det.spinnovators.envdatamodel.EnvSector;
-import gr.det.spinnovators.envdatamodel.EnvUnit;
-import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.EnvDataMODEL.EnvBudgetData;
+import gr.det.spinnovators.EnvDataMODEL.EnvEntry;
+import gr.det.spinnovators.EnvDataMODEL.EnvSector;
+import gr.det.spinnovators.EnvDataMODEL.EnvUnit;
+import gr.det.spinnovators.EnvDataMODEL.EnvYear;
 import java.util.Locale;
 
 /**
