@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +36,6 @@ public class EnvBudgetLoader {
      * @return The fully constructed EnvBudgetData object, or an empty object on error.
      */
 
-<<<<<<< HEAD
     @SuppressWarnings("unchecked") //Suppresses unchecked cast warnings. Necessary for Gson's complex Map reading.
     public EnvBudgetData loadBudget() {
         // Defining the empty fallback model for stability
@@ -52,21 +50,6 @@ public class EnvBudgetLoader {
         // Error: JSON file not found. Return the empty model.
             System.err.println("Error: JSON file not found: " + JSON_FILE_NAME);
             return emptyModel;
-        }
-
-        if (is == null) {
-            System.err.println("EnvBudgetLoader.loadBudget(): JSON file NOT FOUND in any location!");
-            System.err.println("Error: JSON file not found: " + JSON_FILE_NAME + ". Ensure it is in src/main/resources.");
-            return emptyModel;
-=======
-    public EnvBudgetData loadBudget() throws EnvDataLoadException {
-        // Using the ClassLoader to find the file within the classpath (e.g., src/main/resources)
-
-        InputStream is = getClass().getResourceAsStream(JSON_FILE_NAME);
-
-        if (is == null) {
-        throw new EnvDataLoadException("Error: JSON file not found: " + JSON_FILE_NAME + ". Ensure it is in src/main/resources.");
->>>>>>> parent of e6b01cd (Δημιουργία frontend: για τη σελίδα login, την σελίδα του κρατικού προϋπολογισμού για Υπουργό και Υπάλληλο, και την σελίδα προϋπολογισμού Υπουργείου για Υπάλληλο και Υπουργό. Ένωση του back-end με το front-end.)
         }
 
         // Starting try-with-resources block for automatic resource closing.
