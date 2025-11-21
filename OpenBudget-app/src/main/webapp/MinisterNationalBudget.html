@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenBudget – ΥΠΕΝ | Επιλογή Έτους</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #18462c 0%, #08150e 55%);
+            font-family: "Segoe UI", Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 60px 15px 80px;
+            position: relative;
+        }
+
+        .background-text {
+            color: rgba(226, 244, 229, 0.92);
+            font-size: 36px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-shadow: 0 8px 30px rgba(0,0,0,0.45);
+            text-align: center;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 22px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+            padding: 42px 46px;
+            width: 100%;
+            max-width: 890px;
+            margin-top: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card h1 {
+            text-align: center;
+            color: #103d26;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            margin-bottom: 14px;
+        }
+
+        .card p {
+            text-align: center;
+            font-size: 16px;
+            color: #2a4a36;
+            margin-bottom: 22px;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        form input {
+            width: 200px;
+            padding: 13px;
+            border: 1px solid #c7dcd1;
+            border-radius: 11px;
+            font-size: 16px;
+            text-align: center;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        form input:focus {
+            border-color: #20824f;
+            box-shadow: 0 0 0 3px rgba(32, 130, 79, 0.2);
+            outline: none;
+        }
+
+        form button {
+            padding: 13px 30px;
+            background: linear-gradient(120deg, #0f4c2c, #28b36c);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            cursor: pointer;
+            letter-spacing: 0.4px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(19, 94, 58, 0.35);
+        }
+
+        .helper-text {
+            text-align: center;
+            font-size: 14px;
+            color: #335542;
+            margin-bottom: 16px;
+            letter-spacing: 0.4px;
+        }
+
+        .results-frame {
+            width: 100%;
+            min-height: 460px;
+            border: 2px solid rgba(13, 63, 37, 0.15);
+            border-radius: 18px;
+            background-color: #fdfdfd;
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .secondary-area {
+            margin-top: 28px;
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid rgba(13, 63, 37, 0.2);
+        }
+
+        .secondary-text {
+            font-size: 16px;
+            color: #2a4a36;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .secondary-btn {
+            display: inline-block;
+            padding: 13px 32px;
+            background: linear-gradient(120deg, #0f4c2c, #1b8a54);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            letter-spacing: 0.4px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .secondary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(19, 94, 58, 0.35);
+        }
+    </style>
+</head>
+<body>
+    <div class="background-text">Υπουργείο Περιβάλλοντος και Ενέργειας</div>
+
+    <div class="card">
+        <h1>Καλωσήρθατε κύριε Υπουργέ</h1>
+        <p>Παρακαλώ πληκτρολογήστε το έτος που θέλετε να δείτε. Η επεξεργασία γίνεται από την Java εφαρμογή.</p>
+
+        <form method="get" action="http://localhost:8081/budget" target="budgetFrame">
+            <input type="text" name="year" placeholder="π.χ. 2025" maxlength="4" inputmode="numeric" required />
+            <button type="submit">Προβολή Προϋπολογισμού</button>
+        </form>
+
+        <p class="helper-text">Επιτρεπτά έτη: 2023 – 2024 – 2025.</p>
+
+        <iframe class="results-frame" name="budgetFrame" title="Αποτελέσματα Προϋπολογισμού"></iframe>
+
+        <div class="secondary-area">
+            <p class="secondary-text">Θέλετε να δείτε τον προϋπολογισμό του Υπουργείου Περιβάλλοντος & Ενέργειας;</p>
+            <a class="secondary-btn" href="http://localhost:8081/env-portal" target="_blank">Προβολή Προϋπολογισμού ΥΠΕΝ</a>
+        </div>
+    </div>
+</body>
+</html>
+

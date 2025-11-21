@@ -1,5 +1,7 @@
 package gr.det.spinnovators;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,11 +16,11 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
-import gr.det.spinnovators.envdatamodel.EnvBudgetData;
-import gr.det.spinnovators.envdatamodel.EnvEntry;
-import gr.det.spinnovators.envdatamodel.EnvSector;
-import gr.det.spinnovators.envdatamodel.EnvUnit;
-import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.EnvDataMODEL.EnvBudgetData;
+import gr.det.spinnovators.EnvDataMODEL.EnvEntry;
+import gr.det.spinnovators.EnvDataMODEL.EnvSector;
+import gr.det.spinnovators.EnvDataMODEL.EnvUnit;
+import gr.det.spinnovators.EnvDataMODEL.EnvYear;
 
 /**
   * EnvBudgetLoader is responsible for reading the JSON file and creating the hierarchical
@@ -37,24 +39,69 @@ public class EnvBudgetLoader {
      */
 
     public EnvBudgetData loadBudget() throws EnvDataLoadException {
+        System.out.println("EnvBudgetLoader.loadBudget(): Starting...");
+        System.out.println("EnvBudgetLoader.loadBudget(): Looking for file: " + JSON_FILE_NAME);
+        
         // Using the ClassLoader to find the file within the classpath (e.g., src/main/resources)
-
-        InputStream is = getClass().getResourceAsStream(JSON_FILE_NAME);
-
+        // Try with leading slash first (absolute path from classpath root)
+        InputStream is = getClass().getResourceAsStream("/" + JSON_FILE_NAME);
+        System.out.println("EnvBudgetLoader.loadBudget(): Tried /" + JSON_FILE_NAME + " -> " + (is != null ? "FOUND" : "NOT FOUND"));
+        
+        // If not found, try without leading slash (relative to package)
         if (is == null) {
-        throw new EnvDataLoadException("Error: JSON file not found: " + JSON_FILE_NAME + ". Ensure it is in src/main/resources.");
+            is = getClass().getResourceAsStream(JSON_FILE_NAME);
+            System.out.println("EnvBudgetLoader.loadBudget(): Tried " + JSON_FILE_NAME + " -> " + (is != null ? "FOUND" : "NOT FOUND"));
+        }
+        
+        // If still not found, try with ClassLoader
+        if (is == null) {
+            is = getClass().getClassLoader().getResourceAsStream(JSON_FILE_NAME);
+            System.out.println("EnvBudgetLoader.loadBudget(): Tried via ClassLoader -> " + (is != null ? "FOUND" : "NOT FOUND"));
+        }
+        
+        // If still not found, try loading from filesystem (for development/debugging)
+        if (is == null) {
+            try {
+                File file = new File("OpenBudget-app/src/main/resources/" + JSON_FILE_NAME);
+                System.out.println("EnvBudgetLoader.loadBudget(): Trying filesystem: " + file.getAbsolutePath() + " -> " + (file.exists() ? "EXISTS" : "NOT EXISTS"));
+                if (file.exists()) {
+                    System.out.println("Loading JSON from filesystem: " + file.getAbsolutePath());
+                    is = new FileInputStream(file);
+                } else {
+                    // Try relative to current working directory
+                    file = new File("src/main/resources/" + JSON_FILE_NAME);
+                    System.out.println("EnvBudgetLoader.loadBudget(): Trying relative: " + file.getAbsolutePath() + " -> " + (file.exists() ? "EXISTS" : "NOT EXISTS"));
+                    if (file.exists()) {
+                        System.out.println("Loading JSON from filesystem (relative): " + file.getAbsolutePath());
+                        is = new FileInputStream(file);
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("EnvBudgetLoader.loadBudget(): IOException while trying filesystem: " + e.getMessage());
+                // Ignore, will throw exception below
+            }
         }
 
+        if (is == null) {
+            System.err.println("EnvBudgetLoader.loadBudget(): JSON file NOT FOUND in any location!");
+            throw new EnvDataLoadException("Error: JSON file not found: " + JSON_FILE_NAME + ". Ensure it is in src/main/resources.");
+        }
+        
+        System.out.println("EnvBudgetLoader.loadBudget(): JSON file found, starting to parse...");
+
         // Starting try-with-resources block for automatic resource closing.
+        System.out.println("EnvBudgetLoader.loadBudget(): Creating JsonReader...");
         try (
 
             InputStream nonNullIs = is;
 
-            JsonReader reader = new JsonReader(new InputStreamReader(nonNullIs));
+            JsonReader reader = new JsonReader(new InputStreamReader(nonNullIs, StandardCharsets.UTF_8));
         ) {
-
+            System.out.println("EnvBudgetLoader.loadBudget(): JsonReader created, starting Gson parsing...");
             Type mapType = new TypeToken<Map<String, Object>>() {}.getType(); // Defining the root structure type for Gson (a Map from String to generic Object)
+            System.out.println("EnvBudgetLoader.loadBudget(): Calling gson.fromJson()...");
             Map<String, Object> rootMap = gson.fromJson(reader, mapType); // Parsing the entire JSON file into a raw Map structure
+            System.out.println("EnvBudgetLoader.loadBudget(): Gson parsing completed, rootMap size: " + (rootMap != null ? rootMap.size() : "null"));
 
             // Validation that the JSON root contains the necessary key
             if (rootMap == null || !rootMap.containsKey("data_by_year")) {
@@ -62,11 +109,17 @@ public class EnvBudgetLoader {
             }
 
             // Extraction and conversion to Model Objects using the helper methods
+            System.out.println("EnvBudgetLoader.loadBudget(): Parsing JSON structure...");
             Map<String, Double> totalBudget = transformTotalBudget((Map<String, Object>) rootMap.get("env_ministry_total_budget"));
+            System.out.println("EnvBudgetLoader.loadBudget(): Total budget parsed, years: " + (totalBudget != null ? totalBudget.keySet() : "null"));
             Map<String, EnvYear> dataByYear = transformYears((Map<String, Object>) rootMap.get("data_by_year"));
+            System.out.println("EnvBudgetLoader.loadBudget(): Data by year parsed, years: " + (dataByYear != null ? dataByYear.keySet() : "null"));
 
             // Returning the final structured data
-            return new EnvBudgetData(dataByYear, totalBudget);
+            System.out.println("EnvBudgetLoader.loadBudget(): Creating EnvBudgetData object...");
+            EnvBudgetData result = new EnvBudgetData(dataByYear, totalBudget);
+            System.out.println("EnvBudgetLoader.loadBudget(): EnvBudgetData created successfully!");
+            return result;
 
         } catch (IOException e) {
             // Error during closing or reading the stream
