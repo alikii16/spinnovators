@@ -1,32 +1,36 @@
 package gr.det.spinnovators;
 
-public class MinistryDataInput {
+public final class MinistryDataInput {
 
-    private static final int max_ministries = 30;
+    /** The maximum number of ministries.
+     * the system can store data for.*/
+    private static final int MAX_MINISTRIES = 40;
 
-    private String[] Names25;
+    /**Names of ministries for year 2025.*/
+    private String[] names25;
+    /**Budget amounts for year 2025.*/
     private double[] budgetAmount25;
+    /**Actual number of records used for 2025.*/
     private int size25;
 
-    private String[] Names24;
+    /**Names of ministries for year 2024.*/
+    private String[] names24;
+    /**Budget amounts for year 2024.*/
     private double[] budgetAmount24;
+    /**Actual number of records used for 2024.*/
     private int size24;
 
-    private String[] Names23;
+    /**Names of ministries for year 2023.*/
+    private String[] names23;
+    /**Budget amounts for year 2023.*/
     private double[] budgetAmount23;
+    /**Actual number of records used for 2023.*/
     private int size23;
 
     // constructors
 
-    public MinistryDataInput() {
-
-        // ΕΤΟΣ 2025
-
-        this.Names25 = new String[max_ministries];
-        this.budgetAmount25 = new double[max_ministries];
-        this.size25 = 0;
-
-        String[] helpNames25 = {
+    /** Names of ministries for year 2025.*/
+    private static final String[] NAMES_2025 = {
             "Προεδρία της Δημοκρατίας",
             "Βουλή των Ελλήνων",
             "Προεδρία της Κυβέρνησης",
@@ -59,7 +63,8 @@ public class MinistryDataInput {
             "Αποκεντρωμένη Διοίκηση Μακεδονίας - Θράκης"
         };
 
-        double[] helpBudgetAmount25 = {
+        /** Budget amounts for year 2025.*/
+        private static final double[] AMOUNTS_2025 = {
            4_638_000.00,
            171_950_000.00,
            41_689_000.00,
@@ -92,23 +97,8 @@ public class MinistryDataInput {
            18_376_000.00
         };
 
-       this.size25 = Math.min(helpNames25.length, max_ministries);
-       
-       for (int i = 0; i < this.size25; i++) {
-        this.Names25[i] = helpNames25[i];
-        this.budgetAmount25[i] = helpBudgetAmount25[i];
-       }
-
-
-
-        // ΕΤΟΣ 2024
-
-
-        this.Names24 = new String[max_ministries];
-        this.budgetAmount24 = new double[max_ministries];
-        this.size24 = 0;
-
-        String[] helpNames24 = {
+        /** Names of ministries for year 2024.*/
+        private static final String[] NAMES_2024 = {
             "Προεδρία της Δημοκρατίας",
             "Βουλή των Ελλήνων",
             "Προεδρία της Κυβέρνησης",
@@ -141,7 +131,8 @@ public class MinistryDataInput {
             "Αποκεντρωμένη Διοίκηση Μακεδονίας - Θράκης"
         };
 
-        double[] helpBudgetAmount24 = {
+        /** Budget amounts for year 2024.*/
+        private static final double[] AMOUNTS_2024 = {
             4_636_000.00,
             160_400_000.00,
             43_259_000.00,
@@ -174,23 +165,8 @@ public class MinistryDataInput {
             19_863_000.00
         };
 
-        this.size24 = Math.min(helpNames24.length, max_ministries);
-       
-       for (int i = 0; i < this.size24; i++) {
-        this.Names24[i] = helpNames24[i];
-        this.budgetAmount24[i] = helpBudgetAmount24[i];
-       }
-
-
-
-        //ΕΤΟΣ 2023
-
-
-        this.Names23 = new String[max_ministries];
-        this.budgetAmount23 = new double[max_ministries];
-        this.size23 = 0;
-
-        String[] helpNames23 = {
+        /** Names of ministries for year 2023.*/
+        private static final String[] NAMES_2023 = {
             "Προεδρία της Δημοκρατίας",
             "Βουλή των Ελλήνων",
             "Προεδρία της Κυβέρνησης",
@@ -222,7 +198,8 @@ public class MinistryDataInput {
             "Αποκεντρωμένη Διοίκηση Μακεδονίας - Θράκης"
         };
 
-        double[] helpBudgetAmount23 = {
+        /** Budget amounts for year 2023.*/
+        private static final double[] AMOUNTS_2023 = {
             4_263_000.00,
             149_900_000.00,
             40_679_000.00,
@@ -254,25 +231,88 @@ public class MinistryDataInput {
             17_118_000.00
         };
 
-        this.size23 = Math.min(helpNames23.length, max_ministries);
-       
-       for (int i = 0; i < this.size23; i++) {
-        this.Names23[i] = helpNames23[i];
-        this.budgetAmount23[i] = helpBudgetAmount23[i];
+     /** Initializes the MinistryDataInput with 2025,2024,2023 data.*/
+    public MinistryDataInput() {
+
+        // YEAR 2025
+
+        this.names25 = new String[MAX_MINISTRIES];
+        this.budgetAmount25 = new double[MAX_MINISTRIES];
+        this.size25 = Math.min(NAMES_2025.length, MAX_MINISTRIES);
+
+        // YEAR 2024
+
+        this.names24 = new String[MAX_MINISTRIES];
+        this.budgetAmount24 = new double[MAX_MINISTRIES];
+        this.size24 = Math.min(NAMES_2024.length, MAX_MINISTRIES);
+
+        // YEAR 2023
+
+        this.names23 = new String[MAX_MINISTRIES];
+        this.budgetAmount23 = new double[MAX_MINISTRIES];
+        this.size23 = Math.min(NAMES_2023.length, MAX_MINISTRIES);
        }
+
+
+    /**Returns the array of ministry names for 2025.
+     * @return The String array containg names.
+    */
+    public String[] getNames25() {
+        return names25;
     }
-    
-    public String[] getNames25() { return Names25; }
-    public double[] getBudgetAmount25() { return budgetAmount25; }
-    public int getSize25() { return size25; }
+    /**Returns the array of budget amounts for 2025.
+     * @return The double array containing budget amounts.
+    */
+    public double[] getBudgetAmount25() {
+        return budgetAmount25;
+    }
+    /** Returns the size of the 2025 budget data set.
+     * @return the integer size of the data set.
+    */
+    public int getSize25() {
+        return size25;
+    }
 
-    public String[] getNames24() { return Names24; }
-    public double[] getBudgetAmount24() { return budgetAmount24; }
-    public int getSize24() { return size24; }
 
-    public String[] getNames23() { return Names23; }
-    public double[] getBudgetAmount23() { return budgetAmount23; }
-    public int getSize23() { return size23; }
+
+    /**Returns the array of ministry names for 2024.
+     * @return The String array containg names.
+    */
+    public String[] getNames24() {
+        return names24;
+    }
+    /**Returns the array of budget amounts for 2024.
+     * @return The double array containing budget amounts.
+    */
+    public double[] getBudgetAmount24() {
+        return budgetAmount24;
+    }
+    /** Returns the size of the 2024 budget data set.
+     * @return the integer size of the data set.
+    */
+    public int getSize24() {
+        return size24;
+    }
+
+
+
+    /**Returns the array of ministry names for 2023.
+     *  @return The String array containg names.
+    */
+    public String[] getNames23() {
+        return names23;
+    }
+    /**Returns the array of budget amounts for 2023.
+     * @return The double array containing budget amounts.
+    */
+    public double[] getBudgetAmount23() {
+        return budgetAmount23;
+    }
+    /** Returns the size of the 2023 budget data set.
+     * @return the integer size of the data set.
+    */
+    public int getSize23() {
+        return size23;
+    }
 
 }
-

@@ -1,7 +1,6 @@
 package gr.det.spinnovators;
 
 import java.awt.Desktop;
-import java.io.File;
 import java.util.Scanner;
 
 public class App {
@@ -50,7 +49,7 @@ public class App {
             chosenYear = scanner.nextLine();
 
             if (chosenYear.equals("2023") || chosenYear.equals("2024") || chosenYear.equals("2025")) {
-                printer.ShowBudget(chosenYear);
+                printer.showBudget(chosenYear);
             } else if (chosenYear.equals("0000")) {
                 System.out.println("Για να δείτε τον προϋπολογισμό του ΥΠΕΝ, χρησιμοποιήστε το web interface.");
                 System.out.println("Πατήστε Ctrl+C για έξοδο.\n");
