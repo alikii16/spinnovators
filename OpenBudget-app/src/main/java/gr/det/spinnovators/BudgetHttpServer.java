@@ -2,6 +2,7 @@ package gr.det.spinnovators;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -177,68 +178,49 @@ public class BudgetHttpServer {
     private class LoginHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            try {
-                System.out.println("========================================");
-                System.out.println("LOGIN REQUEST RECEIVED");
-                System.out.println("========================================");
-                
-                if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-                    System.out.println("ERROR: Invalid request method: " + exchange.getRequestMethod());
-                    sendHtmlResponse(exchange, 405, buildMessagePage(
-                            "Μη υποστηριζόμενη ενέργεια",
-                            "Η φόρμα σύνδεσης πρέπει να αποστέλλεται με μέθοδο POST."));
-                    return;
-                }
-
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                System.out.println("Raw body: " + body);
-                
-                Map<String, String> formData = parseFormBody(body);
-                System.out.println("Parsed form data: " + formData);
-
-                String username = formData.getOrDefault("username", "").trim();
-                String password = formData.getOrDefault("password", "");
-
-                System.out.println("Login attempt:");
-                System.out.println("  Username: '" + username + "' (length: " + username.length() + ")");
-                System.out.println("  Password: '" + password + "' (length: " + password.length() + ")");
-                System.out.println("  Checking against:");
-                System.out.println("    MINISTER_USERNAME: 'Minister'");
-                System.out.println("    MINISTER_PASSWORD: 'm1n1st3r'");
-                System.out.println("    EMPLOYEE_PASSWORD: '3mploy33'");
-
-                FirstLogin.LoginResult result = FirstLogin.authenticate(username, password);
-
-                System.out.println("Authentication result: " + result);
-                
-                switch (result) {
-                    case MINISTER:
-                        System.out.println("→ Redirecting to MINISTER portal (MinisterNationalBudget.html)");
-                        sendStaticFile(exchange, "OpenBudget-app/src/main/webapp/MinisterNationalBudget.html");
-                        System.out.println("✓ Minister portal served successfully");
-                        break;
-                    case EMPLOYEE:
-                        System.out.println("→ Redirecting to EMPLOYEE portal (EmployeeNationalBudget.html)");
-                        System.out.println("  Employee username: " + username);
-                        sendEmployeePortal(exchange, username);
-                        System.out.println("✓ Employee portal served successfully");
-                        break;
-                    default:
-                        System.out.println("✗ INVALID credentials - showing error page");
-                        sendLoginErrorPage(exchange);
-                }
-                System.out.println("========================================");
-            } catch (Exception e) {
-                System.err.println("✗ EXCEPTION in LoginHandler:");
-                e.printStackTrace();
-                try {
-                    sendHtmlResponse(exchange, 500, buildMessagePage(
-                            "Σφάλμα",
-                            "Προέκυψε σφάλμα: " + e.getMessage()));
-                } catch (IOException ioException) {
-                    System.err.println("Failed to send error response");
-                }
+            System.out.println("========================================");
+            System.out.println("LOGIN REQUEST RECEIVED");
+            System.out.println("========================================");
+            
+            if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                System.out.println("ERROR: Invalid request method: " + exchange.getRequestMethod());
+                sendHtmlResponse(exchange, 405, buildMessagePage(
+                        "Μη υποστηριζόμενη ενέργεια",
+                        "Η φόρμα σύνδεσης πρέπει να αποστέλλεται με μέθοδο POST."));
+                return;
             }
+
+            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            Map<String, String> formData = parseFormBody(body);
+
+            String username = formData.getOrDefault("username", "").trim();
+            String password = formData.getOrDefault("password", "");
+
+            System.out.println("Login attempt:");
+            System.out.println("  Username: " + (username.isEmpty() ? "(empty)" : username));
+            System.out.println("  Password: " + (password.isEmpty() ? "(empty)" : "***"));
+
+            FirstLogin.LoginResult result = FirstLogin.authenticate(username, password);
+
+            System.out.println("Authentication result: " + result);
+            
+            switch (result) {
+                case MINISTER:
+                    System.out.println("→ Redirecting to MINISTER portal (MinisterNationalBudget.html)");
+                    sendStaticFile(exchange, "OpenBudget-app/src/main/webapp/MinisterNationalBudget.html");
+                    System.out.println("✓ Minister portal served successfully");
+                    break;
+                case EMPLOYEE:
+                    System.out.println("→ Redirecting to EMPLOYEE portal (EmployeeNationalBudget.html)");
+                    System.out.println("  Employee username: " + username);
+                    sendEmployeePortal(exchange, username);
+                    System.out.println("✓ Employee portal served successfully");
+                    break;
+                default:
+                    System.out.println("✗ INVALID credentials - showing error page");
+                    sendLoginErrorPage(exchange);
+            }
+            System.out.println("========================================");
         }
     }
 
@@ -353,20 +335,10 @@ public class BudgetHttpServer {
     }
 
     private BudgetResponse createResponse(String year, String[] names, double[] amounts, int size) {
-        System.out.println("  createResponse called for year: " + year);
-        System.out.println("  names array: " + (names != null ? "not null, length: " + names.length : "NULL"));
-        System.out.println("  amounts array: " + (amounts != null ? "not null, length: " + amounts.length : "NULL"));
-        System.out.println("  size: " + size);
-        
         List<BudgetEntry> entries = new ArrayList<>();
         double total = 0;
 
-        if (names == null || amounts == null || size <= 0) {
-            System.err.println("  ✗ ERROR: Invalid data arrays!");
-            return new BudgetResponse(year, entries, total);
-        }
-
-        for (int i = 0; i < size && i < names.length && i < amounts.length; i++) {
+        for (int i = 0; i < size; i++) {
             String name = names[i];
             double amount = amounts[i];
 
@@ -374,7 +346,6 @@ public class BudgetHttpServer {
             total += amount;
         }
 
-        System.out.println("  Created " + entries.size() + " entries, total: " + total);
         return new BudgetResponse(year, entries, total);
     }
 
@@ -407,6 +378,21 @@ public class BudgetHttpServer {
         return sb.toString();
     }
 
+    private String buildEnvironmentRedirectPage() {
+        String target = absoluteFileUri("OpenBudget-app/src/main/webapp/EmployeeGenBudget.html");
+        StringBuilder sb = new StringBuilder();
+        sb.append("<!DOCTYPE html><html lang=\"el\"><head><meta charset=\"UTF-8\">");
+        sb.append("<meta http-equiv=\"refresh\" content=\"1; url=").append(target).append("\">");
+        sb.append("<style>body{font-family:Arial, sans-serif;background:#f0f4f7;padding:25px;text-align:center;}");
+        sb.append(".card{background:#fff;border-radius:12px;padding:30px;max-width:520px;margin:40px auto;box-shadow:0 4px 20px rgba(0,0,0,0.08);}");
+        sb.append("h2{color:#203040;margin-bottom:10px;}p{color:#4a4a4a;margin-bottom:8px;}</style></head><body>");
+        sb.append("<div class=\"card\"><h2>Υπουργείο Περιβάλλοντος & Ενέργειας</h2>");
+        sb.append("<p>Γίνεται ανακατεύθυνση στη λεπτομερή σελίδα του Υπουργείου.</p>");
+        sb.append("<p>Αν δεν γίνει αυτόματα, πατήστε <a href=\"").append(target).append("\">εδώ</a>.</p>");
+        sb.append("</div></body></html>");
+        return sb.toString();
+    }
+
     private String buildMessagePage(String title, String message) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"el\"><head><meta charset=\"UTF-8\">");
@@ -416,6 +402,27 @@ public class BudgetHttpServer {
         sb.append("<div class=\"card\"><h2>").append(title).append("</h2><p>").append(message).append("</p></div>");
         sb.append("</body></html>");
         return sb.toString();
+    }
+
+    private String buildRedirectPage(String title, String message, String targetUrl) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<!DOCTYPE html><html lang=\"el\"><head><meta charset=\"UTF-8\">");
+        if (targetUrl != null && !targetUrl.isBlank()) {
+            sb.append("<meta http-equiv=\"refresh\" content=\"1; url=").append(targetUrl).append("\">");
+        }
+        sb.append("<style>body{font-family:Arial, sans-serif;background:#f6f8fb;padding:25px;text-align:center;}");
+        sb.append(".card{background:#fff;border-radius:12px;padding:32px;max-width:520px;margin:40px auto;box-shadow:0 4px 18px rgba(0,0,0,0.08);}");
+        sb.append("h2{color:#12451f;margin-bottom:12px;}p{color:#4b4b4b;margin-bottom:10px;}a{color:#0b5bad;text-decoration:none;font-weight:bold;}</style></head><body>");
+        sb.append("<div class=\"card\"><h2>").append(title).append("</h2><p>").append(message).append("</p>");
+        if (targetUrl != null && !targetUrl.isBlank()) {
+            sb.append("<p>Αν δεν μεταφερθείτε αυτόματα, πατήστε <a href=\"").append(targetUrl).append("\">εδώ</a>.</p>");
+        }
+        sb.append("</div></body></html>");
+        return sb.toString();
+    }
+
+    private String absoluteFileUri(String relativePath) {
+        return new File(relativePath).getAbsoluteFile().toURI().toString();
     }
 
     private class PortalHandler implements HttpHandler {
@@ -511,65 +518,91 @@ public class BudgetHttpServer {
     private class EnvPortalHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-                sendHtmlResponse(exchange, 405, buildMessagePage(
-                        "Μη υποστηριζόμενη ενέργεια",
-                        "Παρακαλώ χρησιμοποιήστε αίτημα GET."));
-                return;
+            try {
+                if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    sendHtmlResponse(exchange, 405, buildMessagePage(
+                            "Μη υποστηριζόμενη ενέργεια",
+                            "Παρακαλώ χρησιμοποιήστε αίτημα GET."));
+                    return;
+                }
+                
+                System.out.println("========================================");
+                System.out.println("MINISTER ENV BUDGET PORTAL");
+                System.out.println("========================================");
+                System.out.println("Serving: MinisterEnvBudget.html");
+                
+                Path filePath = new File("OpenBudget-app/src/main/webapp/MinisterEnvBudget.html").getAbsoluteFile().toPath();
+                
+                if (!Files.exists(filePath)) {
+                    System.err.println("✗ ERROR: MinisterEnvBudget.html not found at: " + filePath);
+                    sendHtmlResponse(exchange, 404, buildMessagePage(
+                            "Αρχείο δεν βρέθηκε",
+                            "Το αρχείο MinisterEnvBudget.html δεν βρέθηκε. Βεβαιωθείτε ότι υπάρχει στο src/main/webapp/"));
+                    return;
+                }
+                
+                sendStaticFile(exchange, "OpenBudget-app/src/main/webapp/MinisterEnvBudget.html");
+                System.out.println("✓ MinisterEnvBudget.html served successfully");
+                System.out.println("========================================");
+            } catch (Exception e) {
+                System.err.println("Error serving EnvBudgetPortal.html:");
+                e.printStackTrace();
+                sendHtmlResponse(exchange, 500, buildMessagePage(
+                        "Σφάλμα",
+                        "Προέκυψε σφάλμα κατά τη φόρτωση της σελίδας: " + e.getMessage()));
             }
-            
-            System.out.println("========================================");
-            System.out.println("MINISTER ENV BUDGET PORTAL");
-            System.out.println("========================================");
-            System.out.println("Serving: MinisterEnvBudget.html");
-            
-            sendStaticFile(exchange, "OpenBudget-app/src/main/webapp/MinisterEnvBudget.html");
-            System.out.println("✓ MinisterEnvBudget.html served successfully");
-            System.out.println("========================================");
         }
     }
 
     private class EnvPortalEmployeeHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-                sendHtmlResponse(exchange, 405, buildMessagePage(
-                        "Μη υποστηριζόμενη ενέργεια",
-                        "Παρακαλώ χρησιμοποιήστε αίτημα GET."));
-                return;
+            try {
+                if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    sendHtmlResponse(exchange, 405, buildMessagePage(
+                            "Μη υποστηριζόμενη ενέργεια",
+                            "Παρακαλώ χρησιμοποιήστε αίτημα GET."));
+                    return;
+                }
+                
+                // Get username from query parameter
+                Map<String, String> queryParams = parseQuery(exchange.getRequestURI());
+                String username = queryParams.get("username");
+                
+                System.out.println("========================================");
+                System.out.println("EMPLOYEE ENV BUDGET PORTAL");
+                System.out.println("========================================");
+                System.out.println("Serving: EmployeeEnvBudget.html");
+                System.out.println("Employee username: " + (username != null ? username : "(not provided)"));
+                
+                Path path = new File("OpenBudget-app/src/main/webapp/EmployeeEnvBudget.html").getAbsoluteFile().toPath();
+                String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+                
+                // Replace links with username parameter
+                String encodedUsername = java.net.URLEncoder.encode(username != null ? username : "", StandardCharsets.UTF_8);
+                content = content.replace("http://localhost:8081/employee-budget-portal", 
+                                          "http://localhost:8081/employee-budget-portal?username=" + encodedUsername);
+                content = content.replace("http://localhost:8081/env-portal-employee", 
+                                          "http://localhost:8081/env-portal-employee?username=" + encodedUsername);
+                content = content.replace("http://localhost:8081/env-budget-employee", 
+                                          "http://localhost:8081/env-budget-employee?username=" + encodedUsername);
+                
+                byte[] payload = content.getBytes(StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
+                exchange.sendResponseHeaders(200, payload.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(payload);
+                }
+                
+                System.out.println("✓ EmployeeEnvBudget.html served successfully");
+                System.out.println("========================================");
+            } catch (Exception e) {
+                System.err.println("✗ ERROR serving EmployeeEnvBudget.html:");
+                e.printStackTrace();
+                sendHtmlResponse(exchange, 500, buildMessagePage(
+                        "Σφάλμα",
+                        "Προέκυψε σφάλμα κατά τη φόρτωση της σελίδας: " + e.getMessage()));
             }
-            
-            // Get username from query parameter
-            Map<String, String> queryParams = parseQuery(exchange.getRequestURI());
-            String username = queryParams.get("username");
-            
-            System.out.println("========================================");
-            System.out.println("EMPLOYEE ENV BUDGET PORTAL");
-            System.out.println("========================================");
-            System.out.println("Serving: EmployeeEnvBudget.html");
-            System.out.println("Employee username: " + (username != null ? username : "(not provided)"));
-            
-            Path path = new File("OpenBudget-app/src/main/webapp/EmployeeEnvBudget.html").getAbsoluteFile().toPath();
-            String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
-            
-            // Replace links with username parameter
-            String encodedUsername = java.net.URLEncoder.encode(username != null ? username : "", StandardCharsets.UTF_8);
-            content = content.replace("http://localhost:8081/employee-budget-portal", 
-                                      "http://localhost:8081/employee-budget-portal?username=" + encodedUsername);
-            content = content.replace("http://localhost:8081/env-portal-employee", 
-                                      "http://localhost:8081/env-portal-employee?username=" + encodedUsername);
-            content = content.replace("http://localhost:8081/env-budget-employee", 
-                                      "http://localhost:8081/env-budget-employee?username=" + encodedUsername);
-            
-            byte[] payload = content.getBytes(StandardCharsets.UTF_8);
-            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
-            exchange.sendResponseHeaders(200, payload.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(payload);
-            }
-            
-            System.out.println("✓ EmployeeEnvBudget.html served successfully");
-            System.out.println("========================================");
         }
     }
 
@@ -815,10 +848,14 @@ public class BudgetHttpServer {
                     }
                 }
 
-            sb.append("</tbody></table>");
-            sb.append("</div>");
+                sb.append("</tbody></table>");
+                sb.append("</div>");
             }
 
+            sb.append("<div class=\"back-section\">");
+            sb.append("<p class=\"back-text\">Θέλετε να επιστρέψετε πίσω;</p>");
+            sb.append("<a href=\"").append(backUrl).append("\" class=\"back-btn\">Επιστροφή στη Φόρμα</a>");
+            sb.append("</div>");
             sb.append("</div>");
             sb.append("</body></html>");
             

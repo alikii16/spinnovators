@@ -94,15 +94,62 @@
         th { background-color: #f0f0f0; }
     </style>
 
+    <script src="data.js"></script>
 </head>
 
 <body>
 
     <div class="background-text">Υπουργείο Περιβάλλοντος και Ενέργειας</div>
 
+    <div class="welcome-text" id="welcomeUser"></div>
+
     <div class="box">
-        <p style="text-align:center;color:#666;">Αυτό το αρχείο δεν χρησιμοποιείται. Χρησιμοποιείται το EmployeeNationalBudget.html</p>
+
+        <div class="form-group">
+            <label>Παρακαλώ πληκτρολογήστε το έτος που θέλετε να δείτε τον κρατικό προϋπολογισμό:</label><br>
+            <input id="yearInput" type="text" placeholder="π.χ. 2024">
+        </div>
+
+        <div style="text-align:center;">
+            <button class="submit-btn" onclick="showBudget()">Εμφάνιση</button>
+        </div>
+
+        <p id="errorMessage" class="error-message"></p>
+
+        <div id="tableContainer"></div>
+
     </div>
+
+<script>
+/* ----- Παίρνουμε το username από το URL ----- */
+function getUsernameFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("username") || "Χρήστη";
+}
+
+document.getElementById("welcomeUser").textContent =
+    "Καλώς ήρθατε, " + getUsernameFromURL() + ".";
+
+/* ----- Εμφάνιση πίνακα ----- */
+async function showBudget() {
+    const year = document.getElementById("yearInput").value.trim();
+    const errorMessage = document.getElementById("errorMessage");
+    const tableContainer = document.getElementById("tableContainer");
+
+    errorMessage.textContent = "";
+    tableContainer.innerHTML = "";
+
+    if (!["2023", "2024", "2025"].includes(year)) {
+        errorMessage.textContent = "Δεν έχουμε στοιχεία για αυτό το έτος. Προσπαθήστε ξανά.";
+        return;
+    }
+
+    const response = await fetch("./budgets.json");
+    const data = await response.json();
+
+    createBudgetTable("tableContainer", data[year]);
+}
+</script>
 
 </body>
 </html>
