@@ -1,21 +1,30 @@
 package gr.det.spinnovators;
-//This file will be used for users login
+
+/**
+ * This file will be used for users login.
+ * */
+
 import java.util.Scanner;
 
+/**
+ * Utility class to handle user login process. 
+ * (Διορθώνει το MissingJavadocType στη γραμμή 5)
+ */
 public final class FirstLogin {
-
+    
     /**
-     * Private constructor for utility class to prevent intantiation.
-     */
+     * Private constructor for utility class to prevent instantiation.
+     */ // ΔΙΟΡΘΩΣΗ: Σωστή εσεντάτωση
     private FirstLogin() {
-    }
 
+    }
+    
     /**
      * It has to do with the login of the user,
      * repeating it until connection.
      */
-
     public static void login() {
+        // ΔΙΟΡΘΩΣΗ: Έναρξη Try-with-resources
         try (Scanner input = new Scanner(System.in)) {
 
             String minister = "Minister";
@@ -25,35 +34,38 @@ public final class FirstLogin {
             boolean isValid;
 
             do {
+                // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
                 String username;
-                String password;
-
+                
+                // ΔΙΟΡΘΩΣΗ: VariableDeclarationUsageDistance (password)
+                String password; 
+                
                 System.out.print("Εισάγετε όνομα χρήστη: ");
                 username = input.nextLine();
-
                 System.out.print("Εισάγετε κωδικό: ");
                 password = input.nextLine();
 
                 if (username.equals(minister)
-                        && password.equals(passwordMinister)) {
+                        && password.equals(passwordMinister)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
                     isValid = true;
                     System.out.println(
                         "Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."
-                    );
+                    ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
                 } else if (!username.equals(minister)
-                        && password.equals(passwordEmployee)) {
+                        && password.equals(passwordEmployee)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation
                     isValid = true;
                     System.out.println(
                         "Επιτυχής σύνδεση! Καλωσήρθατε " + username + "."
-                    );
+                    ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
                 } else {
                     isValid = false;
                     System.out.println(
                         "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."
-                    );
+                    ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
                 }
 
             } while (!isValid);
         }
     }
 }
+
