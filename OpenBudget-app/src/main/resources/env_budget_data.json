@@ -1,10 +1,104 @@
 {
   "env_ministry_total_budget": {
+    "2026": 3133452000.00,
     "2025": 2341227000.00,
     "2024": 1823158000.00,
     "2023": 1707333000.00
   },
   "data_by_year": {
+    "2026": {
+      "executive_coordination_and_investments": {
+        "ministerial_secretariats_and_offices": {
+          "personnel_costs": 2365000.00,
+          "purchase_of_goods_and_services": 2125000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units": {
+          "personnel_costs": 6762860.00,
+          "transfers": 80000.00,
+          "purchase_of_goods_and_services": 2582130.00,
+          "credits_under_allocation": 2019500.00,
+          "permanent_assets": 65450.00
+        },
+        "recovery_and_resilience_fund_expenses": {
+          "credits_under_allocation": 0.00
+        }
+      },
+      "natural_environment_and_water_protection": {
+        "general_secretariat_for_energy_and_mineral_resources": {
+          "transfers": 7450800.00
+        },
+        "general_secretariat_for_natural_environment_and_water": {
+          "personnel_costs": 4068000.00,
+          "transfers": 43978116.00,
+          "purchase_of_goods_and_services": 1295000.00,
+          "credits_under_allocation": 246534000.00,
+          "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_waste_management": {
+          "personnel_costs": 467000.00,
+          "purchase_of_goods_and_services": 463000.00,
+          "credits_under_allocation": 84800000.00,
+          "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_forestry": {
+          "personnel_costs": 70885000.00,
+          "community_benefits": 0.00,
+          "transfers": 2471000.00,
+          "purchase_of_goods_and_services": 14950000.00,
+          "credits_under_allocation": 23717000.00,
+          "permanent_assets": 705000.00
+        },
+        "other_units_minister_secretary": {
+          "personnel_costs": 1005290.00,
+          "purchase_of_goods_and_services": 186660.00,
+          "credits_under_allocation": 432750.00,
+          "permanent_assets": 9350.00
+        },
+        "recovery_and_resilience_fund_expenses": {
+          "credits_under_allocation": 420850000.00
+        }
+      },
+      "spatial_planning_and_urban_environment": {
+        "general_secretariat_for_spatial_and_urban_planning": {
+          "personnel_costs": 5125000.00,
+          "purchase_of_goods_and_services": 1178000.00,
+          "credits_under_allocation": 88942000.00,
+          "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_natural_environment_and_water_sp_ue": {
+          "transfers": 1547884.00
+        },
+        "other_ministerial_units_sp_ue": {
+          "personnel_costs": 639730.00,
+          "purchase_of_goods_and_services": 124440.00,
+          "credits_under_allocation": 144250.00,
+          "permanent_assets": 5100.00
+        },
+        "recovery_and_resilience_fund_expenses_sp_ue": {
+          "credits_under_allocation": 686650000.00
+        }
+      },
+      "energy_and_mineral_resources_management": {
+        "general_secretariat_for_energy_and_mineral_resources": {
+          "personnel_costs": 2748000.00,
+          "community_benefits": 0.00,
+          "transfers": 134469200.00,
+          "purchase_of_goods_and_services": 1397000.00,
+          "credits_under_allocation": 161396000.00,
+          "permanent_assets": 15000.00
+        },
+        "other_ministerial_units_energy_mgt": {
+          "personnel_costs": 731120.00,
+          "purchase_of_goods_and_services": 217770.00,
+          "credits_under_allocation": 288500.00,
+          "permanent_assets": 5100.00
+        },
+        "recovery_and_resilience_fund_expenses_energy_mgt": {
+          "credits_under_allocation": 1107500000.00
+        }
+      }
+    },
     "2025": {
       "executive_coordination_and_investments": {
         "ministerial_secretariats_and_offices": {
@@ -14,6 +108,7 @@
         },
         "other_ministerial_units": {
           "personnel_costs": 6194250.00,
+          "transfers": 0.00,
           "purchase_of_goods_and_services": 2219350.00,
           "credits_under_allocation": 5616800.00,
           "permanent_assets": 26250.00
@@ -23,6 +118,9 @@
         }
       },
       "natural_environment_and_water_protection": {
+        "general_secretariat_for_energy_and_mineral_resources": {
+          "transfers": 0.00
+        },
         "general_secretariat_for_natural_environment_and_water": {
           "personnel_costs": 3934000.00,
           "transfers": 40995000.00,
@@ -60,6 +158,9 @@
           "purchase_of_goods_and_services": 978000.00,
           "credits_under_allocation": 90949000.00,
           "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_natural_environment_and_water_sp_ue": {
+          "transfers": 0.00
         },
         "other_ministerial_units_sp_ue": {
           "personnel_costs": 495540.00,
@@ -100,6 +201,7 @@
         },
         "other_ministerial_units": {
           "personnel_costs": 7173560.00,
+          "transfers": 0.00,
           "purchase_of_goods_and_services": 2297550.00,
           "credits_under_allocation": 1470000.00,
           "permanent_assets": 11100.00
@@ -109,6 +211,9 @@
         }
       },
       "natural_environment_and_water_protection": {
+        "general_secretariat_for_energy_and_mineral_resources": {
+          "transfers": 0.00
+        },
         "general_secretariat_for_natural_environment_and_water": {
           "personnel_costs": 4854000.00,
           "transfers": 25995000.00,
@@ -146,6 +251,9 @@
           "purchase_of_goods_and_services": 1018000.00,
           "credits_under_allocation": 53700000.00,
           "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_natural_environment_and_water_sp_ue": {
+          "transfers": 0.00
         },
         "other_ministerial_units_sp_ue": {
           "personnel_costs": 581640.00,
@@ -186,6 +294,7 @@
         },
         "other_ministerial_units": {
           "personnel_costs": 9114000.00,
+          "transfers": 0.00,
           "purchase_of_goods_and_services": 1739000.00,
           "credits_under_allocation": 37153900.00,
           "permanent_assets": 15000.00
@@ -195,6 +304,9 @@
         }
       },
       "natural_environment_and_water_protection": {
+        "general_secretariat_for_energy_and_mineral_resources": {
+          "transfers": 0.00
+        },
         "general_secretariat_for_natural_environment_and_water": {
           "personnel_costs": 3732000.00,
           "transfers": 28284000.00,
@@ -232,6 +344,9 @@
           "purchase_of_goods_and_services": 952000.00,
           "credits_under_allocation": 104500000.00,
           "permanent_assets": 15000.00
+        },
+        "general_secretariat_for_natural_environment_and_water_sp_ue": {
+          "transfers": 0.00
         },
         "other_ministerial_units_sp_ue": {
           "personnel_costs": 0.00,
