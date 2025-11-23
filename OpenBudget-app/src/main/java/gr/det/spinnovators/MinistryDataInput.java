@@ -5,7 +5,7 @@ public final class MinistryDataInput {
   /** The maximum number of ministries.
   * the system can store data for.*/
   
-  private static final int MAX_MINISTRIES = 40;
+  private static final int MAX_MINISTRIES = 30;
 
   /**Names of ministries for year 2025.*/
   
