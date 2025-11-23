@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FirstLoginTest {
 
     @Test
-    public void testMiisterLoginSuccess() {
+    public void testMinisterLoginSuccess() {
         String simulatedInput = "Minister\nm1n1st3r\n";
         System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
         
