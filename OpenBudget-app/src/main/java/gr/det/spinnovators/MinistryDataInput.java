@@ -263,17 +263,32 @@ public final class MinistryDataInput {
     this.budgetAmount25 = new double[MAX_MINISTRIES];
     this.size25 = Math.min(NAMES_2025.length, MAX_MINISTRIES);
 
+    for (int i = 0; i < this.size25; i++) {
+      this.names25[i] = NAMES_2025[i];
+      this.budgetAmount25[i] = AMOUNTS_2025[i]; 
+    } 
+
     // YEAR 2024
 
     this.names24 = new String[MAX_MINISTRIES];
     this.budgetAmount24 = new double[MAX_MINISTRIES];
     this.size24 = Math.min(NAMES_2024.length, MAX_MINISTRIES);
 
+    for (int i = 0; i < this.size24; i++) {
+      this.names24[i] = NAMES_2024[i];
+      this.budgetAmount24[i] = AMOUNTS_2024[i];
+    }
+
     // YEAR 2023
 
     this.names23 = new String[MAX_MINISTRIES];
     this.budgetAmount23 = new double[MAX_MINISTRIES];
     this.size23 = Math.min(NAMES_2023.length, MAX_MINISTRIES);
+
+    for (int i = 0; i < this.size23; i++) {
+      this.names23[i] = NAMES_2023[i];
+      this.budgetAmount23[i] = AMOUNTS_2023[i];
+    }
   }
 
 

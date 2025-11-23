@@ -1,6 +1,6 @@
 package gr.det.spinnovators;
 
-import java.util.Scanner;  
+import java.util.Scanner;
 
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 

@@ -24,48 +24,45 @@ public final class FirstLogin {
      * repeating it until connection.
      */
     public static void login() {
-        // ΔΙΟΡΘΩΣΗ: Έναρξη Try-with-resources
-        try (Scanner input = new Scanner(System.in)) {
+        @SuppressWarnings("resource")
+        Scanner input = new Scanner(System.in);
 
-            String minister = "Minister";
-            String passwordMinister = "m1n1st3r";
-            String passwordEmployee = "3mpl0y33";
+        String minister = "Minister";
+        String passwordMinister = "m1n1st3r";
+        String passwordEmployee = "3mpl0y33";
 
-            boolean isValid;
+        boolean isValid;
 
-            do {
+        do {
                 // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
-                String username;
+            String username;
                 
                 // ΔΙΟΡΘΩΣΗ: VariableDeclarationUsageDistance (password)
-                String password; 
+            String password; 
                 
-                System.out.print("Εισάγετε όνομα χρήστη: ");
-                username = input.nextLine();
-                System.out.print("Εισάγετε κωδικό: ");
-                password = input.nextLine();
+            System.out.print("Εισάγετε όνομα χρήστη: ");
+            username = input.nextLine();
+            System.out.print("Εισάγετε κωδικό: ");
+            password = input.nextLine();
 
-                if (username.equals(minister)
-                        && password.equals(passwordMinister)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
-                    isValid = true;
-                    System.out.println(
-                        "Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."
-                    ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
-                } else if (!username.equals(minister)
-                        && password.equals(passwordEmployee)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation
-                    isValid = true;
-                    System.out.println(
-                        "Επιτυχής σύνδεση! Καλωσήρθατε " + username + "."
-                    ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
-                } else {
-                    isValid = false;
-                    System.out.println(
-                        "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."
-                    ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
-                }
-
-            } while (!isValid);
-        }
+            if (username.equals(minister)
+                    && password.equals(passwordMinister)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
+                isValid = true;
+                System.out.println(
+                    "Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."
+                ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
+            } else if (!username.equals(minister)
+                && password.equals(passwordEmployee)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation
+                isValid = true;
+                System.out.println(
+                    "Επιτυχής σύνδεση! Καλωσήρθατε " + username + "."
+                ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
+            } else {
+                isValid = false;
+                System.out.println(
+                    "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."
+                ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
+            }
+        } while (!isValid); 
     }
 }
-
