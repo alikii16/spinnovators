@@ -1,6 +1,7 @@
 package gr.det.spinnovators;
 
 import java.util.Scanner;
+import java.io.File;
 
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 
@@ -13,6 +14,67 @@ public class App {
         EnvBudgetData envBudgetData = envLoader.loadBudget();
         EnvBudgetPrinter envPrinter = new EnvBudgetPrinter(envBudgetData, translator);
 
+        // Start web server for HTML interface
+        try {
+            String frontendPath = null;
+            
+            // Try to find frontend directory from classpath resources
+            java.net.URL resourceUrl = App.class.getClassLoader().getResource("frontend/login.html");
+            if (resourceUrl != null && resourceUrl.getProtocol().equals("file")) {
+                try {
+                    frontendPath = java.nio.file.Paths.get(resourceUrl.toURI()).getParent().toString();
+                } catch (Exception e) {
+                    // Continue to fallback paths
+                }
+            }
+            
+            // Fallback: try common paths if resource not found
+            if (frontendPath == null || !new File(frontendPath).exists()) {
+                String currentDir = System.getProperty("user.dir");
+                String[] possiblePaths = {
+                    currentDir + File.separator + "target" + File.separator + "classes" + File.separator + "frontend",
+                    currentDir + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "frontend",
+                    currentDir + File.separator + "OpenBudget-app" + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "frontend"
+                };
+                
+                for (String path : possiblePaths) {
+                    File dir = new File(path);
+                    if (dir.exists() && dir.isDirectory()) {
+                        frontendPath = path;
+                        break;
+                    }
+                }
+            }
+            
+            if (frontendPath != null && new File(frontendPath).exists()) {
+                LoginWebServer.startServer(frontendPath);
+                System.out.println("Web interface available at http://localhost:8080/login.html");
+                
+                // Try to open browser automatically
+                try {
+                    String url = "http://localhost:8080/login.html";
+                    java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+                    if (desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
+                        desktop.browse(new java.net.URI(url));
+                    } else {
+                        // Fallback for Windows
+                        new ProcessBuilder("cmd", "/c", "start", url).start();
+                    }
+                } catch (Exception browserEx) {
+                    System.out.println("Please open http://localhost:8080/login.html manually in your browser");
+                }
+                
+                System.out.println("You can also use the terminal interface below:");
+                System.out.println("==========================================");
+            } else {
+                System.out.println("Warning: Frontend directory not found. Using terminal mode only.");
+            }
+        } catch (Exception e) {
+            System.out.println("Warning: Could not start web server: " + e.getMessage());
+            System.out.println("Continuing with terminal mode only...");
+        }
+
+        // Terminal interface (original functionality)
         FirstLogin.login();
     
         MinistryDataInput allData = new MinistryDataInput(); 

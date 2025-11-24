@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ΥΠΕΝ - Σύνδεση</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 25%, #0a3d15 50%, #0d4f1c 75%, #1b5e20 100%);
+            background-color: #0a3d15;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(13, 79, 28, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(10, 61, 21, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(5, 26, 10, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 60% 60%, rgba(3, 20, 8, 0.4) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(13, 79, 28, 0.03) 2px,
+                rgba(13, 79, 28, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ministry-header {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 40px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ministry-header h1 {
+            color: #e8f5e9;
+            font-size: 38px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 0;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+
+        .ministry-header h2 {
+            display: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-box {
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+            border-radius: 20px;
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.6),
+                0 6px 24px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 0 0 1px rgba(13, 79, 28, 0.2);
+            padding: 55px 45px;
+            width: 100%;
+            border: 4px solid #0d4f1c;
+            position: relative;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #4caf50, #1b5e20, #0d4f1c);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .title {
+            text-align: center;
+            color: #0d4f1c;
+            margin-bottom: 40px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #0d4f1c, transparent);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #1b5e20;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #a5d6a7;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #f9f9f9;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1b5e20;
+            box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1);
+            background-color: #ffffff;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #0d4f1c 0%, #1b5e20 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 10px rgba(13, 79, 28, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(13, 79, 28, 0.5);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 2px solid #ef5350;
+        }
+
+        .error-message-hidden {
+            display: none;
+        }
+
+        .success-message {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+            border: 2px solid #1b5e20;
+        }
+    </style>
+</head>
+<body>
+    <div class="ministry-header">
+        <h1>ΥΠΟΥΡΓΕΙΟ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ</h1>
+    </div>
+    
+    <div class="container">
+        <div class="login-box">
+            <h2 class="title">Σύνδεση στο Σύστημα</h2>
+            
+            <form method="POST" action="/login">
+                <div class="form-group">
+                    <label for="username">Εισάγετε όνομα χρήστη:</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Εισάγετε κωδικό:</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    Σύνδεση
+                </button>
+                
+                <!-- Error message - will be shown by server when login fails -->
+                <div id="errorMessage" class="message error-message error-message-hidden">
+                    Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά.
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
