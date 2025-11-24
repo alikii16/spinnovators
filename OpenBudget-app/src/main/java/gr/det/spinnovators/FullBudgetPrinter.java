@@ -27,14 +27,14 @@ public final class FullBudgetPrinter {
         // not in the same diirection-string.
         double totalBudget;
 
-        if ("2025".equals(year)) {
+        if ("2026".equals(year)) {
 
             totalBudget = 0;
 
             System.out.println("\n--- ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΕΤΟΥΣ " + year + "---");
-            int size = this.data.getSize25();
-            String[] names = this.data.getNames25();
-            double[] amounts = this.data.getBudgetAmount25();
+            int size = this.data.getSize26();
+            String[] names = this.data.getNames26();
+            double[] amounts = this.data.getBudgetAmount26();
 
             for (int i = 0; i < size; i++) {
                 // modifications for display of colon, euro sign,
@@ -48,6 +48,25 @@ public final class FullBudgetPrinter {
             System.out.println("-------------------------");
             System.out.printf(
                 "%s: %,.2f €\n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget
+            );
+
+        } else if ("2025".equals(year)) {
+
+            totalBudget = 0;
+
+            System.out.println("\n--- ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΕΤΟΥΣ " + year + "---");
+            int size = this.data.getSize25();
+            String[] names = this.data.getNames25();
+            double[] amounts = this.data.getBudgetAmount25();
+
+            for (int i = 0; i < size; i++) {
+                System.out.printf(" * %-55s: %,.2f €\n", names[i], amounts[i]);
+                totalBudget = totalBudget + amounts[i];
+            }
+
+            System.out.println("----------------------------");
+            System.out.printf(
+                " * %-55s: %,.2f €\n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget
             );
 
         } else if ("2024".equals(year)) {
@@ -67,7 +86,7 @@ public final class FullBudgetPrinter {
             System.out.println("----------------------------");
             System.out.printf(
                 " * %-55s: %,.2f €\n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget
-            );
+            );    
 
         } else if ("2023".equals(year)) {
 
