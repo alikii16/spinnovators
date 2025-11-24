@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,14 +69,33 @@ public final class LoginWebServer {
             }
         });
         
-        // Serve static HTML files
+        // Serve static HTML files and handle year submission
         server.createContext("/minister_statebudget.html", exchange -> {
-            System.out.println("[DEBUG] Request to /minister_statebudget.html");
-            serveStaticFile(exchange, frontendPath, "minister_statebudget.html");
+            System.out.println("[DEBUG] Request to /minister_statebudget.html : " + exchange.getRequestMethod());
+            if ("POST".equals(exchange.getRequestMethod())) {
+                handleYearSubmission(exchange, frontendPath, "minister_statebudget.html", null);
+            } else {
+                serveStaticFile(exchange, frontendPath, "minister_statebudget.html");
+            }
         });
         server.createContext("/employee_statebudget.html", exchange -> {
-            System.out.println("[DEBUG] Request to /employee_statebudget.html");
-            serveStaticFile(exchange, frontendPath, "employee_statebudget.html");
+            System.out.println("[DEBUG] Request to /employee_statebudget.html : " + exchange.getRequestMethod());
+            String usernameParam = getQueryParam(exchange, "user");
+            if ("POST".equals(exchange.getRequestMethod())) {
+                // For POST, preserve the username from query string
+                handleYearSubmission(exchange, frontendPath, "employee_statebudget.html", usernameParam);
+            } else {
+                serveHtmlWithUsername(exchange, frontendPath, "employee_statebudget.html", usernameParam);
+            }
+        });
+        server.createContext("/minister_budget.html", exchange -> {
+            System.out.println("[DEBUG] Request to /minister_budget.html");
+            serveStaticFile(exchange, frontendPath, "minister_budget.html");
+        });
+        server.createContext("/employee_budget.html", exchange -> {
+            System.out.println("[DEBUG] Request to /employee_budget.html");
+            String usernameParam = getQueryParam(exchange, "user");
+            serveHtmlWithUsername(exchange, frontendPath, "employee_budget.html", usernameParam);
         });
         
         server.setExecutor(null); // Use default executor
@@ -205,7 +225,8 @@ public final class LoginWebServer {
                     System.out.println("[WEB LOGIN] ✓ Login SUCCESSFUL - Employee: " + username);
                     System.out.println("[WEB LOGIN] Redirecting to: /employee_statebudget.html");
                     System.out.println("========================================");
-                    redirect(exchange, "/employee_statebudget.html");
+                    String encodedUser = URLEncoder.encode(username, StandardCharsets.UTF_8);
+                    redirect(exchange, "/employee_statebudget.html?user=" + encodedUser);
                     return;
                 }
             }
@@ -244,6 +265,61 @@ public final class LoginWebServer {
             sendErrorResponse(exchange, 500, "Error loading file: " + e.getMessage());
         }
     }
+
+    /**
+     * Serves HTML file replacing username placeholders.
+     * @param exchange HTTP exchange
+     * @param frontendPath path to frontend directory
+     * @param filename html file name
+     * @param username value from query string
+     * @throws IOException if file missing
+     */
+    private static void serveHtmlWithUsername(final HttpExchange exchange,
+            final String frontendPath, final String filename, final String username) throws IOException {
+        try {
+            Path filePath = Paths.get(frontendPath, filename);
+            if (!Files.exists(filePath)) {
+                sendErrorResponse(exchange, 404, "File not found: " + filename);
+                return;
+            }
+
+            String htmlContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+            String safeUsername = (username == null || username.isBlank()) ? "Υπάλληλε" : username;
+            String encodedUsername = URLEncoder.encode(safeUsername, StandardCharsets.UTF_8);
+
+            htmlContent = htmlContent
+                .replace("{{username}}", safeUsername)
+                .replace("{{usernameEncoded}}", encodedUsername);
+
+            sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
+        } catch (IOException e) {
+            sendErrorResponse(exchange, 500, "Error loading file: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Extracts query parameter from request.
+     * @param exchange HTTP exchange
+     * @param key parameter key
+     * @return decoded value or null
+     */
+    private static String getQueryParam(final HttpExchange exchange, final String key) {
+        String rawQuery = exchange.getRequestURI().getRawQuery();
+        if (rawQuery == null || rawQuery.isEmpty()) {
+            return null;
+        }
+        String[] pairs = rawQuery.split("&");
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=", 2);
+            if (keyValue.length == 2) {
+                String decodedKey = java.net.URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
+                if (decodedKey.equals(key)) {
+                    return java.net.URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
+                }
+            }
+        }
+        return null;
+    }
     
     /**
      * Sends a redirect response.
@@ -273,6 +349,249 @@ public final class LoginWebServer {
         OutputStream os = exchange.getResponseBody();
         os.write(responseBytes);
         os.close();
+    }
+    
+    /**
+     * Handles year submission from the budget form.
+     * @param exchange HTTP exchange
+     * @param frontendPath Path to frontend directory
+     * @param filename HTML file name (minister_statebudget.html or employee_statebudget.html)
+     * @param username Username for employee page (null for minister)
+     */
+    private static void handleYearSubmission(final HttpExchange exchange,
+                                            final String frontendPath,
+                                            final String filename,
+                                            final String username) throws IOException {
+        try {
+            System.out.println("[DEBUG] handleYearSubmission called for: " + filename);
+            System.out.println("[DEBUG] Username from query: " + username);
+            
+            // Read form data
+            java.io.InputStream requestBody = exchange.getRequestBody();
+            byte[] buffer = new byte[1024];
+            StringBuilder formDataBuilder = new StringBuilder();
+            int bytesRead;
+            while ((bytesRead = requestBody.read(buffer)) != -1) {
+                formDataBuilder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
+            }
+            String formData = formDataBuilder.toString();
+            System.out.println("[DEBUG] Raw form data: " + formData);
+            
+            // Parse year and username from form data
+            String year = null;
+            String formUsername = username; // Default to query param username
+            if (formData != null && !formData.isEmpty()) {
+                String[] pairs = formData.split("&");
+                System.out.println("[DEBUG] Number of form pairs: " + pairs.length);
+                for (String pair : pairs) {
+                    String[] keyValue = pair.split("=", 2);
+                    if (keyValue.length == 2) {
+                        String key = java.net.URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
+                        String value = java.net.URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
+                        System.out.println("[DEBUG] Parsed - Key: '" + key + "', Value: '" + value + "'");
+                        if ("year".equals(key)) {
+                            year = value;
+                        } else if ("user".equals(key)) {
+                            formUsername = value;
+                        }
+                    }
+                }
+            }
+            
+            System.out.println("[DEBUG] Parsed year: " + year);
+            System.out.println("[DEBUG] Final username: " + formUsername);
+            
+            // Validate year
+            if (year == null || year.isEmpty()) {
+                System.out.println("[DEBUG] Year validation failed - year is null or empty");
+                serveYearPageWithError(exchange, frontendPath, filename, formUsername, "Παρακαλώ εισάγετε ένα έτος.");
+                return;
+            }
+            
+            // Check if year is valid (2023, 2024, 2025)
+            if (!year.equals("2023") && !year.equals("2024") && !year.equals("2025")) {
+                serveYearPageWithError(exchange, frontendPath, filename, formUsername, "Δεν υπάρχουν δεδομένα για το έτος " + year + ". Παρακαλώ επιλέξτε 2023, 2024 ή 2025.");
+                return;
+            }
+            
+            // Get budget data
+            MinistryDataInput allData = new MinistryDataInput();
+            FullBudgetPrinter printer = new FullBudgetPrinter(allData);
+            
+            // Capture System.out to get budget output
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            java.io.PrintStream originalOut = System.out;
+            java.io.PrintStream capturedOut = new java.io.PrintStream(baos, true, StandardCharsets.UTF_8);
+            System.setOut(capturedOut);
+            
+            try {
+                printer.showBudget(year);
+            } finally {
+                System.setOut(originalOut);
+            }
+            
+            String budgetOutput = baos.toString(StandardCharsets.UTF_8);
+            
+            // Serve page with budget results
+            serveYearPageWithBudget(exchange, frontendPath, filename, formUsername, year, budgetOutput);
+            
+        } catch (Exception e) {
+            sendErrorResponse(exchange, 500, "Error processing year submission: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Serves the year selection page with budget results.
+     * @param exchange HTTP exchange
+     * @param frontendPath Path to frontend directory
+     * @param filename HTML file name
+     * @param username Username for employee page (null for minister)
+     * @param year Selected year
+     * @param budgetOutput Budget output from FullBudgetPrinter
+     */
+    private static void serveYearPageWithBudget(final HttpExchange exchange,
+                                                final String frontendPath,
+                                                final String filename,
+                                                final String username,
+                                                final String year,
+                                                final String budgetOutput) throws IOException {
+        try {
+            Path filePath = Paths.get(frontendPath, filename);
+            if (!Files.exists(filePath)) {
+                sendErrorResponse(exchange, 404, "File not found: " + filename);
+                return;
+            }
+            
+            String htmlContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+            
+            // Replace username placeholders if employee page
+            if (username != null) {
+                String safeUsername = username.isBlank() ? "Υπάλληλε" : username;
+                String encodedUsername = URLEncoder.encode(safeUsername, StandardCharsets.UTF_8);
+                htmlContent = htmlContent.replace("{{username}}", safeUsername);
+                htmlContent = htmlContent.replace("{{usernameEncoded}}", encodedUsername);
+            }
+            
+            // Convert budget output to HTML format with beautiful table
+            String budgetHtml = "<div style='margin-top: 32px; padding: 0; background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%); border-radius: 12px; border: 2px solid #0d4f1c; overflow: hidden; box-shadow: 0 4px 12px rgba(13, 79, 28, 0.2);'>";
+            budgetHtml += "<div style='background: linear-gradient(135deg, #0d4f1c 0%, #1b5e20 100%); padding: 20px; text-align: center;'>";
+            budgetHtml += "<h3 style='color: #ffffff; margin: 0; font-size: 22px; font-weight: 600; letter-spacing: 1px;'>ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΕΤΟΥΣ " + year + "</h3>";
+            budgetHtml += "</div>";
+            budgetHtml += "<div style='padding: 24px;'>";
+            
+            // Parse budget output and create table
+            String[] lines = budgetOutput.split("\n");
+            budgetHtml += "<table style='width: 100%; border-collapse: collapse; font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>";
+            for (String line : lines) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("---") || line.startsWith("==") || line.startsWith("--- ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ")) {
+                    continue;
+                }
+                
+                if (line.contains("ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ")) {
+                    budgetHtml += "<tr style='background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-top: 3px solid #0d4f1c;'>";
+                    String[] parts = line.split(":", 2);
+                    if (parts.length >= 2) {
+                        String label = parts[0].trim().replace("*", "").trim();
+                        String amount = parts[1].trim();
+                        budgetHtml += "<td style='padding: 18px 20px; font-weight: 700; font-size: 17px; color: #0d4f1c;'>" + label + "</td>";
+                        budgetHtml += "<td style='padding: 18px 20px; text-align: right; font-weight: 700; font-size: 17px; color: #1b5e20;'>" + amount + "</td>";
+                    } else {
+                        budgetHtml += "<td colspan='2' style='padding: 18px 20px; font-weight: 700; font-size: 17px; color: #0d4f1c; text-align: center;'>" + line.replace("*", "").trim() + "</td>";
+                    }
+                    budgetHtml += "</tr>";
+                } else if (line.contains(":") && !line.startsWith("---")) {
+                    String[] parts = line.split(":", 2);
+                    if (parts.length == 2) {
+                        String ministryName = parts[0].trim().replace("*", "").trim();
+                        String amount = parts[1].trim();
+                        budgetHtml += "<tr style='border-bottom: 1px solid #e8e8e8; transition: background-color 0.2s;'>";
+                        budgetHtml += "<td style='padding: 14px 20px; color: #2e7d32; font-size: 15px; line-height: 1.5;'>" + ministryName + "</td>";
+                        budgetHtml += "<td style='padding: 14px 20px; text-align: right; color: #1b5e20; font-weight: 600; font-size: 15px;'>" + amount + "</td>";
+                        budgetHtml += "</tr>";
+                    }
+                }
+            }
+            budgetHtml += "</table>";
+            budgetHtml += "</div></div>";
+            
+            // Insert budget results before the closing card div (before </form> or before </div> that closes card)
+            // Try multiple patterns to ensure we find the right place
+            if (htmlContent.contains("</form>")) {
+                htmlContent = htmlContent.replace("</form>", "</form>" + budgetHtml);
+            } else if (htmlContent.contains("        </div>\n    </div>")) {
+                htmlContent = htmlContent.replace("        </div>\n    </div>", budgetHtml + "\n        </div>\n    </div>");
+            } else if (htmlContent.contains("    </div>\n\n    <div class=\"container\"")) {
+                htmlContent = htmlContent.replace("    </div>\n\n    <div class=\"container\"", budgetHtml + "\n    </div>\n\n    <div class=\"container\"");
+            } else {
+                // Fallback: insert before the last </div> before </body>
+                int lastDivIndex = htmlContent.lastIndexOf("    </div>");
+                if (lastDivIndex > 0) {
+                    htmlContent = htmlContent.substring(0, lastDivIndex) + budgetHtml + "\n" + htmlContent.substring(lastDivIndex);
+                }
+            }
+            
+            sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
+        } catch (IOException e) {
+            sendErrorResponse(exchange, 500, "Error loading page: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Serves the year selection page with error message.
+     * @param exchange HTTP exchange
+     * @param frontendPath Path to frontend directory
+     * @param filename HTML file name
+     * @param username Username for employee page (null for minister)
+     * @param errorMessage Error message to display
+     */
+    private static void serveYearPageWithError(final HttpExchange exchange,
+                                              final String frontendPath,
+                                              final String filename,
+                                              final String username,
+                                              final String errorMessage) throws IOException {
+        try {
+            Path filePath = Paths.get(frontendPath, filename);
+            if (!Files.exists(filePath)) {
+                sendErrorResponse(exchange, 404, "File not found: " + filename);
+                return;
+            }
+            
+            String htmlContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+            
+            // Replace username placeholders if employee page
+            if (username != null) {
+                String safeUsername = username.isBlank() ? "Υπάλληλε" : username;
+                String encodedUsername = URLEncoder.encode(safeUsername, StandardCharsets.UTF_8);
+                htmlContent = htmlContent.replace("{{username}}", safeUsername);
+                htmlContent = htmlContent.replace("{{usernameEncoded}}", encodedUsername);
+            }
+            
+            // Add subtle error message
+            String errorHtml = "<div style='margin-top: 24px; padding: 16px 20px; background-color: #fff3e0; border-radius: 8px; border: 1px solid #ffb74d; box-shadow: 0 2px 8px rgba(255, 183, 77, 0.15);'>";
+            errorHtml += "<p style='color: #e65100; font-weight: 500; margin: 0; font-size: 15px; text-align: center; line-height: 1.6;'>";
+            errorHtml += "<span style='margin-right: 8px;'>⚠</span>" + errorMessage;
+            errorHtml += "</p></div>";
+            
+            // Insert error message before the closing card div
+            if (htmlContent.contains("</form>")) {
+                htmlContent = htmlContent.replace("</form>", "</form>" + errorHtml);
+            } else if (htmlContent.contains("        </div>\n    </div>")) {
+                htmlContent = htmlContent.replace("        </div>\n    </div>", errorHtml + "\n        </div>\n    </div>");
+            } else if (htmlContent.contains("    </div>\n\n    <div class=\"container\"")) {
+                htmlContent = htmlContent.replace("    </div>\n\n    <div class=\"container\"", errorHtml + "\n    </div>\n\n    <div class=\"container\"");
+            } else {
+                // Fallback: insert before the last </div> before </body>
+                int lastDivIndex = htmlContent.lastIndexOf("    </div>");
+                if (lastDivIndex > 0) {
+                    htmlContent = htmlContent.substring(0, lastDivIndex) + errorHtml + "\n" + htmlContent.substring(lastDivIndex);
+                }
+            }
+            
+            sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
+        } catch (IOException e) {
+            sendErrorResponse(exchange, 500, "Error loading page: " + e.getMessage());
+        }
     }
     
     /**

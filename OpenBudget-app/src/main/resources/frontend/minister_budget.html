@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ΥΠΕΝ - Παρουσίαση Προϋπολογισμού Υπουργού</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 25%, #0a3d15 50%, #0d4f1c 75%, #1b5e20 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 25% 30%, rgba(13, 79, 28, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 75% 80%, rgba(5, 26, 10, 0.25) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ministry-header {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 40px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            color: #e8f5e9;
+        }
+
+        .ministry-header h1 {
+            font-size: 36px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+        }
+
+        .ministry-header p {
+            margin-top: 8px;
+            font-size: 18px;
+            color: #c8e6c9;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            width: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+            border-radius: 20px;
+            padding: 48px 46px;
+            box-shadow:
+                0 12px 48px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 0 0 2px rgba(13, 79, 28, 0.2);
+            border: 3px solid #0d4f1c;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0d4f1c;
+            margin-bottom: 24px;
+        }
+
+        .info-text {
+            font-size: 16px;
+            color: #2e7d32;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .primary-btn {
+            display: inline-block;
+            margin: 0 auto;
+            margin-top: 28px;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #0d4f1c 0%, #1b5e20 100%);
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            font-size: 17px;
+            font-weight: 600;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(13, 79, 28, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(13, 79, 28, 0.45);
+        }
+    </style>
+</head>
+<body>
+    <div class="ministry-header">
+        <h1>ΥΠΟΥΡΓΕΙΟ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ</h1>
+        <p>Προβολή τρέχοντος προϋπολογισμού</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2 class="section-title">Παρουσίαση στοιχείων</h2>
+            <p class="info-text">
+                Η αναλυτική παρουσίαση του προϋπολογισμού παράγεται από το σύστημα Java και εμφανίζεται στο τερματικό.
+                Η σελίδα αυτή λειτουργεί ως σημείο πρόσβασης/τεκμηρίωσης για τον Υπουργό.
+            </p>
+
+            <a class="primary-btn" href="minister_statebudget.html">
+                Επιστροφή στην επιλογή έτους
+            </a>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -29,12 +29,13 @@ public class App {
             }
             
             // Fallback: try common paths if resource not found
+            // Prefer src/main/resources/frontend first (for development) before target/classes/frontend
             if (frontendPath == null || !new File(frontendPath).exists()) {
                 String currentDir = System.getProperty("user.dir");
                 String[] possiblePaths = {
-                    currentDir + File.separator + "target" + File.separator + "classes" + File.separator + "frontend",
                     currentDir + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "frontend",
-                    currentDir + File.separator + "OpenBudget-app" + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "frontend"
+                    currentDir + File.separator + "OpenBudget-app" + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "frontend",
+                    currentDir + File.separator + "target" + File.separator + "classes" + File.separator + "frontend"
                 };
                 
                 for (String path : possiblePaths) {
