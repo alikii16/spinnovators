@@ -8,6 +8,23 @@ public class MinistryDataInputTest {
     private static final int MAX_MINISTRIES = 30;
 
     @Test
+    public void testData2026() {
+        MinistryDataInput data = new MinistryDataInput();
+
+        assertEquals(MAX_MINISTRIES, data.getNames26().length);
+        assertEquals(MAX_MINISTRIES, data.getBudgetAmount26().length);
+        assertEquals(30, data.getSize26());
+
+        assertNotNull(data.getNames26()[3]);
+        assertTrue(data.getNames26()[3].contains("Υπουργείο Εσωτερικών"));
+        assertTrue(data.getBudgetAmount26()[3] > 0);
+
+        int last = data.getSize26() -1;
+        assertNotNull(data.getNames26()[last], "last 2026 name should be filled");
+        assertTrue(data.getBudgetAmount26()[last] > 0, "last 2026 amount should be > 0");
+    }
+
+    @Test
     public void testData2025() {
         MinistryDataInput data = new MinistryDataInput();
 
