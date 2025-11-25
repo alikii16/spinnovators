@@ -23,6 +23,7 @@ public final class FirstLogin {
      * It has to do with the login of the user,
      * repeating it until connection.
      */
+
     public static void login() {
         @SuppressWarnings("resource")
         Scanner input = new Scanner(System.in);
@@ -45,7 +46,8 @@ public final class FirstLogin {
             username = input.nextLine();
             System.out.print("Εισάγετε κωδικό: ");
             password = input.nextLine();
- if (username.equals(minister)
+      
+            if (username.equals(minister)
                     && password.equals(passwordMinister)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
                 isValid = true;
                 System.out.println(
@@ -63,6 +65,7 @@ public final class FirstLogin {
                     "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."
                 ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
             }
+
         } while (!isValid); 
     }
 }
