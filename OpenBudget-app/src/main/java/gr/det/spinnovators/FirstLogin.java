@@ -35,3 +35,10 @@ public final class FirstLogin {
 
 
         do {
+                // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
+            String username;
+                
+                // ΔΙΟΡΘΩΣΗ: VariableDeclarationUsageDistance (password)
+            String password; 
+                
+  
