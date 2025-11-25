@@ -45,5 +45,11 @@ public final class FirstLogin {
             username = input.nextLine();
             System.out.print("Εισάγετε κωδικό: ");
             password = input.nextLine();
+ if (username.equals(minister)
+                    && password.equals(passwordMinister)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
+                isValid = true;
+                System.out.println(
+                    "Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."
+                ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
 
            
