@@ -51,5 +51,12 @@ public final class FirstLogin {
                 System.out.println(
                     "Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."
                 ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
+            } else if (!username.equals(minister)
+                && password.equals(passwordEmployee)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation
+                isValid = true;
+                System.out.println(
+                    "Επιτυχής σύνδεση! Καλωσήρθατε " + username + "."
+                ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
+
 
            
