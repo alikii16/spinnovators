@@ -3,7 +3,6 @@ package gr.det.spinnovators;
 /**
  * This file will be used for users login.
  * */
-
 import java.util.Scanner;
 
 /**
@@ -11,7 +10,7 @@ import java.util.Scanner;
  * (Διορθώνει το MissingJavadocType στη γραμμή 5)
  */
 public final class FirstLogin {
-    
+
     /**
      * Private constructor for utility class to prevent instantiation.
      */ // ΔΙΟΡΘΩΣΗ: Σωστή εσεντάτωση
@@ -24,6 +23,7 @@ public final class FirstLogin {
      * It has to do with the login of the user,
      * repeating it until connection.
      */
+
     public static void login() {
         @SuppressWarnings("resource")
         Scanner input = new Scanner(System.in);
@@ -46,7 +46,7 @@ public final class FirstLogin {
             username = input.nextLine();
             System.out.print("Εισάγετε κωδικό: ");
             password = input.nextLine();
-
+      
             if (username.equals(minister)
                     && password.equals(passwordMinister)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
                 isValid = true;
@@ -65,6 +65,10 @@ public final class FirstLogin {
                     "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."
                 ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
             }
+
         } while (!isValid); 
     }
 }
+
+
+           
