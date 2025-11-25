@@ -15,10 +15,11 @@ public final class FirstLogin {
     /**
      * Private constructor for utility class to prevent instantiation.
      */ // ΔΙΟΡΘΩΣΗ: Σωστή εσεντάτωση
+
     private FirstLogin() {
 
     }
-    
+
     /**
      * It has to do with the login of the user,
      * repeating it until connection.
@@ -32,6 +33,7 @@ public final class FirstLogin {
         String passwordEmployee = "3mpl0y33";
 
         boolean isValid;
+
 
         do {
                 // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
