@@ -184,10 +184,11 @@
         <div class="card">
             <h2 class="section-title">Επιλογή Έτους Προϋπολογισμού</h2>
            
-            <form method="POST" action="minister_statebudget.html">
+            <form method="POST" action="employee_statebudget.html">
+                <input type="hidden" name="user" value="{{usernameEncoded}}">
                 <div class="year-form">
-                    <label for="yearInputMinister">Για ποιο έτος θέλετε να δείτε τον κρατικό προϋπολογισμό; (2023, 2024, 2025):</label>
-                    <input id="yearInputMinister" name="year" type="text" placeholder="π.χ. 2025" required>
+                    <label for="yearInputEmployee">Για ποιο έτος θέλετε να δείτε τον κρατικό προϋπολογισμό; (2023, 2024, 2025, 2026):</label>
+                    <input id="yearInputEmployee" name="year" type="text" placeholder="π.χ. 2025" required>
                 </div>
                 <button type="submit" class="primary-btn" style="border: none; cursor: pointer; margin-top: 20px;">
                     Εμφάνιση Προϋπολογισμού
