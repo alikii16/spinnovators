@@ -41,4 +41,9 @@ public final class FirstLogin {
                 // ΔΙΟΡΘΩΣΗ: VariableDeclarationUsageDistance (password)
             String password; 
                 
-  
+            System.out.print("Εισάγετε όνομα χρήστη: ");
+            username = input.nextLine();
+            System.out.print("Εισάγετε κωδικό: ");
+            password = input.nextLine();
+
+           
