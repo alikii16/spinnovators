@@ -452,7 +452,7 @@ public final class MinistryDataInput {
     return budgetAmount23;
   }
 
-  /** Returns the size of the 2023 budget data set.
+  /** Returns the size of the  2023 budget data set.
    * 
    * @return the integer size of the data set.
    */
