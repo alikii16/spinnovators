@@ -57,6 +57,15 @@ public final class FirstLogin {
                 System.out.println(
                     "Επιτυχής σύνδεση! Καλωσήρθατε " + username + "."
                 ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
+            } else {
+                isValid = false;
+                System.out.println(
+                    "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."
+                ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
+            }
+        } while (!isValid); 
+    }
+}
 
 
            
