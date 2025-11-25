@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import gr.det.spinnovators.envdatamodel.EnvBudgetData;
+
 /**
  * Web server class to handle login functionality via HTTP.
  * Serves HTML pages and processes login requests.
@@ -23,10 +25,27 @@ public final class LoginWebServer {
     private static final String PASSWORD_MINISTER = "m1n1st3r";
     private static final String PASSWORD_EMPLOYEE = "3mpl0y33";
     
+    // Budget data loaded from JSON (for budget.html pages)
+    private static EnvBudgetData envBudgetData = null;
+    private static EnvBudgetTranslator translator = null;
+    private static EnvBudgetPrinter envPrinter = null;
+    
     /**
      * Private constructor to prevent instantiation.
      */
     private LoginWebServer() {
+    }
+    
+    /**
+     * Initializes budget data from JSON file.
+     */
+    private static void initializeBudgetData() {
+        if (envBudgetData == null) {
+            EnvBudgetLoader envLoader = new EnvBudgetLoader();
+            envBudgetData = envLoader.loadBudget();
+            translator = new EnvBudgetTranslator();
+            envPrinter = new EnvBudgetPrinter(envBudgetData, translator);
+        }
     }
     
     /**
@@ -89,13 +108,22 @@ public final class LoginWebServer {
             }
         });
         server.createContext("/minister_budget.html", exchange -> {
-            System.out.println("[DEBUG] Request to /minister_budget.html");
-            serveStaticFile(exchange, frontendPath, "minister_budget.html");
+            System.out.println("[DEBUG] Request to /minister_budget.html : " + exchange.getRequestMethod());
+            if ("POST".equals(exchange.getRequestMethod())) {
+                handleYearSubmission(exchange, frontendPath, "minister_budget.html", null);
+            } else {
+                serveStaticFile(exchange, frontendPath, "minister_budget.html");
+            }
         });
         server.createContext("/employee_budget.html", exchange -> {
-            System.out.println("[DEBUG] Request to /employee_budget.html");
+            System.out.println("[DEBUG] Request to /employee_budget.html : " + exchange.getRequestMethod());
             String usernameParam = getQueryParam(exchange, "user");
-            serveHtmlWithUsername(exchange, frontendPath, "employee_budget.html", usernameParam);
+            if ("POST".equals(exchange.getRequestMethod())) {
+                // For POST, get username from form data or query string
+                handleYearSubmission(exchange, frontendPath, "employee_budget.html", usernameParam);
+            } else {
+                serveHtmlWithUsername(exchange, frontendPath, "employee_budget.html", usernameParam);
+            }
         });
         
         server.setExecutor(null); // Use default executor
@@ -363,7 +391,9 @@ public final class LoginWebServer {
                                             final String filename,
                                             final String username) throws IOException {
         try {
+            System.out.println("[DEBUG] ========== handleYearSubmission START ==========");
             System.out.println("[DEBUG] handleYearSubmission called for: " + filename);
+            System.out.println("[DEBUG] Request method: " + exchange.getRequestMethod());
             System.out.println("[DEBUG] Username from query: " + username);
             
             // Read form data
@@ -380,6 +410,7 @@ public final class LoginWebServer {
             // Parse year and username from form data
             String year = null;
             String formUsername = username; // Default to query param username
+            String formDataUsername = null;
             if (formData != null && !formData.isEmpty()) {
                 String[] pairs = formData.split("&");
                 System.out.println("[DEBUG] Number of form pairs: " + pairs.length);
@@ -392,14 +423,32 @@ public final class LoginWebServer {
                         if ("year".equals(key)) {
                             year = value;
                         } else if ("user".equals(key)) {
-                            formUsername = value;
+                            formDataUsername = value;
                         }
                     }
                 }
             }
             
+            // Determine final username: prefer form data if it's not a placeholder, otherwise use query param
+            // Note: formDataUsername is already decoded, so we can use it directly
+            if (formDataUsername != null && !formDataUsername.equals("{{usernameEncoded}}") && !formDataUsername.isEmpty()) {
+                // Form data contains the decoded username (from the hidden input that was already replaced)
+                formUsername = formDataUsername;
+                System.out.println("[DEBUG] Using username from form data (decoded): " + formUsername);
+            } else if (username != null && !username.isEmpty()) {
+                // Use username from query string (already decoded)
+                formUsername = username;
+                System.out.println("[DEBUG] Using username from query string: " + formUsername);
+            } else {
+                // Last resort: use default, but this should not happen if the page was loaded correctly
+                formUsername = "Υπάλληλε";
+                System.out.println("[DEBUG] WARNING: No username found, using default: " + formUsername);
+            }
+            
             System.out.println("[DEBUG] Parsed year: " + year);
             System.out.println("[DEBUG] Final username: " + formUsername);
+            System.out.println("[DEBUG] Username from query string: " + username);
+            System.out.println("[DEBUG] Username from form data: " + formDataUsername);
             
             // Validate year
             if (year == null || year.isEmpty()) {
@@ -408,34 +457,67 @@ public final class LoginWebServer {
                 return;
             }
             
-            // Check if year is valid (2023, 2024, 2025)
-            if (!year.equals("2023") && !year.equals("2024") && !year.equals("2025")) {
-                serveYearPageWithError(exchange, frontendPath, filename, formUsername, "Δεν υπάρχουν δεδομένα για το έτος " + year + ". Παρακαλώ επιλέξτε 2023, 2024 ή 2025.");
-                return;
+            // Check if this is a budget.html page (uses EnvBudgetPrinter) or statebudget.html (uses FullBudgetPrinter)
+            boolean isBudgetPage = filename.contains("budget.html") && !filename.contains("statebudget");
+            
+            if (isBudgetPage) {
+                // For budget.html pages: use EnvBudgetPrinter (supports 2023, 2024, 2025, 2026)
+                if (!year.equals("2023") && !year.equals("2024") && !year.equals("2025") && !year.equals("2026")) {
+                    serveYearPageWithError(exchange, frontendPath, filename, formUsername, "Δεν υπάρχουν δεδομένα για το έτος " + year + ". Παρακαλώ επιλέξτε 2023, 2024, 2025 ή 2026.");
+                    return;
+                }
+                
+                // Initialize budget data from JSON
+                initializeBudgetData();
+                
+                // Capture System.out to get budget output
+                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                java.io.PrintStream originalOut = System.out;
+                java.io.PrintStream capturedOut = new java.io.PrintStream(baos, true, StandardCharsets.UTF_8);
+                System.setOut(capturedOut);
+                
+                try {
+                    envPrinter.printYearlyBudget(year);
+                } finally {
+                    System.setOut(originalOut);
+                }
+                
+                String budgetOutput = baos.toString(StandardCharsets.UTF_8);
+                
+                // Serve page with budget results
+                serveYearPageWithBudget(exchange, frontendPath, filename, formUsername, year, budgetOutput);
+            } else {
+                // For statebudget.html pages: use FullBudgetPrinter (supports 2023, 2024, 2025, 2026)
+                if (!year.equals("2023") && !year.equals("2024") && !year.equals("2025") && !year.equals("2026")) {
+                    serveYearPageWithError(exchange, frontendPath, filename, formUsername, "Δεν υπάρχουν δεδομένα για το έτος " + year + ". Παρακαλώ επιλέξτε 2023, 2024, 2025 ή 2026.");
+                    return;
+                }
+                
+                // Get budget data
+                MinistryDataInput allData = new MinistryDataInput();
+                FullBudgetPrinter printer = new FullBudgetPrinter(allData);
+                
+                // Capture System.out to get budget output
+                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                java.io.PrintStream originalOut = System.out;
+                java.io.PrintStream capturedOut = new java.io.PrintStream(baos, true, StandardCharsets.UTF_8);
+                System.setOut(capturedOut);
+                
+                try {
+                    printer.showBudget(year);
+                } finally {
+                    System.setOut(originalOut);
+                }
+                
+                String budgetOutput = baos.toString(StandardCharsets.UTF_8);
+                
+                // Serve page with budget results
+                serveYearPageWithBudget(exchange, frontendPath, filename, formUsername, year, budgetOutput);
             }
-            
-            // Get budget data
-            MinistryDataInput allData = new MinistryDataInput();
-            FullBudgetPrinter printer = new FullBudgetPrinter(allData);
-            
-            // Capture System.out to get budget output
-            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            java.io.PrintStream originalOut = System.out;
-            java.io.PrintStream capturedOut = new java.io.PrintStream(baos, true, StandardCharsets.UTF_8);
-            System.setOut(capturedOut);
-            
-            try {
-                printer.showBudget(year);
-            } finally {
-                System.setOut(originalOut);
-            }
-            
-            String budgetOutput = baos.toString(StandardCharsets.UTF_8);
-            
-            // Serve page with budget results
-            serveYearPageWithBudget(exchange, frontendPath, filename, formUsername, year, budgetOutput);
             
         } catch (Exception e) {
+            System.out.println("[ERROR] Exception in handleYearSubmission: " + e.getMessage());
+            e.printStackTrace();
             sendErrorResponse(exchange, 500, "Error processing year submission: " + e.getMessage());
         }
     }
@@ -464,12 +546,21 @@ public final class LoginWebServer {
             
             String htmlContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
             
-            // Replace username placeholders if employee page
-            if (username != null) {
-                String safeUsername = username.isBlank() ? "Υπάλληλε" : username;
-                String encodedUsername = URLEncoder.encode(safeUsername, StandardCharsets.UTF_8);
-                htmlContent = htmlContent.replace("{{username}}", safeUsername);
-                htmlContent = htmlContent.replace("{{usernameEncoded}}", encodedUsername);
+            // Replace username placeholders if employee page (always replace, even if null)
+            String safeUsername = (username == null || username.isBlank()) ? "Υπάλληλε" : username;
+            String encodedUsername = URLEncoder.encode(safeUsername, StandardCharsets.UTF_8);
+            System.out.println("[DEBUG] serveYearPageWithBudget - filename: " + filename + ", username param: " + username + ", safeUsername: " + safeUsername + ", encodedUsername: " + encodedUsername);
+            htmlContent = htmlContent.replace("{{username}}", safeUsername);
+            htmlContent = htmlContent.replace("{{usernameEncoded}}", encodedUsername);
+            
+            // Debug: check if the link was replaced correctly
+            if (htmlContent.contains("employee_statebudget.html?user=")) {
+                int linkIndex = htmlContent.indexOf("employee_statebudget.html?user=");
+                int linkEnd = htmlContent.indexOf("\"", linkIndex);
+                if (linkEnd > linkIndex) {
+                    String link = htmlContent.substring(linkIndex, linkEnd);
+                    System.out.println("[DEBUG] Link after replacement: " + link);
+                }
             }
             
             // Convert budget output to HTML format with beautiful table
@@ -479,40 +570,115 @@ public final class LoginWebServer {
             budgetHtml += "</div>";
             budgetHtml += "<div style='padding: 24px;'>";
             
-            // Parse budget output and create table
-            String[] lines = budgetOutput.split("\n");
-            budgetHtml += "<table style='width: 100%; border-collapse: collapse; font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>";
-            for (String line : lines) {
-                line = line.trim();
-                if (line.isEmpty() || line.startsWith("---") || line.startsWith("==") || line.startsWith("--- ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ")) {
-                    continue;
+            // Check if this is EnvBudgetPrinter format (has "ΤΟΜΕΑΣ" or "ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ") or FullBudgetPrinter format
+            boolean isEnvFormat = budgetOutput.contains("ΤΟΜΕΑΣ:") || budgetOutput.contains("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ:");
+            
+            if (isEnvFormat) {
+                // Parse EnvBudgetPrinter format (structured with sectors, units, entries)
+                String[] lines = budgetOutput.split("\n");
+                budgetHtml += "<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>";
+                
+                String currentSector = null;
+                String currentUnit = null;
+                boolean inUnit = false;
+                
+                for (String line : lines) {
+                    line = line.trim();
+                    if (line.isEmpty() || line.startsWith("---") || line.startsWith("==") || line.contains("ΑΝΑΛΥΤΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ")) {
+                        continue;
+                    }
+                    
+                    // Sector header
+                    if (line.startsWith("ΤΟΜΕΑΣ:")) {
+                        if (currentSector != null) {
+                            budgetHtml += "</div></div>"; // Close previous sector
+                        }
+                        currentSector = line.replace("ΤΟΜΕΑΣ:", "").trim();
+                        budgetHtml += "<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; border-radius: 8px; overflow: hidden;'>";
+                        budgetHtml += "<div style='background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 100%); padding: 16px; color: #ffffff; font-weight: 600; font-size: 18px;'>";
+                        budgetHtml += "📊 " + currentSector;
+                        budgetHtml += "</div><div style='padding: 16px;'>";
+                        inUnit = false;
+                    }
+                    // Unit header
+                    else if (line.startsWith("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ:")) {
+                        if (currentUnit != null && inUnit) {
+                            budgetHtml += "</table></div>"; // Close previous unit table
+                        }
+                        currentUnit = line.replace("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ:", "").trim();
+                        budgetHtml += "<div style='margin-top: 16px; margin-bottom: 12px;'>";
+                        budgetHtml += "<h4 style='color: #0d4f1c; font-size: 16px; font-weight: 600; margin-bottom: 8px;'>" + currentUnit + "</h4>";
+                        budgetHtml += "<table style='width: 100%; border-collapse: collapse;'>";
+                        inUnit = true;
+                    }
+                    // Entry line (starts with "-")
+                    else if (line.startsWith("-") && line.contains(":") && inUnit) {
+                        String[] parts = line.substring(1).split(":", 2);
+                        if (parts.length == 2) {
+                            String entryName = parts[0].trim();
+                            String amount = parts[1].trim();
+                            budgetHtml += "<tr style='border-bottom: 1px solid #e8e8e8;'>";
+                            budgetHtml += "<td style='padding: 10px 12px; color: #2e7d32; font-size: 14px;'>" + entryName + "</td>";
+                            budgetHtml += "<td style='padding: 10px 12px; text-align: right; color: #1b5e20; font-weight: 600; font-size: 14px;'>" + amount + "</td>";
+                            budgetHtml += "</tr>";
+                        }
+                    }
+                    // Unit total
+                    else if (line.startsWith("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ:") && inUnit) {
+                        String[] parts = line.split(":", 2);
+                        if (parts.length == 2) {
+                            String amount = parts[1].trim();
+                            budgetHtml += "<tr style='background-color: #f1f8e9; border-top: 2px solid #0d4f1c;'>";
+                            budgetHtml += "<td style='padding: 12px; font-weight: 700; color: #0d4f1c; font-size: 15px;'>Σύνολο Μονάδας</td>";
+                            budgetHtml += "<td style='padding: 12px; text-align: right; font-weight: 700; color: #1b5e20; font-size: 15px;'>" + amount + "</td>";
+                            budgetHtml += "</tr></table></div>";
+                            inUnit = false;
+                        }
+                    }
                 }
                 
-                if (line.contains("ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ")) {
-                    budgetHtml += "<tr style='background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-top: 3px solid #0d4f1c;'>";
-                    String[] parts = line.split(":", 2);
-                    if (parts.length >= 2) {
-                        String label = parts[0].trim().replace("*", "").trim();
-                        String amount = parts[1].trim();
-                        budgetHtml += "<td style='padding: 18px 20px; font-weight: 700; font-size: 17px; color: #0d4f1c;'>" + label + "</td>";
-                        budgetHtml += "<td style='padding: 18px 20px; text-align: right; font-weight: 700; font-size: 17px; color: #1b5e20;'>" + amount + "</td>";
-                    } else {
-                        budgetHtml += "<td colspan='2' style='padding: 18px 20px; font-weight: 700; font-size: 17px; color: #0d4f1c; text-align: center;'>" + line.replace("*", "").trim() + "</td>";
+                // Close last sector if open
+                if (currentSector != null) {
+                    budgetHtml += "</div></div>";
+                }
+                
+                budgetHtml += "</div>";
+            } else {
+                // Parse FullBudgetPrinter format (simple list format)
+                String[] lines = budgetOutput.split("\n");
+                budgetHtml += "<table style='width: 100%; border-collapse: collapse; font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>";
+                for (String line : lines) {
+                    line = line.trim();
+                    if (line.isEmpty() || line.startsWith("---") || line.startsWith("==") || line.startsWith("--- ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ")) {
+                        continue;
                     }
-                    budgetHtml += "</tr>";
-                } else if (line.contains(":") && !line.startsWith("---")) {
-                    String[] parts = line.split(":", 2);
-                    if (parts.length == 2) {
-                        String ministryName = parts[0].trim().replace("*", "").trim();
-                        String amount = parts[1].trim();
-                        budgetHtml += "<tr style='border-bottom: 1px solid #e8e8e8; transition: background-color 0.2s;'>";
-                        budgetHtml += "<td style='padding: 14px 20px; color: #2e7d32; font-size: 15px; line-height: 1.5;'>" + ministryName + "</td>";
-                        budgetHtml += "<td style='padding: 14px 20px; text-align: right; color: #1b5e20; font-weight: 600; font-size: 15px;'>" + amount + "</td>";
+                    
+                    if (line.contains("ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ")) {
+                        budgetHtml += "<tr style='background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-top: 3px solid #0d4f1c;'>";
+                        String[] parts = line.split(":", 2);
+                        if (parts.length >= 2) {
+                            String label = parts[0].trim().replace("*", "").trim();
+                            String amount = parts[1].trim();
+                            budgetHtml += "<td style='padding: 18px 20px; font-weight: 700; font-size: 17px; color: #0d4f1c;'>" + label + "</td>";
+                            budgetHtml += "<td style='padding: 18px 20px; text-align: right; font-weight: 700; font-size: 17px; color: #1b5e20;'>" + amount + "</td>";
+                        } else {
+                            budgetHtml += "<td colspan='2' style='padding: 18px 20px; font-weight: 700; font-size: 17px; color: #0d4f1c; text-align: center;'>" + line.replace("*", "").trim() + "</td>";
+                        }
                         budgetHtml += "</tr>";
+                    } else if (line.contains(":") && !line.startsWith("---")) {
+                        String[] parts = line.split(":", 2);
+                        if (parts.length == 2) {
+                            String ministryName = parts[0].trim().replace("*", "").trim();
+                            String amount = parts[1].trim();
+                            budgetHtml += "<tr style='border-bottom: 1px solid #e8e8e8; transition: background-color 0.2s;'>";
+                            budgetHtml += "<td style='padding: 14px 20px; color: #2e7d32; font-size: 15px; line-height: 1.5;'>" + ministryName + "</td>";
+                            budgetHtml += "<td style='padding: 14px 20px; text-align: right; color: #1b5e20; font-weight: 600; font-size: 15px;'>" + amount + "</td>";
+                            budgetHtml += "</tr>";
+                        }
                     }
                 }
+                budgetHtml += "</table>";
             }
-            budgetHtml += "</table>";
             budgetHtml += "</div></div>";
             
             // Insert budget results before the closing card div (before </form> or before </div> that closes card)
@@ -559,13 +725,11 @@ public final class LoginWebServer {
             
             String htmlContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
             
-            // Replace username placeholders if employee page
-            if (username != null) {
-                String safeUsername = username.isBlank() ? "Υπάλληλε" : username;
-                String encodedUsername = URLEncoder.encode(safeUsername, StandardCharsets.UTF_8);
-                htmlContent = htmlContent.replace("{{username}}", safeUsername);
-                htmlContent = htmlContent.replace("{{usernameEncoded}}", encodedUsername);
-            }
+            // Replace username placeholders if employee page (always replace, even if null)
+            String safeUsername = (username == null || username.isBlank()) ? "Υπάλληλε" : username;
+            String encodedUsername = URLEncoder.encode(safeUsername, StandardCharsets.UTF_8);
+            htmlContent = htmlContent.replace("{{username}}", safeUsername);
+            htmlContent = htmlContent.replace("{{usernameEncoded}}", encodedUsername);
             
             // Add subtle error message
             String errorHtml = "<div style='margin-top: 24px; padding: 16px 20px; background-color: #fff3e0; border-radius: 8px; border: 1px solid #ffb74d; box-shadow: 0 2px 8px rgba(255, 183, 77, 0.15);'>";

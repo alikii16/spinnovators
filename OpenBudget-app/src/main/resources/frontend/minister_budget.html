@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ΥΠΕΝ - Παρουσίαση Προϋπολογισμού Υπουργού</title>
     <style>
         * {
@@ -13,6 +13,7 @@
 
         body {
             background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 25%, #0a3d15 50%, #0d4f1c 75%, #1b5e20 100%);
+            background-color: #0a3d15;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             display: flex;
@@ -27,8 +28,8 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(circle at 25% 30%, rgba(13, 79, 28, 0.18) 0%, transparent 45%),
-                radial-gradient(circle at 75% 80%, rgba(5, 26, 10, 0.25) 0%, transparent 55%);
+                radial-gradient(circle at 15% 40%, rgba(13, 79, 28, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 80% 70%, rgba(5, 26, 10, 0.25) 0%, transparent 55%);
             pointer-events: none;
             z-index: 0;
         }
@@ -40,15 +41,16 @@
             width: 100%;
             position: relative;
             z-index: 1;
-            color: #e8f5e9;
         }
 
         .ministry-header h1 {
-            font-size: 36px;
+            color: #e8f5e9;
+            font-size: 38px;
             font-weight: 600;
             letter-spacing: 2px;
-            text-transform: uppercase;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+            text-transform: uppercase;
+            line-height: 1.2;
         }
 
         .ministry-header p {
@@ -59,7 +61,10 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 640px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
             z-index: 1;
         }
@@ -81,19 +86,47 @@
             font-size: 24px;
             font-weight: 700;
             color: #0d4f1c;
+            margin-bottom: 16px;
+        }
+
+        .description {
+            text-align: center;
+            font-size: 16px;
+            color: #2e7d32;
             margin-bottom: 24px;
         }
 
-        .info-text {
-            font-size: 16px;
-            color: #2e7d32;
-            text-align: center;
+        .year-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
             margin-bottom: 24px;
+        }
+
+        .year-form label {
+            font-size: 15px;
+            color: #1b5e20;
+        }
+
+        .year-form input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #a5d6a7;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: #fafafa;
+            transition: border-color 0.3s;
+        }
+
+        .year-form input:focus {
+            outline: none;
+            border-color: #1b5e20;
+            box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.15);
+            background-color: #fff;
         }
 
         .primary-btn {
             display: inline-block;
-            margin: 0 auto;
             margin-top: 28px;
             width: 100%;
             padding: 15px;
@@ -112,27 +145,56 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 24px rgba(13, 79, 28, 0.45);
         }
+
+        .secondary-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #558b2f 0%, #33691e 100%);
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            font-size: 17px;
+            font-weight: 600;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(85, 139, 47, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .secondary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(85, 139, 47, 0.45);
+        }
     </style>
 </head>
 <body>
     <div class="ministry-header">
         <h1>ΥΠΟΥΡΓΕΙΟ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ</h1>
-        <p>Προβολή τρέχοντος προϋπολογισμού</p>
     </div>
 
     <div class="container">
         <div class="card">
-            <h2 class="section-title">Παρουσίαση στοιχείων</h2>
-            <p class="info-text">
-                Η αναλυτική παρουσίαση του προϋπολογισμού παράγεται από το σύστημα Java και εμφανίζεται στο τερματικό.
-                Η σελίδα αυτή λειτουργεί ως σημείο πρόσβασης/τεκμηρίωσης για τον Υπουργό.
+            <h2 class="section-title">Παρουσίαση Προϋπολογισμού</h2>
+            <p class="description">
+                Για ποιο έτος θέλετε να δείτε τον κρατικό προϋπολογισμό; (2023, 2024, 2025, 2026)
             </p>
 
-            <a class="primary-btn" href="minister_statebudget.html">
-                Επιστροφή στην επιλογή έτους
-            </a>
+            <form method="POST" action="minister_budget.html">
+                <div class="year-form">
+                    <label for="yearInputMinister">Πληκτρολογήστε το έτος:</label>
+                    <input id="yearInputMinister" name="year" type="text" placeholder="π.χ. 2025" required>
+                </div>
+                <button type="submit" class="primary-btn" style="border: none; cursor: pointer; margin-top: 20px;">
+                    Εμφάνιση Προϋπολογισμού
+                </button>
+            </form>
         </div>
+    </div>
+
+    <div class="container" style="margin-top: 30px;">
+        <a class="secondary-btn" href="minister_statebudget.html">
+            Επιστροφή στην σελίδα του Κρατκού Προϋπολογισμού
+        </a>
     </div>
 </body>
 </html>
-
