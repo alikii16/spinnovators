@@ -36,6 +36,22 @@ public class FullBudgetPrinterTest {
     }
 
     @Test
+    public void testShowBudget2026() {
+        MinistryDataInput data = new MinistryDataInput();
+        FullBudgetPrinter printer = new FullBudgetPrinter(data);
+
+        printer.showBudget("2026");
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΕΤΟΥΣ 2026"), "There has to be a header for year 2026");
+        assertTrue(output.contains(data.getNames26()[0]), "At least the first ministry should be presented");
+        assertTrue(output.contains("ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ"), "The total budget line should be present");
+
+        String expectedTotal = formatTotal(data.getBudgetAmount26(), data.getSize26(), HELLENIC_LOCALE);
+        assertTrue(output.contains(expectedTotal), "The total budget amount should be correctly formatted in greek: " + expectedTotal);
+    }
+
+    @Test
     public void testShowBudget2025() {
         MinistryDataInput data = new MinistryDataInput();
         FullBudgetPrinter printer = new FullBudgetPrinter(data);
