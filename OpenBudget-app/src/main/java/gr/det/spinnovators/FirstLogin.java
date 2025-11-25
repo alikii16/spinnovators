@@ -11,7 +11,7 @@ import java.util.Scanner;
  * (Διορθώνει το MissingJavadocType στη γραμμή 5)
  */
 public final class FirstLogin {
-    
+
     /**
      * Private constructor for utility class to prevent instantiation.
      */ // ΔΙΟΡΘΩΣΗ: Σωστή εσεντάτωση
@@ -68,3 +68,4 @@ public final class FirstLogin {
         } while (!isValid); 
     }
 }
+
