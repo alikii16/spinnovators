@@ -22,5 +22,4 @@ public class EnvBudgetLoaderTest {
         assertEquals(0, data.getEnvMinistryTotalBudget().size());
         assertNull(data.getBudgetForYear("2020"));
     }
-
 }
