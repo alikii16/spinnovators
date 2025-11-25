@@ -43,11 +43,11 @@ public class EnvBudgetPrinterTest {
         // Έλεγχος ότι εμφανίζεται σωστά το output
         String output = outContent.toString();
         assertTrue(output.contains("ΑΝΑΛΥΤΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ"));
-        assertTrue(output.contains("ΤΟΜΕΑΣ: energy"));
+        assertTrue(output.contains("ΤΟΜΕΑΣ: Ενέργεια"));
         assertTrue(output.contains("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ: general_secretariat"));
         assertTrue(output.contains("personnel_costs"));
         assertTrue(output.contains("equipment_costs"));
-        assertTrue(output.contains("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: 1,500.00 €"));
+        assertTrue(output.contains("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: 1.500,00 €"));
     }
 
     @Test
