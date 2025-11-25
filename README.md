@@ -126,6 +126,45 @@ permanent_assets=Πάγια Περιουσιακά Στοιχεία
 - The Project Object Model (pom.xml) manages the project's dependencies and build process.
 - Java 17, dependencies for Gson and JUnit, plugins for testing and execution.
 
+---
+## Front-End HTML Interfaces 
+---
+
+### 1. Web Server, Authentication & Dynamic Budget Rendering (LoginWebServer.java)
+- Implements a simple HTTP server that handles login and serves HTML pages for the budgeting app.
+- Authenticates users as either Minister or Employee and redirects them to the appropriate dashboard.
+- Loads budget data for selected years and injects dynamic output into the HTML templates.
+- Reads, processes, and returns frontend files with optional error messages.
+- Provides utility methods for redirects, parameter extraction, and building dynamic responses.
+
+### 2. Display of the employee dashboard for selecting a year and viewing Environment Ministry budget data (employee_budget.html)
+- Description: Main interface for employees to choose a fiscal year.
+- Function: Sends the selected year to the server for budget processing.
+- Backend Interaction: Communicates with /employee/year POST handler.
+- UI Elements: Year dropdown, submit button, navigation links.
+
+### 3. Employee interface for accessing State Budget data (employee_statebudget.html)
+- Description: Dashboard for navigating to State Budget tools.
+- Input Handling: Captures the chosen fiscal year for processing.
+- Dynamic Placeholders: Displays the logged-in employee name.
+- Navigation: Links to return to login or go to detailed analysis pages.
+
+### 4. Login interface for all system users (login.html)
+- Description: Landing page with username/password fields.
+- Function: Sends credentials to /login for verification.
+- Backend Interaction: Works with the login POST handler.
+- UI Elements: Input fields, submit button, error message area.
+
+### 5. Display of the minister dashboard for selecting a budget year (minister_budget.html)
+- Description: Main page for the minister to enter a year and view the Environment Ministry budget.
+- Function: Sends the chosen year to minister_statebudget.html for processing.
+- UI Elements: Year input field, “Show Budget” button, navigation link back to State Budget page.
+
+### 6. Display of the detailed state budget results for the minister (minister_statebudget.html) 
+- Description: Displays the selected year’s State Budget for the minister.
+- Function: Receives the year input and shows budget data in a structured format.
+- UI Elements: Year input field, “Show Budget” button, link to ministry budget overview.
+
 --- 
 ##  System Capabilities and Constraints
 ---
