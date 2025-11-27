@@ -28,7 +28,9 @@ public class EnvEntry {
     this.amount = amount;
   }
   
-  /*javadoc.
+  /* This method defines how the object is printed by returning 
+   * a string that looks like {jsonKey: amount} whenever the 
+   * object is converted to text. 
    */
   @Override
   public String toString() {
