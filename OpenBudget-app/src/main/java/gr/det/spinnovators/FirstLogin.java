@@ -7,13 +7,13 @@ import java.util.Scanner;
 
 /**
  * Utility class to handle user login process. 
- * (Διορθώνει το MissingJavadocType στη γραμμή 5)
+ * It prompts the user for credentials and validates them,
  */
 public final class FirstLogin {
 
     /**
      * Private constructor for utility class to prevent instantiation.
-     */ // ΔΙΟΡΘΩΣΗ: Σωστή εσεντάτωση
+     */
 
     private FirstLogin() {
 
@@ -36,10 +36,9 @@ public final class FirstLogin {
 
 
         do {
-                // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
+
             String username;
                 
-                // ΔΙΟΡΘΩΣΗ: VariableDeclarationUsageDistance (password)
             String password; 
                 
             System.out.print("Εισάγετε όνομα χρήστη: ");
@@ -48,27 +47,24 @@ public final class FirstLogin {
             password = input.nextLine();
       
             if (username.equals(minister)
-                    && password.equals(passwordMinister)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation (8 spaces)
+                    && password.equals(passwordMinister)) {
                 isValid = true;
                 System.out.println(
                     "Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."
-                ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
+                );
             } else if (!username.equals(minister)
-                && password.equals(passwordEmployee)) { // ΔΙΟΡΘΩΣΗ: Correct Indentation
+                && password.equals(passwordEmployee)) {
                 isValid = true;
                 System.out.println(
                     "Επιτυχής σύνδεση! Καλωσήρθατε " + username + "."
-                ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
+                );
             } else {
                 isValid = false;
                 System.out.println(
                     "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."
-                ); // ΔΙΟΡΘΩΣΗ: Correct Indentation
+                );
             }
 
         } while (!isValid); 
     }
 }
-
-
-           

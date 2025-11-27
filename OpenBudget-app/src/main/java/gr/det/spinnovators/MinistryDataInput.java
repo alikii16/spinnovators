@@ -1,5 +1,6 @@
 package gr.det.spinnovators;
 
+/**Class that inputs budget data about each ministry. */
 public final class MinistryDataInput {
 
   /** The maximum number of ministries.
@@ -352,9 +353,9 @@ public final class MinistryDataInput {
       this.budgetAmount23[i] = AMOUNTS_2023[i];
     }
   }
-
-    /**Returns the array of ministry names for 2026.
-   * 
+  
+  /**Returns the array of ministry names for 2026.
+   *
    * @return The String array containg names.
    */
   
@@ -363,7 +364,7 @@ public final class MinistryDataInput {
   }
   
   /**Returns the array of budget amounts for 2026.
-   * 
+   *
    * @return The double array containing budget amounts.
    */
   
@@ -371,8 +372,8 @@ public final class MinistryDataInput {
     return budgetAmount26;
   }
   
-  /** Returns the size of the 2026 budget data set.
-   * 
+  /**Returns the size of the 2026 budget data set.
+   *
    * @return the integer size of the data set.
    */
   
@@ -381,7 +382,7 @@ public final class MinistryDataInput {
   }
 
   /**Returns the array of ministry names for 2025.
-   * 
+   *
    * @return The String array containg names.
    */
   
@@ -390,7 +391,7 @@ public final class MinistryDataInput {
   }
   
   /**Returns the array of budget amounts for 2025.
-   * 
+   *
    * @return The double array containing budget amounts.
    */
   
@@ -399,7 +400,7 @@ public final class MinistryDataInput {
   }
   
   /** Returns the size of the 2025 budget data set.
-   * 
+   *
    * @return the integer size of the data set.
    */
   
@@ -408,7 +409,7 @@ public final class MinistryDataInput {
   }
 
   /**Returns the array of ministry names for 2024.
-   * 
+   *
    * @return The String array containg names.
    */
   
@@ -417,7 +418,7 @@ public final class MinistryDataInput {
   }
   
   /**Returns the array of budget amounts for 2024.
-   * 
+   *
    * @return The double array containing budget amounts.
    */
   
@@ -426,7 +427,7 @@ public final class MinistryDataInput {
   }
   
   /** Returns the size of the 2024 budget data set.
-   * 
+   *
    * @return the integer size of the data set.
    */
   
@@ -435,7 +436,7 @@ public final class MinistryDataInput {
   }
 
   /**Returns the array of ministry names for 2023.
-   * 
+   *
    *  @return The String array containg names.
    */
   
@@ -444,7 +445,7 @@ public final class MinistryDataInput {
   }
 
   /**Returns the array of budget amounts for 2023.
-   * 
+   *
    * @return The double array containing budget amounts.
    */
   
@@ -453,7 +454,7 @@ public final class MinistryDataInput {
   }
 
   /** Returns the size of the  2023 budget data set.
-   * 
+   *
    * @return the integer size of the data set.
    */
   
