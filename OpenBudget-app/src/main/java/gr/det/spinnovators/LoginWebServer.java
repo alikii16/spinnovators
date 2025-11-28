@@ -152,6 +152,7 @@ public final class LoginWebServer {
               sendErrorResponse(exchange, 404, "login.html not found at: " + htmlPath);
               return;
           }
+
           
           String htmlContent = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
           System.out.println("[DEBUG] HTML content length: " + htmlContent.length() + " characters");
@@ -768,8 +769,6 @@ public final class LoginWebServer {
                                          final int statusCode, 
                                          final String message) throws IOException {
         String errorHtml = "<html><body><h1>Error " + statusCode + "</h1><p>" + message + "</p></body></html>";
-        sendResponse(exchange, errorHtml, statusCode, "text/html; charset=UTF-8");
-    }
+    sendResponse(exchange, errorHtml, statusCode, "text/html; charset=UTF-8");
+  }
 }
-
-
