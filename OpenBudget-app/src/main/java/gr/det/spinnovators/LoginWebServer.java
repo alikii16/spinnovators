@@ -104,102 +104,104 @@ public final class LoginWebServer {
                 // For POST, preserve the username from query string
                 handleYearSubmission(exchange, frontendPath, "employee_statebudget.html", usernameParam);
             } else {
-                serveHtmlWithUsername(exchange, frontendPath, "employee_statebudget.html", usernameParam);
-            }
+            serveHtmlWithUsername(exchange, frontendPath, "employee_statebudget.html", usernameParam);
+          }
         });
-        server.createContext("/minister_budget.html", exchange -> {
-            System.out.println("[DEBUG] Request to /minister_budget.html : " + exchange.getRequestMethod());
-            if ("POST".equals(exchange.getRequestMethod())) {
-                handleYearSubmission(exchange, frontendPath, "minister_budget.html", null);
-            } else {
-                serveStaticFile(exchange, frontendPath, "minister_budget.html");
-            }
+    server.createContext("/minister_budget.html", exchange -> {
+          System.out.println("[DEBUG] Request to /minister_budget.html : " + exchange.getRequestMethod());
+          if ("POST".equals(exchange.getRequestMethod())) {
+            handleYearSubmission(exchange, frontendPath, "minister_budget.html", null);
+          } else {
+            serveStaticFile(exchange, frontendPath, "minister_budget.html");
+          }
         });
-        server.createContext("/employee_budget.html", exchange -> {
-            System.out.println("[DEBUG] Request to /employee_budget.html : " + exchange.getRequestMethod());
-            String usernameParam = getQueryParam(exchange, "user");
-            if ("POST".equals(exchange.getRequestMethod())) {
-                // For POST, get username from form data or query string
-                handleYearSubmission(exchange, frontendPath, "employee_budget.html", usernameParam);
-            } else {
-                serveHtmlWithUsername(exchange, frontendPath, "employee_budget.html", usernameParam);
-            }
-        });
+    server.createContext("/employee_budget.html", exchange -> {
+      System.out.println("[DEBUG] Request to /employee_budget.html : " + exchange.getRequestMethod());
+      String usernameParam = getQueryParam(exchange, "user");
+      if ("POST".equals(exchange.getRequestMethod())) {
+            // For POST, get username from form data or query string
+        handleYearSubmission(exchange, frontendPath, "employee_budget.html", usernameParam);
+      } else {
+        serveHtmlWithUsername(exchange, frontendPath, "employee_budget.html", usernameParam);
+      }
+    });
         
-        server.setExecutor(null); // Use default executor
-        server.start();
+    server.setExecutor(null); // Use default executor
+    server.start();
         
-        System.out.println("Web server started on http://localhost:" + PORT);
-        System.out.println("Open http://localhost:" + PORT + "/login.html in your browser");
-    }
+    System.out.println("Web server started on http://localhost:" + PORT);
+    System.out.println("Open http://localhost:" + PORT + "/login.html in your browser");
+  }
     
     /**
      * Serves the login page with optional error message.
      * @param exchange HTTP exchange
+     * 
      * @param frontendPath Path to frontend directory
      * @param errorMessage Error message to display (null if no error)
-     */
+   */
     private static void serveLoginPage(final HttpExchange exchange, 
                                        final String frontendPath, 
                                        final String errorMessage) throws IOException {
-        try {
-            Path htmlPath = Paths.get(frontendPath, "login.html");
-            System.out.println("[DEBUG] Serving login page from: " + htmlPath);
-            System.out.println("[DEBUG] File exists: " + Files.exists(htmlPath));
+    try {
+      Path htmlPath = Paths.get(frontendPath, "login.html");
+      System.out.println("[DEBUG] Serving login page from: " + htmlPath);
+      System.out.println("[DEBUG] File exists: " + Files.exists(htmlPath));
             
-            if (!Files.exists(htmlPath)) {
-                sendErrorResponse(exchange, 404, "login.html not found at: " + htmlPath);
-                return;
+      if (!Files.exists(htmlPath)) {
+        sendErrorResponse(exchange, 404, "login.html not found at: " + htmlPath);
+        return;
             }
             
             String htmlContent = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
             System.out.println("[DEBUG] HTML content length: " + htmlContent.length() + " characters");
             
             // If there's an error message, inject it into the HTML
-            if (errorMessage != null && !errorMessage.isEmpty()) {
+      if (errorMessage != null && !errorMessage.isEmpty()) {
                 // Remove error-message-hidden class and update the message text
-                htmlContent = htmlContent.replace(
+            htmlContent = htmlContent.replace(
                     "class=\"message error-message error-message-hidden\"",
                     "class=\"message error-message\""
                 );
-                htmlContent = htmlContent.replace(
+            htmlContent = htmlContent.replace(
                     "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά.",
                     errorMessage
                 );
-                System.out.println("[DEBUG] Error message injected into HTML: " + errorMessage);
-            } else {
+         System.out.println("[DEBUG] Error message injected into HTML: " + errorMessage);
+      } else {
                 // Ensure error message is hidden if no error
-                if (!htmlContent.contains("error-message-hidden")) {
-                    htmlContent = htmlContent.replace(
+      if (!htmlContent.contains("error-message-hidden")) {
+          htmlContent = htmlContent.replace(
                         "class=\"message error-message\"",
                         "class=\"message error-message error-message-hidden\""
                     );
-                }
-            }
+        }
+      }
             
-            sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
-        } catch (IOException e) {
+      sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
+    } catch (IOException e) {
             sendErrorResponse(exchange, 500, "Error loading login page: " + e.getMessage());
         }
-    }
+  }
     
     /**
      * Handles POST request from login form.
+     * 
      * @param exchange HTTP exchange
      * @param frontendPath Path to frontend directory
-     */
-    private static void handleLoginPost(final HttpExchange exchange, 
+  */
+  private static void handleLoginPost(final HttpExchange exchange, 
                                         final String frontendPath) throws IOException {
-        try {
+      try {
             // Read all form data byte-by-byte to ensure we get everything
-            java.io.InputStream requestBody = exchange.getRequestBody();
-            byte[] buffer = new byte[1024];
+      java.io.InputStream requestBody = exchange.getRequestBody();
+      byte[] buffer = new byte[1024];
             StringBuilder formDataBuilder = new StringBuilder();
-            int bytesRead;
-            while ((bytesRead = requestBody.read(buffer)) != -1) {
-                formDataBuilder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
-            }
-            String formData = formDataBuilder.toString();
+        int bytesRead;
+      while ((bytesRead = requestBody.read(buffer)) != -1) {
+      formDataBuilder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
+        }
+        String formData = formDataBuilder.toString();
             
             System.out.println("[DEBUG] Raw form data received: " + formData);
             
@@ -207,20 +209,20 @@ public final class LoginWebServer {
             String username = null;
             String password = null;
             
-            if (formData != null && !formData.isEmpty()) {
-                String[] pairs = formData.split("&");
-                System.out.println("[DEBUG] Number of form pairs: " + pairs.length);
-                for (String pair : pairs) {
-                    String[] keyValue = pair.split("=", 2);
-                    if (keyValue.length == 2) {
-                        String key = java.net.URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
-                        String value = java.net.URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
-                        System.out.println("[DEBUG] Parsed - Key: '" + key + "', Value: '" + value + "'");
-                        if ("username".equals(key)) {
-                            username = value;
-                        } else if ("password".equals(key)) {
-                            password = value;
-                        }
+    if (formData != null && !formData.isEmpty()) {
+    String[] pairs = formData.split("&");
+    System.out.println("[DEBUG] Number of form pairs: " + pairs.length);
+        for (String pair : pairs) {
+        String[] keyValue = pair.split("=", 2);
+            if (keyValue.length == 2) {
+            String key = java.net.URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
+            String value = java.net.URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
+            System.out.println("[DEBUG] Parsed - Key: '" + key + "', Value: '" + value + "'");
+                if ("username".equals(key)) {
+                username = value;
+                    } else if ("password".equals(key)) {
+                    password = value;
+                }
                     } else if (keyValue.length == 1) {
                         // Handle case where value might be empty
                         String key = java.net.URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
@@ -230,18 +232,18 @@ public final class LoginWebServer {
                         } else if ("password".equals(key)) {
                             password = "";
                         }
-                    }
+    }
                 }
             }
             
             // Validate credentials using FirstLogin logic
-            System.out.println("========================================");
-            System.out.println("[WEB LOGIN] Login attempt received");
-            System.out.println("[WEB LOGIN] Username: " + (username != null ? username : "null"));
-            System.out.println("[WEB LOGIN] Checking credentials...");
+        System.out.println("========================================");
+        System.out.println("[WEB LOGIN] Login attempt received");
+        System.out.println("[WEB LOGIN] Username: " + (username != null ? username : "null"));
+        System.out.println("[WEB LOGIN] Checking credentials...");
             
-            if (username != null && password != null) {
-                if (username.equals(MINISTER) && password.equals(PASSWORD_MINISTER)) {
+        if (username != null && password != null) {
+            if (username.equals(MINISTER) && password.equals(PASSWORD_MINISTER)) {
                     // Minister login successful - redirect to minister page
                     System.out.println("[WEB LOGIN] ✓ Login SUCCESSFUL - Minister");
                     System.out.println("[WEB LOGIN] Redirecting to: /minister_statebudget.html");
@@ -250,7 +252,7 @@ public final class LoginWebServer {
                     return;
                 } else if (!username.equals(MINISTER) && password.equals(PASSWORD_EMPLOYEE)) {
                     // Employee login successful - redirect to employee page
-                    System.out.println("[WEB LOGIN] ✓ Login SUCCESSFUL - Employee: " + username);
+                System.out.println("[WEB LOGIN] ✓ Login SUCCESSFUL - Employee: " + username);
                     System.out.println("[WEB LOGIN] Redirecting to: /employee_statebudget.html");
                     System.out.println("========================================");
                     String encodedUser = URLEncoder.encode(username, StandardCharsets.UTF_8);
@@ -273,19 +275,20 @@ public final class LoginWebServer {
     
     /**
      * Serves a static HTML file.
+     * 
      * @param exchange HTTP exchange
      * @param frontendPath Path to frontend directory
      * @param filename Name of the file to serve
-     */
+    */
     private static void serveStaticFile(final HttpExchange exchange, 
                                         final String frontendPath, 
-                                        final String filename) throws IOException {
-        try {
-            Path filePath = Paths.get(frontendPath, filename);
-            if (!Files.exists(filePath)) {
-                sendErrorResponse(exchange, 404, "File not found: " + filename);
-                return;
-            }
+                                  final String filename) throws IOException {
+    try {
+      Path filePath = Paths.get(frontendPath, filename);
+        if (!Files.exists(filePath)) {
+            sendErrorResponse(exchange, 404, "File not found: " + filename);
+        return;
+     }
             
             String content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
             sendResponse(exchange, content, 200, "text/html; charset=UTF-8");
@@ -303,12 +306,12 @@ public final class LoginWebServer {
      * @throws IOException if file missing
      */
     private static void serveHtmlWithUsername(final HttpExchange exchange,
-            final String frontendPath, final String filename, final String username) throws IOException {
-        try {
+        final String frontendPath, final String filename, final String username) throws IOException {
+    try {
             Path filePath = Paths.get(frontendPath, filename);
-            if (!Files.exists(filePath)) {
+        if (!Files.exists(filePath)) {
                 sendErrorResponse(exchange, 404, "File not found: " + filename);
-                return;
+        return;
             }
 
             String htmlContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
@@ -341,9 +344,9 @@ public final class LoginWebServer {
             String[] keyValue = pair.split("=", 2);
             if (keyValue.length == 2) {
                 String decodedKey = java.net.URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
-                if (decodedKey.equals(key)) {
-                    return java.net.URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
-                }
+                    if (decodedKey.equals(key)) {
+                        return java.net.URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
+                    }
             }
         }
         return null;
@@ -582,40 +585,40 @@ public final class LoginWebServer {
                 String currentUnit = null;
                 boolean inUnit = false;
                 
-                for (String line : lines) {
-                    line = line.trim();
+          for (String line : lines) {
+            line = line.trim();
                     if (line.isEmpty() || line.startsWith("---") || line.startsWith("==") || line.contains("ΑΝΑΛΥΤΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ")) {
                         continue;
                     }
-                    
-                    // Sector header
-                    if (line.startsWith("ΤΟΜΕΑΣ:")) {
-                        if (currentSector != null) {
-                            budgetHtml += "</div></div>"; // Close previous sector
-                        }
-                        currentSector = line.replace("ΤΟΜΕΑΣ:", "").trim();
-                        budgetHtml += "<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; border-radius: 8px; overflow: hidden;'>";
-                        budgetHtml += "<div style='background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 100%); padding: 16px; color: #ffffff; font-weight: 600; font-size: 18px;'>";
-                        budgetHtml += "📊 " + currentSector;
-                        budgetHtml += "</div><div style='padding: 16px;'>";
-                        inUnit = false;
-                    }
+          
+              // Sector header
+              if (line.startsWith("ΤΟΜΕΑΣ:")) {
+            if (currentSector != null) {
+            budgetHtml += "</div></div>"; // Close previous sector
+            }
+            currentSector = line.replace("ΤΟΜΕΑΣ:", "").trim();
+            budgetHtml += "<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; border-radius: 8px; overflow: hidden;'>";
+            budgetHtml += "<div style='background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 100%); padding: 16px; color: #ffffff; font-weight: 600; font-size: 18px;'>";
+            budgetHtml += "📊 " + currentSector;
+            budgetHtml += "</div><div style='padding: 16px;'>";
+            inUnit = false;
+          }
                     // Unit header
-                    else if (line.startsWith("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ:")) {
-                        if (currentUnit != null && inUnit) {
-                            budgetHtml += "</table></div>"; // Close previous unit table
-                        }
-                        currentUnit = line.replace("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ:", "").trim();
-                        budgetHtml += "<div style='margin-top: 16px; margin-bottom: 12px;'>";
-                        budgetHtml += "<h4 style='color: #0d4f1c; font-size: 16px; font-weight: 600; margin-bottom: 8px;'>" + currentUnit + "</h4>";
-                        budgetHtml += "<table style='width: 100%; border-collapse: collapse;'>";
-                        inUnit = true;
-                    }
-                    // Entry line (starts with "-")
-                    else if (line.startsWith("-") && line.contains(":") && inUnit) {
-                        String[] parts = line.substring(1).split(":", 2);
-                        if (parts.length == 2) {
-                            String entryName = parts[0].trim();
+              else if (line.startsWith("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ:")) {
+            if (currentUnit != null && inUnit) {
+            budgetHtml += "</table></div>"; // Close previous unit table
+            }
+            currentUnit = line.replace("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ:", "").trim();
+            budgetHtml += "<div style='margin-top: 16px; margin-bottom: 12px;'>";
+            budgetHtml += "<h4 style='color: #0d4f1c; font-size: 16px; font-weight: 600; margin-bottom: 8px;'>" + currentUnit + "</h4>";
+            budgetHtml += "<table style='width: 100%; border-collapse: collapse;'>";
+            inUnit = true;
+          }
+          // Entry line (starts with "-")
+          else if (line.startsWith("-") && line.contains(":") && inUnit) {
+            String[] parts = line.substring(1).split(":", 2);
+            if (parts.length == 2) {
+                           String entryName = parts[0].trim();
                             String amount = parts[1].trim();
                             budgetHtml += "<tr style='border-bottom: 1px solid #e8e8e8;'>";
                             budgetHtml += "<td style='padding: 10px 12px; color: #2e7d32; font-size: 14px;'>" + entryName + "</td>";
