@@ -2,6 +2,7 @@ package gr.det.spinnovators;
 
 import java.util.Scanner;
 import java.io.File;
+import java.util.ArrayList;
 
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 
@@ -104,7 +105,27 @@ public class App {
             }
 
         } while (!chosenYear.equals("0000"));
-  
+
+        System.out.println("--- ΕΦΑΡΜΟΓΗ ΠΡΟΥΠΟΛΟΓΙΣΜΟΥ ---");
+
+        EnvBudgetService service = new EnvBudgetService();
+
+        service.loadData("env_budget_data.json");
+
+        ArrayList<EnvBudgetEntry> budget2025 = service.getList2025();
+        ArrayList<EnvBudgetEntry> budget2026 = service.getList2026();
+
+        System.out.println("\nΒρέθηκαν " + budget2025.size() + " εγγραφές για το 2025.");
+        System.out.println("Βρέθηκαν " + budget2026.size() + " εγγραφές για το 2026.");
+
+        if (!budget2026.isEmpty()) {
+            System.out.println("\n--- Δείγμα (2026) ---");
+            for (int i = 0; i < 3; i++) {
+                System.out.println(budget2026.get(i));
+                System.out.println("-");
+            }
+        }
+
         scanner.close(); 
     } 
 }
