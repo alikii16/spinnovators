@@ -14,7 +14,7 @@ public class EnvBudgetPrinter {
 
   private final EnvBudgetData data;
   private final EnvBudgetTranslator translator;
-  private static final Locale HELLENIC_LOCALE = new Locale("el", "GR");
+  private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
 
   public EnvBudgetPrinter(EnvBudgetData data, EnvBudgetTranslator translator) {
     this.data = data;
@@ -42,6 +42,8 @@ public class EnvBudgetPrinter {
       System.out.printf(" ΤΟΜΕΑΣ: %s\n", translatedSector);
       System.out.println("--------------------------------------------------------------------");
 
+      double sectorTotal = 0;
+
       for (EnvUnit unit : sector.getUnits()) {
                     
         String translatedUnit = translator.translateCategory(unit.getJsonKey());
@@ -57,7 +59,9 @@ public class EnvBudgetPrinter {
           unitTotal += amount;
         }
         System.out.printf(HELLENIC_LOCALE, " ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: %,.2f €\n\n", unitTotal);
+        sectorTotal += unitTotal;
       }
+      System.out.printf(HELLENIC_LOCALE, " ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ (%s): %,.2f €\n", translatedSector, sectorTotal);
     }
     System.out.println("\n--------------------------------------------------------------------");
   }
