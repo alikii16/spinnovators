@@ -14,7 +14,7 @@ public class EnvBudgetPrinter {
 
   private final EnvBudgetData data;
   private final EnvBudgetTranslator translator;
-  private static final Locale HELLENIC_LOCALE = new Locale("el", "GR");
+  private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
 
   public EnvBudgetPrinter(EnvBudgetData data, EnvBudgetTranslator translator) {
     this.data = data;
