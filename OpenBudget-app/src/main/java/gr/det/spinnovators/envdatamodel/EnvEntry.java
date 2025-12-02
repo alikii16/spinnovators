@@ -28,7 +28,6 @@ public class EnvEntry {
     this.amount = amount;
   }
   
-  /*javadoc.
    */
   @Override
   public String toString() {

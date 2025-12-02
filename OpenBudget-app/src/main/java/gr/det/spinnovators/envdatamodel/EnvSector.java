@@ -24,9 +24,7 @@ public class EnvSector {
     return units;
   }
 
-  // Helper method: locate a unit by its key
   /*
-   *javadoc.
    */
   public EnvUnit getUnitByKey(String key) {
     if (key == null) {
@@ -37,6 +35,5 @@ public class EnvSector {
         return unit;
       }
     }
-    return null; // Unit not found
   }
 }
