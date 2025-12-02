@@ -21,13 +21,17 @@ public class EnvBudgetData {
   }
   
   /* 
+   * Getter methods that return an EnvYear object for a specific 
+   * year - or null if it does not exist - and the total budjet per year
    */
   public EnvYear getBudgetForYear(String year) {
     if (dataByYear == null) {
       return null;
     }
     return dataByYear.get(year);
+  } 
 
   public Map<String, Double> getEnvMinistryTotalBudget() {
     return envMinistryTotalBudget;
+  } 
 }

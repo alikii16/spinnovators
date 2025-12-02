@@ -25,6 +25,8 @@ public class EnvYear {
   }
 
   /*
+   *  Traverses sectors --> units --> entries and 
+   * returns the EnvEntry object.
    */
 
   public EnvEntry findEntry(String sectorKey, String unitKey, String entryKey) {
