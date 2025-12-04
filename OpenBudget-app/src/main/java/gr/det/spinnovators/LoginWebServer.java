@@ -610,7 +610,7 @@ public final class LoginWebServer {
             currentSector = line.replace("ΤΟΜΕΑΣ:", "").trim();
             budgetHtml += "<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; border-radius: 8px; overflow: hidden;'>";
             budgetHtml += "<div style='background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 100%); padding: 16px; color: #ffffff; font-weight: 600; font-size: 18px;'>";
-            budgetHtml += "📊 " + currentSector;
+            budgetHtml += currentSector;
             budgetHtml += "</div><div style='padding: 16px;'>";
             inUnit = false;
           }
@@ -650,6 +650,25 @@ public final class LoginWebServer {
               inUnit = false;
             }
           }
+          else if (line.startsWith("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ")) {
+
+    String amount = line.split(":")[1].trim();
+
+    budgetHtml += "<div style='margin-top: 16px; "
+                + "padding: 12px 16px; "
+                + "background-color: #f1f8e9; "
+                + "border: 2px solid #0d4f1c; "
+                + "border-radius: 8px; "
+                + "font-weight: 700; "
+                + "color: #0d4f1c; "
+                + "font-size: 15px;'>"
+                + "Συνολικό ποσό τομέα: "
+                + "<span style='float:right; color:#1b5e20;'>"
+                + amount
+                + "</span>"
+                + "</div>";
+}
+
         }
                 
         // Close last sector if open
