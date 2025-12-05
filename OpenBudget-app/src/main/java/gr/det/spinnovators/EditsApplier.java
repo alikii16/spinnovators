@@ -8,6 +8,10 @@ public class EditsApplier {
   private final EnvBudgetTranslator translator;
   private final Scanner scanner;
 
+  //they preserve the data during the changes
+  private double currentBalance = 0;
+  private double totalBudget = 0;
+
   public EditsApplier(EnvBudgetTranslator translator) {
     this.translator = translator;
     this.scanner = new Scanner(System.in);
@@ -20,9 +24,9 @@ public class EditsApplier {
     
     String temp = year.getYear();
 
-    if (temp == "2025") {
+    if ("2025".equals(temp)) {
       double totalBudget = 2341227000.00;
-    } else if (temp == "2026") {
+    } else if ("2026".equals(temp)) {
       double totalBudget = 3133452000.00;
     }
 
@@ -68,8 +72,6 @@ public class EditsApplier {
               entry.setAmount(newAmount);
               double offsetAmount = oldAmount - newAmount;
               System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Δημιουργήθηκε διαφορά: ", offsetAmount, " ευρώ");
-
-              
             } catch (NumberFormatException e) {
               System.out.println(" Λάθος: Παρακαλώ δώστε έγκυρο αριθμό.");
             }         
