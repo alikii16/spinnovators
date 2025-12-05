@@ -17,6 +17,14 @@ public class EditsApplier {
     boolean keepEditing = true;
 
     System.out.println("\n--- ΕΝΑΡΞΗ ΕΠΕΞΕΡΓΑΣΙΑΣ ΓΙΑ ΤΟ ΕΤΟΣ " + year.getYear() + " ---");
+    
+    String temp = year.getYear();
+
+    if (temp == "2025") {
+      double totalBudget = 2341227000.00;
+    } else if (temp == "2026") {
+      double totalBudget = 3133452000.00;
+    }
 
     while (keepEditing) {
       System.out.println("\\nΠληκτρολογήστε την κατηγορία που θέλετε να επεξεργαστείτε ή 'ΤΕΛΟΣ' για έξοδο.");
