@@ -126,7 +126,9 @@ public final class LoginWebServer {
       serveHtmlWithUsername(exchange, frontendPath, "employee_budget.html", usernameParam);
     }
   });
-            
+    server.createContext("/change-budget", exchange -> {
+    serveStaticFile(exchange, frontendPath, "change-budget.html");
+  });   
     server.setExecutor(null); // Use default executor
     server.start();
       
