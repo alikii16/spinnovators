@@ -66,7 +66,10 @@ public class EditsApplier {
             try {
               double newAmount = Double.parseDouble(amountInput);
               entry.setAmount(newAmount);
-              System.out.println(" [OK] Η τιμή άλλαξε επιτυχώς.");
+              double offsetAmount = oldAmount - newAmount;
+              System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Δημιουργήθηκε διαφορά: ", offsetAmount, " ευρώ");
+
+              
             } catch (NumberFormatException e) {
               System.out.println(" Λάθος: Παρακαλώ δώστε έγκυρο αριθμό.");
             }         
