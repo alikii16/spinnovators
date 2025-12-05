@@ -54,7 +54,6 @@ public class EditsApplier {
           System.out.print("Δώσε το νέο ποσό: ");
                        
           String amountInput = scanner.nextLine().trim();
-          // EDO THA PERNAEI TON ELEGXO EGKYROTITAS KALONTAS THN METHODO CHRISANTHI/NIKOU
            
             try {
               double newAmount = Double.parseDouble(amountInput);
@@ -64,6 +63,7 @@ public class EditsApplier {
               System.out.println(" Λάθος: Παρακαλώ δώστε έγκυρο αριθμό.");
             }         
           return;
+          // EDO THA PERNAEI TON ELEGXO EGKYROTITAS KALONTAS THN METHODO CHRISANTHI/NIKOU
         }
         }
       }
