@@ -8,6 +8,10 @@ public class EditsApplier {
   private final EnvBudgetTranslator translator;
   private final Scanner scanner;
 
+  //they preserve the data during the changes
+  private double currentBalance = 0;
+  private double totalBudget = 0;
+
   public EditsApplier(EnvBudgetTranslator translator) {
     this.translator = translator;
     this.scanner = new Scanner(System.in);
@@ -20,20 +24,37 @@ public class EditsApplier {
     
     String temp = year.getYear();
 
-    if (temp == "2025") {
+    if ("2025".equals(temp)) {
       double totalBudget = 2341227000.00;
-    } else if (temp == "2026") {
+    } else if ("2026".equals(temp)) {
       double totalBudget = 3133452000.00;
     }
 
+    this.currentBalance = 0.0;
+    int counter = 0;
+
     while (keepEditing) {
+      if (counter == 0) {
+        counter = 3;
+      } else {
+        System.out.printf("ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ: this.currentBalance");
+      }
+
       System.out.println("\\nΠληκτρολογήστε την κατηγορία που θέλετε να επεξεργαστείτε ή 'ΤΕΛΟΣ' για έξοδο.");
       System.out.print("-->");
       
       String searchInput = scanner.nextLine().trim();
 
       if (searchInput.equalsIgnoreCase("ΤΕΛΟΣ") || searchInput.equalsIgnoreCase("TELOS")) {
-        keepEditing = false;
+        if (Math.abs(this.currentBalance) == 0) {
+          System.out.println("O προυπολογισμός είναι ισοσκελισμένος!");
+          System.out.println("Τερματισμός Λειτουργίας");
+          keepEditing = false;
+        } else {
+          System.out.printf("Δεν επιτρέπεται τερματισμός");
+          System.out.printf("Ο προϋπολογισμός δεν ισοσκελίστηκε, συνεχίστε τις αλλαγές");
+          System.out.printf("Υπόλοιπο: ", currentBalance);
+        }
       } else if (!searchInput.isEmpty()) {
         findAndEditCategory(year, searchInput);
       }
@@ -66,12 +87,15 @@ public class EditsApplier {
             try {
               double newAmount = Double.parseDouble(amountInput);
               entry.setAmount(newAmount);
-              System.out.println(" [OK] Η τιμή άλλαξε επιτυχώς.");
+              double offsetAmount = oldAmount - newAmount;
+              //CURRENT BALANCE CORRECTION
+              this.currentBalance += offsetAmount;
+              System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Δημιουργήθηκε διαφορά: ", offsetAmount, " ευρώ");
             } catch (NumberFormatException e) {
               System.out.println(" Λάθος: Παρακαλώ δώστε έγκυρο αριθμό.");
             }         
           return;
-          // EDO THA PERNAEI TON ELEGXO EGKYROTITAS KALONTAS THN METHODO CHRISANTHI/NIKOU
+          // EDO THA PERNAEI TON ELEGXO EGKYROTITA
         }
         }
       }
