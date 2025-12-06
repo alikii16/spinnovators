@@ -25,16 +25,16 @@ public class BudgetValidator {
      * Validates a new budget value.
      * If validation fails, requests a new value from the user until a valid value is entered.
      *
-     * @param totalMinistryBudget Total budget of the ministry for the current year
-     * @param oldValue Existing (old) value of the category
-     * @param initialNewValue Initial new value entered by the user
+     * @param totalBudget Total budget of the ministry for the current year
+     * @param oldAmount Existing (old) value of the category
+     * @param newAmount Initial new value entered by the user
      * @return The validated new value after all checks
      */
-    public double getValidatedNewValue(double totalMinistryBudget, double oldValue, double initialNewValue) {
-        double currentValue = initialNewValue;
+    public double getValidatedNewValue(double totalBudget, double oldAmount, double newAmount) {
+        double currentValue = newAmount;
        
         System.out.printf("Old value: %,.2f € | Total ministry budget: %,.2f €\n\n",
-                         oldValue, totalMinistryBudget);
+                         oldAmount, totalBudget);
        
         while (true) {
             // CHECK 1: Negative value
@@ -45,16 +45,16 @@ public class BudgetValidator {
             }
            
             // CHECK 2: Value exceeds total budget
-            if (currentValue > totalMinistryBudget) {
+            if (currentValue > totalBudget) {
                 System.out.printf("ERROR: Value (%,.2f €) exceeds total ministry budget (%,.2f €).\n",
-                                 currentValue, totalMinistryBudget);
+                                 currentValue, totalBudget);
                 currentValue = getNewInputFromUser();
                 continue;
             }
            
             // CHECK 3: Extreme deviation (> 20%)
-            if (isExtremeDeviation(oldValue, currentValue)) {
-                double deviation = calculateDeviationPercentage(oldValue, currentValue);
+            if (isExtremeDeviation(oldAmount, currentValue)) {
+                double deviation = calculateDeviationPercentage(oldAmount, currentValue);
                
                 System.out.println("\n==============================================");
                 System.out.println("WARNING: EXTREME BUDGET CHANGE");
