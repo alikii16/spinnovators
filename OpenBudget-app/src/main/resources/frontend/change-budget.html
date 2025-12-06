@@ -1,17 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="el">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <title>Αλλαγή Προϋπολογισμού</title>
 
-       body {
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
             background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 25%, #0a3d15 50%, #0d4f1c 75%, #1b5e20 100%);
             background-color: #0a3d15;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -22,21 +19,203 @@
             padding: 20px;
             position: relative;
         }
-         .container {
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 15% 40%, rgba(13, 79, 28, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 80% 70%, rgba(5, 26, 10, 0.25) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ministry-header {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 40px;
             width: 100%;
-            max-width: 640px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             position: relative;
             z-index: 1;
         }
 
+        .ministry-header h1 {
+            color: #e8f5e9;
+            font-size: 38px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+            text-transform: uppercase;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            width: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+            border-radius: 20px;
+            padding: 48px 46px;
+            box-shadow:
+                0 12px 48px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 0 0 2px rgba(13, 79, 28, 0.2);
+            border: 3px solid #0d4f1c;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0d4f1c;
+            margin-bottom: 24px;
+        }
+
+        .primary-btn, .secondary-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 15px;
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            font-size: 17px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #0d4f1c 0%, #1b5e20 100%);
+            border: none;
+        }
+
+        .secondary-btn {
+            background: linear-gradient(135deg, #558b2f 0%, #33691e 100%);
+            border: none;
+        }
+        /* --- Κεντρικό πλαίσιο ίδιας αισθητικής με minister_budget.html --- */
+.big-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 32px;
+    width: 100%;
+    max-width: 650px;
+    margin: 24px auto;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+    border: 2px solid #0d4f1c;
+}
+
+/* Τίτλος όπως στο minister_budget */
+.big-card h2 {
+    margin-top: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #0d4f1c;
+    text-align: center;
+}
+
+/* input ίδιου στυλ */
+.input-box {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1.5px solid #0d4f1c;
+    margin-top: 12px;
+    margin-bottom: 22px;
+}
+
+/* κουμπί ίδιο με minister_budget */
+.green-button {
+    width: 100%;
+    padding: 14px 16px;
+    background-color: #0d4f1c;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.green-button:hover {
+    background-color: #144d24;
+}
+
+/* Πίνακας ακριβώς ίδιος με minister_budget */
+.table-wrapper {
+    margin-top: 28px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 2px solid #0d4f1c;
+    overflow: hidden;
+}
+
+.table-header {
+    background: linear-gradient(135deg, #0d4f1c 0%, #1b5e20 100%);
+    padding: 18px;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.table-content {
+    padding: 24px;
+}
+
+.budget-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.budget-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.budget-table td.amount {
+    text-align: right;
+    font-weight: 600;
+    color: #1b5e20;
+}
+
     </style>
 </head>
 <body>
-     <div class="container">
-        <h1>Αλλαγή Προϋπολογισμού</h1>
-          </div>
+
+    <div class="ministry-header">
+        <h1>ΥΠΟΥΡΓΕΙΟ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ</h1>
+    </div>
+
+    <div class="container">
+        <div class="card">
+
+            <h2 class="section-title">Αλλαγή Προϋπολογισμού</h2>
+
+           <form method="POST" action="/change-budget">
+  <p class="section-title">
+     Θέλετε να προχωρήσετε σε τροποποίηση του προϋπολογισμού;
+  </p>
+<div class="buttons-row">
+                <button name="answer" value="YES" class="btn">ΝΑΙ</button>
+                <button name="answer" value="NO" class="btn btn-red">ΟΧΙ</button>
+            </div>
+</form>
+ {{secondQuestion}}
+    {{categoryMenu}}
+        </div>
+    </div>
+
 </body>
 </html>

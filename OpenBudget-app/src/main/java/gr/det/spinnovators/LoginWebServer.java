@@ -3,8 +3,10 @@ package gr.det.spinnovators;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpExchange;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -127,8 +129,21 @@ public final class LoginWebServer {
     }
   });
     server.createContext("/change-budget", exchange -> {
-    serveStaticFile(exchange, frontendPath, "change-budget.html");
-  });   
+    if ("POST".equals(exchange.getRequestMethod())) {
+        handleChangeBudgetStart(exchange, frontendPath);
+    } else {
+        serveStaticFile(exchange, frontendPath, "change-budget.html");
+    }
+});
+
+server.createContext("/change-budget-year", exchange -> {
+    if ("POST".equals(exchange.getRequestMethod())) {
+        handleChangeBudgetYear(exchange, frontendPath);
+    } else {
+        serveStaticFile(exchange, frontendPath, "change-budget.html");
+    }
+});
+
     server.setExecutor(null); // Use default executor
     server.start();
       
@@ -813,4 +828,73 @@ public final class LoginWebServer {
     String errorHtml = "<html><body><h1>Error " + statusCode + "</h1><p>" + message + "</p></body></html>";
     sendResponse(exchange, errorHtml, statusCode, "text/html; charset=UTF-8");
   }
+private static void handleChangeBudgetStart(HttpExchange exchange, String frontendPath) throws IOException {
+    String secondQuestionHtml =
+            "<div class='card-block'>" +
+            "<form method='POST' action='/change-budget-year'>" +
+            "<label class='label'>Επιλέξτε έτος για επεξεργασία (2025 / 2026):</label>" +
+            "<input type='text' name='year' class='input' placeholder='π.χ. 2025'>" +
+            "<button class='btn' style='margin-top:15px;'>Συνέχεια</button>" +
+            "</form></div>";
+
+    Path htmlPath = Paths.get(frontendPath, "change-budget.html");
+    String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
+
+    html = html.replace("{{secondQuestion}}", secondQuestionHtml);
+    html = html.replace("{{budgetTable}}", "");
+    html = html.replace("{{categoryMenu}}", "");
+
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+}
+private static void handleChangeBudgetYear(HttpExchange exchange, String frontendPath) throws IOException {
+
+    String formData = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+    String year = formData.split("=")[1];
+   initializeBudgetData();
+    Path htmlPath = Paths.get(frontendPath, "change-budget.html");
+    String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
+
+    if (!year.equals("2025") && !year.equals("2026")) {
+        String error = "<div class='card-block' style='color:red;font-weight:700;'>"
+                     + "Δεν μπορείτε να κάνετε αλλαγές για αυτό το έτος."
+                     + "</div>";
+
+        html = html.replace("{{secondQuestion}}", error);
+        html = html.replace("{{budgetTable}}", "");
+        html = html.replace("{{categoryMenu}}", "");
+        sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+        return;
+    }
+
+    // Φέρνουμε τον πίνακα προϋπολογισμού από το FullBudgetPrinter
+    MinistryDataInput allData = new MinistryDataInput();
+    FullBudgetPrinter printer = new FullBudgetPrinter(allData);
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream prev = System.out;
+    System.setOut(new PrintStream(baos));
+
+    printer.showBudget(year);
+
+    System.setOut(prev);
+
+    String budgetOutput = baos.toString("UTF-8");
+
+    String budgetHtml =
+        "<div class='card-block'>" +
+        "<h3>Προϋπολογισμός " + year + "</h3>" +
+        "<pre style='white-space:pre-wrap;'>" + budgetOutput + "</pre>" +
+        "</div>";
+
+    // ΜΕΝΟΥ ΚΑΤΗΓΟΡΙΩΝ
+    String categories =
+        "<div class='card-block'><h3>Επιλέξτε κατηγορία για αλλαγή:</h3>";
+ categories += "</div>";
+
+    html = html.replace("{{secondQuestion}}", "");
+    html = html.replace("{{budgetTable}}", budgetHtml);
+    html = html.replace("{{categoryMenu}}", categories);
+
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+}
 }
