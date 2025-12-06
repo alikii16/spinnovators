@@ -7,6 +7,8 @@ import java.util.List;
 public class EditsApplier {
   private final EnvBudgetTranslator translator;
   private final Scanner scanner;
+  private double totalBudget = 0;
+
 
   public EditsApplier(EnvBudgetTranslator translator) {
     this.translator = translator;
@@ -17,19 +19,20 @@ public class EditsApplier {
     boolean keepEditing = true;
 
     System.out.println("\n--- ΕΝΑΡΞΗ ΕΠΕΞΕΡΓΑΣΙΑΣ ΓΙΑ ΤΟ ΕΤΟΣ " + year.getYear() + " ---");
-    
+
     String temp = year.getYear();
 
-    if (temp == "2025") {
-      double totalBudget = 2341227000.00;
-    } else if (temp == "2026") {
-      double totalBudget = 3133452000.00;
+
+    if (temp.equals("2025")) {
+      totalBudget = 2341227000.00;
+    } else if (temp.equals("2026")) {
+      totalBudget = 3133452000.00;
     }
 
     while (keepEditing) {
       System.out.println("\\nΠληκτρολογήστε την κατηγορία που θέλετε να επεξεργαστείτε ή 'ΤΕΛΟΣ' για έξοδο.");
       System.out.print("-->");
-      
+
       String searchInput = scanner.nextLine().trim();
 
       if (searchInput.equalsIgnoreCase("ΤΕΛΟΣ") || searchInput.equalsIgnoreCase("TELOS")) {
@@ -49,30 +52,32 @@ public class EditsApplier {
     for (EnvSector sector : year.getSectors()) {
       for (EnvUnit unit : sector.getUnits()) {
         for (EnvEntry entry : unit.getEntries()) {
-                    
+
         // Translation of the key in order to compare with the user's entry
         String entryName = translator.translateCategory(entry.getJsonKey());
 
         if (entryName.equalsIgnoreCase(searchName)) {
           found = true;
-                       
+
           // Asking for the new amount
           System.out.printf("\nΒρέθηκε: %s | Τρέχον Ποσό: %,.2f €\n", entryName, entry.getAmount());
           double oldAmount = entry.getAmount();
           System.out.print("Δώσε το νέο ποσό: ");
-                       
+
           String amountInput = scanner.nextLine().trim();
-           
+
             try {
               double newAmount = Double.parseDouble(amountInput);
+
+              BudgetValidator obj = new BudgetValidator();
+              newAmount = obj.getValidatedNewValue(totalBudget, oldAmount, newAmount);
+
               entry.setAmount(newAmount);
               System.out.println(" [OK] Η τιμή άλλαξε επιτυχώς.");
             } catch (NumberFormatException e) {
               System.out.println(" Λάθος: Παρακαλώ δώστε έγκυρο αριθμό.");
-            }         
+            }
           return;
-          // EDO THA PERNAEI TON ELEGXO EGKYROTITAS KALONTAS THN METHODO CHRISANTHI/NIKOU
-        }
         }
       }
     }
