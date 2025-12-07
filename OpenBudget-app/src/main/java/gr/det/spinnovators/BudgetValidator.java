@@ -2,17 +2,19 @@ package gr.det.spinnovators;
 
 import java.util.Scanner;
 
+
 /**
  * Class for validating changes to the budget according to specific constraints.
  * Applies checks for:
  * - Empty input
  * - Negative values
  * - Values exceeding the total ministry budget
- * - Extreme deviations (>20%)
+ * - Extreme deviations (>30%)
  */
 public class BudgetValidator {
 
     private final Scanner scanner;
+
 
     /**
      * Constructor - creates a new BudgetValidator with its own Scanner
@@ -32,56 +34,56 @@ public class BudgetValidator {
      */
     public double getValidatedNewValue(double totalBudget, double oldValue, double initialNewValue) {
         double currentValue = initialNewValue;
-       
-        System.out.printf("Old value: %,.2f € | Total ministry budget: %,.2f €\n\n",
+        //ignore in frontend
+        System.out.printf("Παλιά τιμή: %,.2f € | Συνολικός προϋπολογισμός Υπουργείου: %,.2f €\n\n",
                          oldValue, totalBudget);
-       
+
         while (true) {
             // CHECK 1: Negative value
             if (currentValue < 0) {
-                System.out.println("ERROR: Value cannot be negative.");
+                System.out.println("ΣΦΑΛΜΑ: Η τιμή δεν μπορεί να είναι αρνητική.");
                 currentValue = getNewInputFromUser();
                 continue;
             }
 
             // CHECK 2: Value exceeds total budget
             if (currentValue > totalBudget) {
-                System.out.printf("ERROR: Value (%,.2f €) exceeds total ministry budget (%,.2f €).\n",
-                                 currentValue, totalBudget);
+                System.out.printf("ΣΦΑΛΜΑ: Η τιμή (%,.2f €) υπερβαίνει τον συνολικό προϋπολογισμό του Υπουργείου (%,.2f €).\n",
+                currentValue, totalBudget);
                 currentValue = getNewInputFromUser();
                 continue;
             }
 
-            // CHECK 3: Extreme deviation (> 20%)
+            // CHECK 3: Extreme deviation (> 30%)
             if (isExtremeDeviation(oldValue, currentValue)) {
                 double deviation = calculateDeviationPercentage(oldValue, currentValue);
                
                 System.out.println("\n==============================================");
-                System.out.println("WARNING: EXTREME BUDGET CHANGE");
+                System.out.println("ΠΡΟΕΙΔΟΠΟΙΗΣΗ: ΑΚΡΑΙΑ ΑΛΛΑΓΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ");
                 System.out.println("==============================================");
-                System.out.printf("Percentage change: %6.2f%%\n", deviation);
-                System.out.println("Change exceeds the 20% limit!");
+                System.out.printf("Ποσοστιαία μεταβολή: %6.2f%%\n", deviation);
+                System.out.println("Η μεταβολή υπερβαίνει το όριο του 30%!");
                 System.out.println("==============================================\n");
 
-                System.out.print("Are you sure you want to apply this value? (yes/no): ");
+                System.out.print("Είστε βέβαιος ότι θέλετε να εφαρμόσετε αυτή την τιμή; (ΝΑΙ/ΟΧΙ): ");
                 String confirmation = scanner.nextLine().trim().toLowerCase();
 
-                if (confirmation.equals("yes")) {
-                    System.out.println("Confirmed: Extreme value will be applied.\n");
+                if (confirmation.equals("ΝΑΙ")) {
+                    System.out.println("Επιβεβαίωση: Η τιμή θα εφαρμοστεί.\n");
                     return currentValue;
-                } else if (confirmation.equals("no")) {
-                    System.out.println("Cancelled: Please enter a new value.\n");
+                } else if (confirmation.equals("ΟΧΙ")) {
+                    System.out.println("Ακύρωση: Παρακαλώ εισάγετε νέα τιμή.\n");
                     currentValue = getNewInputFromUser();
                     continue;
                 } else {
-                    System.out.println("Invalid response. Please answer 'yes' or 'no'.\n");
+                    System.out.println("Μη έγκυρη απάντηση. Παρακαλώ πληκτρολογήστε 'ΝΑΙ' ή 'ΟΧΙ'.\n");
                     currentValue = getNewInputFromUser();
                     continue;
                 }
             }
 
             // Value passed all checks successfully
-            System.out.println("Value validated successfully!\n");
+            System.out.println("Η τιμή επικυρώθηκε επιτυχώς!\n");
             return currentValue;
         }
     }
@@ -94,12 +96,12 @@ public class BudgetValidator {
      */
     private double getNewInputFromUser() {
         while (true) {
-            System.out.print("Please enter a new budget value: ");
+            System.out.print("Παρακαλώ εισάγετε νέα τιμή προϋπολογισμού: ");
             String input = scanner.nextLine().trim();
 
             // Check for empty input
             if (input.isEmpty()) {
-                System.out.println("ERROR: Value cannot be empty.\n");
+                System.out.println("ΣΦΑΛΜΑ: Η τιμή δεν μπορεί να είναι κενή.\n");
                 continue;
             }
 
@@ -108,21 +110,21 @@ public class BudgetValidator {
                 double value = Double.parseDouble(input);
                 return value;
             } catch (NumberFormatException e) {
-                System.out.println("ERROR: Invalid numeric format. Please enter a number.\n");
+                System.out.println("ΣΦΑΛΜΑ: Μη έγκυρη μορφή αριθμού. Παρακαλώ προσπαθήστε ξανά.\n");
             }
         }
     }
 
     /**
-     * Checks if the deviation between old and new values is extreme (>20%).
+     * Checks if the deviation between old and new values is extreme (>30%).
      * @param oldValue Old value
      * @param newValue New value
-     * @return true if deviation > 20%, false otherwise
+     * @return true if deviation > 30%, false otherwise
      */
     private boolean isExtremeDeviation(double oldValue, double newValue) {
         // Calculate percentage deviation
         double percentageDeviation = Math.abs((newValue - oldValue) / oldValue) * 100.0;
-        return percentageDeviation > 20.0;
+        return percentageDeviation > 30.0;
     }
 
     /**

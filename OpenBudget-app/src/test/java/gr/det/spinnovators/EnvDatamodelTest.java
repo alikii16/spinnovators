@@ -8,7 +8,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnvatamodelTest {
+public class EnvDatamodelTest {
 
     @Test
     public void testEnvBudgetDataAndHierarchy() {

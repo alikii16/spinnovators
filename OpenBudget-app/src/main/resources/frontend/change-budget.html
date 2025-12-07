@@ -1,17 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="el">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <title>Αλλαγή Προϋπολογισμού</title>
 
-       body {
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
             background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 25%, #0a3d15 50%, #0d4f1c 75%, #1b5e20 100%);
             background-color: #0a3d15;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -22,21 +19,191 @@
             padding: 20px;
             position: relative;
         }
-         .container {
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 15% 40%, rgba(13, 79, 28, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 80% 70%, rgba(5, 26, 10, 0.25) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ministry-header {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 40px;
             width: 100%;
-            max-width: 640px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             position: relative;
             z-index: 1;
         }
 
+        .ministry-header h1 {
+            color: #e8f5e9;
+            font-size: 38px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+            text-transform: uppercase;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            width: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+            border-radius: 20px;
+            padding: 48px 46px;
+            box-shadow:
+                0 12px 48px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 0 0 2px rgba(13, 79, 28, 0.2);
+            border: 3px solid #0d4f1c;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0d4f1c;
+            margin-bottom: 24px;
+        }
+
+        .buttons-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 16px;
+        }
+
+       .btn {
+    padding: 14px 20px;
+    border-radius: 10px;
+    border: 2px solid #0d4f1c;
+    background-color: #ffffff;
+    color: #0d4f1c;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #f1f8f4;
+}
+
+.btn-red {
+    border-color: #8b0000;
+    color: #8b0000;
+    background-color: #ffffff;
+}
+
+.btn-red:hover {
+    background-color: #fff5f5;
+}
+
+        .input-box {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1.5px solid #0d4f1c;
+            margin-top: 12px;
+            margin-bottom: 22px;
+        }
+
+        .green-button {
+            width: 100%;
+            padding: 14px 16px;
+            background-color: #0d4f1c;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .green-button:hover { background-color: #144d24; }
+
+        .big-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 32px;
+            width: 100%;
+            max-width: 650px;
+            margin: 24px auto;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+            border: 2px solid #0d4f1c;
+        }
+
+        .table-wrapper {
+            margin-top: 28px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 2px solid #0d4f1c;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #0d4f1c 0%, #1b5e20 100%);
+            padding: 18px;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .table-content {
+            padding: 24px;
+        }
     </style>
 </head>
 <body>
-     <div class="container">
-        <h1>Αλλαγή Προϋπολογισμού</h1>
-          </div>
+
+    <div class="ministry-header">
+        <h1>ΥΠΟΥΡΓΕΙΟ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ</h1>
+    </div>
+
+    <div class="container">
+        <div class="card">
+
+            <h2 class="section-title">Αλλαγή Προϋπολογισμού</h2>
+
+            <!-- ΠΡΩΤΗ ΕΡΩΤΗΣΗ -->
+            <form method="POST" action="/change-budget">
+                <p class="section-title">
+                    Θέλετε να προχωρήσετε σε τροποποίηση του προϋπολογισμού;
+                </p>
+
+                <div class="buttons-row">
+                    <button name="answer" value="YES" class="btn">ΝΑΙ</button>
+                    <button name="answer" value="NO" class="btn btn-red">ΟΧΙ</button>
+                </div>
+            </form>
+
+<div id="second-question">
+    {{secondQuestion}}
+</div>
+
+<div id="budget-table">
+    {{budgetTable}}
+</div>
+
+<div id="category-menu">
+    {{categoryMenu}}
+</div>
+        </div>
+    </div>
+
 </body>
 </html>
