@@ -36,7 +36,5 @@ public class EnvBudgetEditor {
 
     EditsApplier applier = new EditsApplier(translator);
     applier.applyEditsToYear(selectedYear);
-
-    
   }
 }

@@ -139,7 +139,7 @@ public class EditsApplier {
             //Check new amount's validation
             BudgetValidator obj = new BudgetValidator();
             newAmount = obj.getValidatedNewValue(totalBudget, oldAmount, newAmount);
-              
+
             double offsetAmount = oldAmount - newAmount;
             //Current balance correction
             this.currentBalance += offsetAmount;
