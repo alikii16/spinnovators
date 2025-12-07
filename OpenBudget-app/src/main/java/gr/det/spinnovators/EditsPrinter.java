@@ -40,7 +40,7 @@ public class EditsPrinter {
                 double unitTotal = 0.0;
 
                 for (EnvEntry entry : unit.getEntries()) {
-                    String translatedEntry = translator.translateCategory(entry.get.JsonKey());
+                    String translatedEntry = translator.translateCategory(entry.getJsonKey());
                     double amount = entry.getAmount();
 
                     unitTotal += amount;
