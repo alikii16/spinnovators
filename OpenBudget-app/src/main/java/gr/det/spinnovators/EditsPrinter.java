@@ -38,7 +38,7 @@ public class EditsPrinter {
                 String translatedUnit = translator.translateCategory(unit.getJsonKey());
                 System.out.printf("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ: %s", translatedUnit);
 
-        double unitTotal = 0.0;
+                double unitTotal = 0.0;
 
                 for (EnvEntry entry : unit.getEntries()) {
                     String translatedEntry = translator.translateCategory(entry.getJsonKey());
@@ -49,12 +49,13 @@ public class EditsPrinter {
 
                 System.out.printf("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: %s", unitTotal);
 
-    sectorTotal += unitTotal;
+                sectorTotal += unitTotal;
+            }
+
+            System.out.printf("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ %s",
+                    translatedSector, sectorTotal);
+
+        }
+
     }
-
-System.out.printf("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ %s", translatedSector, sectorTotal);
-
-}
-
-}
 }
