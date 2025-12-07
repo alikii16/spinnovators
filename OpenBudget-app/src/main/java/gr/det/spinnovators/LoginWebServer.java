@@ -58,115 +58,116 @@ public final class LoginWebServer {
    */
   public static void startServer(final String frontendPath) throws IOException {
     System.out.println("[DEBUG] LoginWebServer: Starting server with frontend path: " + frontendPath);
-        
+
     HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
-        
-    // Serve login.html at root and /login.html
+
     server.createContext("/", exchange -> {
-      System.out.println("[DEBUG] Request to / : " + exchange.getRequestMethod());
-      if ("GET".equals(exchange.getRequestMethod())) {
-        serveLoginPage(exchange, frontendPath, null);
-      } else if ("POST".equals(exchange.getRequestMethod())) {
-        handleLoginPost(exchange, frontendPath);
-      }
+        if ("GET".equals(exchange.getRequestMethod())) {
+            serveLoginPage(exchange, frontendPath, null);
+        } else if ("POST".equals(exchange.getRequestMethod())) {
+            handleLoginPost(exchange, frontendPath);
+        }
     });
-        
+
     server.createContext("/login.html", exchange -> {
-      System.out.println("[DEBUG] Request to /login.html : " + exchange.getRequestMethod());
-      if ("GET".equals(exchange.getRequestMethod())) {
-        serveLoginPage(exchange, frontendPath, null);
-      } else if ("POST".equals(exchange.getRequestMethod())) {
-        handleLoginPost(exchange, frontendPath);
-      }
+        if ("GET".equals(exchange.getRequestMethod())) {
+            serveLoginPage(exchange, frontendPath, null);
+        } else if ("POST".equals(exchange.getRequestMethod())) {
+            handleLoginPost(exchange, frontendPath);
+        }
     });
-        
-    // Handle POST to /login
+
     server.createContext("/login", exchange -> {
-      System.out.println("[DEBUG] Request to /login : " + exchange.getRequestMethod());
-      if ("POST".equals(exchange.getRequestMethod())) {
-        handleLoginPost(exchange, frontendPath);
-      } else {
-        // Redirect GET /login to login.html
-        redirect(exchange, "/login.html");
-      }
+        if ("POST".equals(exchange.getRequestMethod())) {
+            handleLoginPost(exchange, frontendPath);
+        } else {
+            redirect(exchange, "/login.html");
+        }
     });
-      
-    // Serve static HTML files and handle year submission
+
     server.createContext("/minister_statebudget.html", exchange -> {
-      System.out.println("[DEBUG] Request to /minister_statebudget.html : " + exchange.getRequestMethod());
-      if ("POST".equals(exchange.getRequestMethod())) {
-        handleYearSubmission(exchange, frontendPath, "minister_statebudget.html", null);
-      } else {
-        serveStaticFile(exchange, frontendPath, "minister_statebudget.html");
-      }
+        if ("POST".equals(exchange.getRequestMethod())) {
+            handleYearSubmission(exchange, frontendPath, "minister_statebudget.html", null);
+        } else {
+            serveStaticFile(exchange, frontendPath, "minister_statebudget.html");
+        }
     });
+
     server.createContext("/employee_statebudget.html", exchange -> {
-      System.out.println("[DEBUG] Request to /employee_statebudget.html : " + exchange.getRequestMethod());
-      String usernameParam = getQueryParam(exchange, "user");
-      if ("POST".equals(exchange.getRequestMethod())) {
-        // For POST, preserve the username from query string
-        handleYearSubmission(exchange, frontendPath, "employee_statebudget.html", usernameParam);
-      } else {
-        serveHtmlWithUsername(exchange, frontendPath, "employee_statebudget.html", usernameParam);
-      }
+        String username = getQueryParam(exchange, "user");
+
+        if ("POST".equals(exchange.getRequestMethod())) {
+            handleYearSubmission(exchange, frontendPath, "employee_statebudget.html", username);
+        } else {
+            serveHtmlWithUsername(exchange, frontendPath, "employee_statebudget.html", username);
+        }
     });
+
     server.createContext("/minister_budget.html", exchange -> {
-      System.out.println("[DEBUG] Request to /minister_budget.html : " + exchange.getRequestMethod());
-      if ("POST".equals(exchange.getRequestMethod())) {
-        handleYearSubmission(exchange, frontendPath, "minister_budget.html", null);
-      } else {
-        Path filePath = Paths.get(frontendPath, "change-budget.html");
-String html = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
-
-// ΚΑΘΑΡΙΣΜΟΣ όλων των placeholders στην αρχική φόρτωση
-html = html.replace("{{secondQuestion}}", "");
-html = html.replace("{{budgetTable}}", "");
-html = html.replace("{{categoryMenu}}", "");
-
-sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
-
-      }
+        if ("POST".equals(exchange.getRequestMethod())) {
+            handleYearSubmission(exchange, frontendPath, "minister_budget.html", null);
+        } else {
+          
+            serveStaticFile(exchange, frontendPath, "minister_budget.html");
+        }
     });
+
     server.createContext("/employee_budget.html", exchange -> {
-    System.out.println("[DEBUG] Request to /employee_budget.html : " + exchange.getRequestMethod());
-    String usernameParam = getQueryParam(exchange, "user");
+        String username = getQueryParam(exchange, "user");
+
+        if ("POST".equals(exchange.getRequestMethod())) {
+            handleYearSubmission(exchange, frontendPath, "employee_budget.html", username);
+        } else {
+            serveHtmlWithUsername(exchange, frontendPath, "employee_budget.html", username);
+        }
+    });
+    server.createContext("/change-budget", exchange -> {
+    System.out.println("[DEBUG] Request to /change-budget : " + exchange.getRequestMethod());
+
     if ("POST".equals(exchange.getRequestMethod())) {
-      // For POST, get username from form data or query string
-      handleYearSubmission(exchange, frontendPath, "employee_budget.html", usernameParam);
+
+        // Διαβάζουμε την απάντηση (YES/NO)
+        String formData = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+        System.out.println("[DEBUG] /change-budget formData = " + formData);
+
+        // Αν πατήσει ΟΧΙ → επιστροφή στη minister_budget.html
+        if (formData.contains("answer=NO")) {
+            System.out.println("[DEBUG] User selected NO, redirecting to minister_budget.html");
+            redirect(exchange, "/minister_budget.html");
+            return;
+        }
+
+        // Αν πατήσει ΝΑΙ → εμφάνιση δεύτερης ερώτησης
+        System.out.println("[DEBUG] User selected YES, showing year selection question");
+        handleChangeBudgetStart(exchange, frontendPath);
+
     } else {
-      serveHtmlWithUsername(exchange, frontendPath, "employee_budget.html", usernameParam);
+        // GET → εμφάνιση μόνο της πρώτης ερώτησης
+        Path filePath = Paths.get(frontendPath, "change-budget.html");
+        String html = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+
+        // Κρύβουμε πάντα τη 2η ερώτηση, τον πίνακα και το menu
+        html = html.replace("{{secondQuestion}}", "");
+        html = html.replace("{{budgetTable}}", "");
+        html = html.replace("{{categoryMenu}}", "");
+
+        sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
     }
-  });
- server.createContext("/change-budget", exchange -> {
-  System.out.println("[DEBUG] Request to /change-budget : " + exchange.getRequestMethod());
-
-  if ("POST".equals(exchange.getRequestMethod())) {
-    // Διαβάζουμε την απάντηση ΝΑΙ / ΟΧΙ από το πρώτο form
-    String formData = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-    System.out.println("[DEBUG] /change-budget formData = " + formData);
-
-    if (formData.contains("answer=NO")) {
-      // Αν πατήσει ΟΧΙ -> επιστροφή στην σελίδα minister_budget
-      System.out.println("[DEBUG] User selected NO, redirecting to minister_budget.html");
-      redirect(exchange, "/minister_budget.html");
-      return;
+});
+server.createContext("/change-budget-year", exchange -> {
+    if ("POST".equals(exchange.getRequestMethod())) {
+        handleChangeBudgetYear(exchange, frontendPath);
+    } else {
+        redirect(exchange, "/change-budget");
     }
-
-    // Αν δεν είναι NO, το θεωρούμε ΝΑΙ -> δείχνουμε τη δεύτερη ερώτηση (έτος)
-    System.out.println("[DEBUG] User selected YES, showing year selection question");
-    handleChangeBudgetStart(exchange, frontendPath);
-  } else {
-    // GET /change-budget -> απλή φόρτωση του αρχικού HTML
-    serveStaticFile(exchange, frontendPath, "change-budget.html");
-  }
 });
 
-    server.setExecutor(null); // Use default executor
+    server.setExecutor(null);
     server.start();
-      
+
     System.out.println("Web server started on http://localhost:" + PORT);
     System.out.println("Open http://localhost:" + PORT + "/login.html in your browser");
-  }
+}
     
   /**
    * Serves the login page with optional error message.
@@ -846,30 +847,29 @@ sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
     sendResponse(exchange, errorHtml, statusCode, "text/html; charset=UTF-8");
   }
 private static void handleChangeBudgetStart(HttpExchange exchange, String frontendPath) throws IOException {
-  String secondQuestionHtml =
-      "<div class='big-card'>" +
-        "<h2>Επιλογή Έτους</h2>" +
-        "<p style='text-align:center; font-size:16px; color:#1b5e20; margin-bottom:18px;'>"
-          + "Για ποιο έτος θέλετε να τροποποιήσετε τον προϋπολογισμό; (2025 / 2026)"
-        + "</p>" +
-        "<form method='POST' action='/change-budget-year'>" +
-          "<label class='label' for='changeYearInput'>Εισάγετε έτος:</label>" +
-          "<input id='changeYearInput' type='text' name='year' class='input-box' placeholder='π.χ. 2025'>" +
-          "<button class='green-button' style='margin-top:10px;'>Συνέχεια</button>" +
-        "</form>" +
-      "</div>";
 
-  Path htmlPath = Paths.get(frontendPath, "change-budget.html");
-  String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
+    String secondQuestionHtml =
+        "<div class='big-card'>" +
+          "<h2>Επιλογή Έτους</h2>" +
+          "<p style='text-align:center; margin-bottom:14px;'>Για ποιο έτος θέλετε να κάνετε αλλαγές; (2025 / 2026)</p>" +
+          "<form method='POST' action='/change-budget-year'>" +
+            "<input type='text' name='year' class='input-box' placeholder='π.χ. 2025'>" +
+            "<button class='green-button'>Συνέχεια</button>" +
+          "</form>" +
+        "</div>";
 
-  html = html.replace("{{secondQuestion}}", secondQuestionHtml);
-  html = html.replace("{{budgetTable}}", "");
-  html = html.replace("{{categoryMenu}}", "");
+    Path htmlPath = Paths.get(frontendPath, "change-budget.html");
+    String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
 
-  sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+    html = html.replace("{{secondQuestion}}", secondQuestionHtml);
+    html = html.replace("{{budgetTable}}", "");
+    html = html.replace("{{categoryMenu}}", "");
+
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
 }
+
 private static void handleChangeBudgetYear(HttpExchange exchange, String frontendPath) throws IOException {
-  // Διαβάζουμε τον παράγοντα year από το POST
+  
   String formData = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
   String year = null;
   if (formData != null && !formData.isEmpty()) {
@@ -887,7 +887,7 @@ private static void handleChangeBudgetYear(HttpExchange exchange, String fronten
   Path htmlPath = Paths.get(frontendPath, "change-budget.html");
   String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
 
-  // Έλεγχος έτους (μόνο 2025 ή 2026)
+  
   if (!"2025".equals(year) && !"2026".equals(year)) {
     String error =
         "<div class='big-card'>" +
@@ -905,10 +905,8 @@ private static void handleChangeBudgetYear(HttpExchange exchange, String fronten
     return;
   }
 
-  // Φορτώνουμε τα δεδομένα προϋπολογισμού
   initializeBudgetData();
 
-  // Παίρνουμε τον πίνακα προϋπολογισμού από το FullBudgetPrinter
   MinistryDataInput allData = new MinistryDataInput();
   FullBudgetPrinter printer = new FullBudgetPrinter(allData);
 
@@ -922,8 +920,7 @@ private static void handleChangeBudgetYear(HttpExchange exchange, String fronten
 
   String budgetOutput = baos.toString(StandardCharsets.UTF_8);
 
-  // Ωραίο block προϋπολογισμού όπως τα άλλα pages
-  String budgetHtml =
+    String budgetHtml =
       "<div class='table-wrapper'>" +
         "<div class='table-header'>Προϋπολογισμός " + year + "</div>" +
         "<div class='table-content'>" +
@@ -933,9 +930,7 @@ private static void handleChangeBudgetYear(HttpExchange exchange, String fronten
         "</div>" +
       "</div>";
 
-  // ΜΗΝΥΜΑ όπως στην Java + dropdown μενού κατηγοριών
-  // (Εδώ βάλε τις πραγματικές κατηγορίες που θέλετε)
-  String categoriesHtml =
+      String categoriesHtml =
       "<div class='big-card'>" +
         "<h2>Επεξεργασία Κατηγορίας</h2>" +
         "<p style='text-align:center; font-size:16px; color:#1b5e20; margin-bottom:16px;'>" +
@@ -950,13 +945,10 @@ private static void handleChangeBudgetYear(HttpExchange exchange, String fronten
             "<option value='Λειτουργικές Δαπάνες'>Λειτουργικές Δαπάνες</option>" +
             "<option value='Προμήθειες'>Προμήθειες</option>" +
             "<option value='Επενδύσεις'>Επενδύσεις</option>" +
-            // TODO: εδώ προσθέτεις ΟΛΕΣ τις πραγματικές κατηγορίες σας
-          "</select>" +
+                   "</select>" +
           "<button type='submit' class='green-button'>Συνέχεια</button>" +
         "</form>" +
       "</div>";
-
-  // Στο δεύτερο βήμα δεν χρειάζεται πια η ερώτηση, άρα την αδειάζουμε
   html = html.replace("{{secondQuestion}}", "");
   html = html.replace("{{budgetTable}}", budgetHtml);
   html = html.replace("{{categoryMenu}}", categoriesHtml);
