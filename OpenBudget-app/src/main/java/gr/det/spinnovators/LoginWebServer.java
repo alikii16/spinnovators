@@ -115,7 +115,16 @@ public final class LoginWebServer {
       if ("POST".equals(exchange.getRequestMethod())) {
         handleYearSubmission(exchange, frontendPath, "minister_budget.html", null);
       } else {
-        serveStaticFile(exchange, frontendPath, "minister_budget.html");
+        Path filePath = Paths.get(frontendPath, "change-budget.html");
+String html = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+
+// ΚΑΘΑΡΙΣΜΟΣ όλων των placeholders στην αρχική φόρτωση
+html = html.replace("{{secondQuestion}}", "");
+html = html.replace("{{budgetTable}}", "");
+html = html.replace("{{categoryMenu}}", "");
+
+sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+
       }
     });
     server.createContext("/employee_budget.html", exchange -> {
@@ -128,20 +137,28 @@ public final class LoginWebServer {
       serveHtmlWithUsername(exchange, frontendPath, "employee_budget.html", usernameParam);
     }
   });
-    server.createContext("/change-budget", exchange -> {
-    if ("POST".equals(exchange.getRequestMethod())) {
-        handleChangeBudgetStart(exchange, frontendPath);
-    } else {
-        serveStaticFile(exchange, frontendPath, "change-budget.html");
-    }
-});
+ server.createContext("/change-budget", exchange -> {
+  System.out.println("[DEBUG] Request to /change-budget : " + exchange.getRequestMethod());
 
-server.createContext("/change-budget-year", exchange -> {
-    if ("POST".equals(exchange.getRequestMethod())) {
-        handleChangeBudgetYear(exchange, frontendPath);
-    } else {
-        serveStaticFile(exchange, frontendPath, "change-budget.html");
+  if ("POST".equals(exchange.getRequestMethod())) {
+    // Διαβάζουμε την απάντηση ΝΑΙ / ΟΧΙ από το πρώτο form
+    String formData = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+    System.out.println("[DEBUG] /change-budget formData = " + formData);
+
+    if (formData.contains("answer=NO")) {
+      // Αν πατήσει ΟΧΙ -> επιστροφή στην σελίδα minister_budget
+      System.out.println("[DEBUG] User selected NO, redirecting to minister_budget.html");
+      redirect(exchange, "/minister_budget.html");
+      return;
     }
+
+    // Αν δεν είναι NO, το θεωρούμε ΝΑΙ -> δείχνουμε τη δεύτερη ερώτηση (έτος)
+    System.out.println("[DEBUG] User selected YES, showing year selection question");
+    handleChangeBudgetStart(exchange, frontendPath);
+  } else {
+    // GET /change-budget -> απλή φόρτωση του αρχικού HTML
+    serveStaticFile(exchange, frontendPath, "change-budget.html");
+  }
 });
 
     server.setExecutor(null); // Use default executor
@@ -829,72 +846,121 @@ server.createContext("/change-budget-year", exchange -> {
     sendResponse(exchange, errorHtml, statusCode, "text/html; charset=UTF-8");
   }
 private static void handleChangeBudgetStart(HttpExchange exchange, String frontendPath) throws IOException {
-    String secondQuestionHtml =
-            "<div class='card-block'>" +
-            "<form method='POST' action='/change-budget-year'>" +
-            "<label class='label'>Επιλέξτε έτος για επεξεργασία (2025 / 2026):</label>" +
-            "<input type='text' name='year' class='input' placeholder='π.χ. 2025'>" +
-            "<button class='btn' style='margin-top:15px;'>Συνέχεια</button>" +
-            "</form></div>";
+  String secondQuestionHtml =
+      "<div class='big-card'>" +
+        "<h2>Επιλογή Έτους</h2>" +
+        "<p style='text-align:center; font-size:16px; color:#1b5e20; margin-bottom:18px;'>"
+          + "Για ποιο έτος θέλετε να τροποποιήσετε τον προϋπολογισμό; (2025 / 2026)"
+        + "</p>" +
+        "<form method='POST' action='/change-budget-year'>" +
+          "<label class='label' for='changeYearInput'>Εισάγετε έτος:</label>" +
+          "<input id='changeYearInput' type='text' name='year' class='input-box' placeholder='π.χ. 2025'>" +
+          "<button class='green-button' style='margin-top:10px;'>Συνέχεια</button>" +
+        "</form>" +
+      "</div>";
 
-    Path htmlPath = Paths.get(frontendPath, "change-budget.html");
-    String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
+  Path htmlPath = Paths.get(frontendPath, "change-budget.html");
+  String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
 
-    html = html.replace("{{secondQuestion}}", secondQuestionHtml);
-    html = html.replace("{{budgetTable}}", "");
-    html = html.replace("{{categoryMenu}}", "");
+  html = html.replace("{{secondQuestion}}", secondQuestionHtml);
+  html = html.replace("{{budgetTable}}", "");
+  html = html.replace("{{categoryMenu}}", "");
 
-    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+  sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
 }
 private static void handleChangeBudgetYear(HttpExchange exchange, String frontendPath) throws IOException {
-
-    String formData = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-    String year = formData.split("=")[1];
-   initializeBudgetData();
-    Path htmlPath = Paths.get(frontendPath, "change-budget.html");
-    String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
-
-    if (!year.equals("2025") && !year.equals("2026")) {
-        String error = "<div class='card-block' style='color:red;font-weight:700;'>"
-                     + "Δεν μπορείτε να κάνετε αλλαγές για αυτό το έτος."
-                     + "</div>";
-
-        html = html.replace("{{secondQuestion}}", error);
-        html = html.replace("{{budgetTable}}", "");
-        html = html.replace("{{categoryMenu}}", "");
-        sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
-        return;
+  // Διαβάζουμε τον παράγοντα year από το POST
+  String formData = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+  String year = null;
+  if (formData != null && !formData.isEmpty()) {
+    String[] pairs = formData.split("&");
+    for (String pair : pairs) {
+      String[] keyValue = pair.split("=", 2);
+      if (keyValue.length == 2 && "year".equals(java.net.URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8))) {
+        year = java.net.URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
+      }
     }
+  }
 
-    // Φέρνουμε τον πίνακα προϋπολογισμού από το FullBudgetPrinter
-    MinistryDataInput allData = new MinistryDataInput();
-    FullBudgetPrinter printer = new FullBudgetPrinter(allData);
+  System.out.println("[DEBUG] /change-budget-year year = " + year);
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream prev = System.out;
-    System.setOut(new PrintStream(baos));
+  Path htmlPath = Paths.get(frontendPath, "change-budget.html");
+  String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
 
-    printer.showBudget(year);
-
-    System.setOut(prev);
-
-    String budgetOutput = baos.toString("UTF-8");
-
-    String budgetHtml =
-        "<div class='card-block'>" +
-        "<h3>Προϋπολογισμός " + year + "</h3>" +
-        "<pre style='white-space:pre-wrap;'>" + budgetOutput + "</pre>" +
+  // Έλεγχος έτους (μόνο 2025 ή 2026)
+  if (!"2025".equals(year) && !"2026".equals(year)) {
+    String error =
+        "<div class='big-card'>" +
+          "<h2>Σφάλμα</h2>" +
+          "<p style='color:#b71c1c; font-weight:600; text-align:center; margin-top:8px;'>"
+            + "Σφάλμα: Δεν βρέθηκαν δεδομένα για το έτος " + (year == null ? "" : year) + ".<br>"
+            + "Επιτρέπονται μόνο τα έτη 2025 και 2026."
+          + "</p>" +
         "</div>";
 
-    // ΜΕΝΟΥ ΚΑΤΗΓΟΡΙΩΝ
-    String categories =
-        "<div class='card-block'><h3>Επιλέξτε κατηγορία για αλλαγή:</h3>";
- categories += "</div>";
-
-    html = html.replace("{{secondQuestion}}", "");
-    html = html.replace("{{budgetTable}}", budgetHtml);
-    html = html.replace("{{categoryMenu}}", categories);
-
+    html = html.replace("{{secondQuestion}}", error);
+    html = html.replace("{{budgetTable}}", "");
+    html = html.replace("{{categoryMenu}}", "");
     sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+    return;
+  }
+
+  // Φορτώνουμε τα δεδομένα προϋπολογισμού
+  initializeBudgetData();
+
+  // Παίρνουμε τον πίνακα προϋπολογισμού από το FullBudgetPrinter
+  MinistryDataInput allData = new MinistryDataInput();
+  FullBudgetPrinter printer = new FullBudgetPrinter(allData);
+
+  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+  PrintStream prev = System.out;
+  System.setOut(new PrintStream(baos, true, StandardCharsets.UTF_8));
+
+  printer.showBudget(year);
+
+  System.setOut(prev);
+
+  String budgetOutput = baos.toString(StandardCharsets.UTF_8);
+
+  // Ωραίο block προϋπολογισμού όπως τα άλλα pages
+  String budgetHtml =
+      "<div class='table-wrapper'>" +
+        "<div class='table-header'>Προϋπολογισμός " + year + "</div>" +
+        "<div class='table-content'>" +
+          "<pre style='white-space:pre-wrap; font-size:14px; line-height:1.5;'>" +
+            budgetOutput +
+          "</pre>" +
+        "</div>" +
+      "</div>";
+
+  // ΜΗΝΥΜΑ όπως στην Java + dropdown μενού κατηγοριών
+  // (Εδώ βάλε τις πραγματικές κατηγορίες που θέλετε)
+  String categoriesHtml =
+      "<div class='big-card'>" +
+        "<h2>Επεξεργασία Κατηγορίας</h2>" +
+        "<p style='text-align:center; font-size:16px; color:#1b5e20; margin-bottom:16px;'>" +
+          "Πληκτρολογήστε την κατηγορία που θέλετε να επεξεργαστείτε ή 'ΤΕΛΟΣ' για έξοδο." +
+          "<br>" +
+          "<span style='font-size:14px; color:#2e7d32;'>(Στην ιστοσελίδα επιλέξτε από το μενού)</span>" +
+        "</p>" +
+        "<form method='POST' action='/change-budget-category'>" +
+          "<select name='category' class='input-box' required>" +
+            "<option value=''>-- Επιλέξτε κατηγορία --</option>" +
+            "<option value='Αποδοχές Υπαλλήλων'>Αποδοχές Υπαλλήλων</option>" +
+            "<option value='Λειτουργικές Δαπάνες'>Λειτουργικές Δαπάνες</option>" +
+            "<option value='Προμήθειες'>Προμήθειες</option>" +
+            "<option value='Επενδύσεις'>Επενδύσεις</option>" +
+            // TODO: εδώ προσθέτεις ΟΛΕΣ τις πραγματικές κατηγορίες σας
+          "</select>" +
+          "<button type='submit' class='green-button'>Συνέχεια</button>" +
+        "</form>" +
+      "</div>";
+
+  // Στο δεύτερο βήμα δεν χρειάζεται πια η ερώτηση, άρα την αδειάζουμε
+  html = html.replace("{{secondQuestion}}", "");
+  html = html.replace("{{budgetTable}}", budgetHtml);
+  html = html.replace("{{categoryMenu}}", categoriesHtml);
+
+  sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
 }
 }
