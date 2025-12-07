@@ -10,17 +10,49 @@ import gr.det.spinnovators.EnvBudgetTranslator;
 public class EditsPrinter {
 
     private final EnvBudgetTranslator translator;
-    private final int yearforPrinting;
+    private final int yearForPrinting;
 
-    public EditsPrinter(EnvBudgetTranslator translator, int yearforPrinting) {
+    public EditsPrinter(EnvBudgetTranslator translator, int yearForPrinting) {
         this.translator  = translator;
-        this.yearforPrinting = yearforPrinting;
+        this.yearForPrinting = yearForPrinting;
     }
 
     public void printEditYear(EnvYear year) {
-        if (year.getYear() != this.yearForPrinting) {
-            System.out.println("Το έτος " + this.yearforPrinting + " δεν ταιριάζει με το φορτωμένα δεδομένα");
+
+        if (Integer.parseInt(year.getYear()) != this.yearForPrinting) {
+            System.out.println("Το έτος " + this.yearForPrinting +  "δεν ταιριάζει με το φορτωμένα δεδομένα");
+            return;
+        }
+
+        System.out.println("ΕΝΗΜΕΡΩΜΕΝΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΓΙΑ ΤΟ ΕΤΟΣ " + year.getYear());
+
+        for (EnvSector sector : year.getSectors()) {
+
+            String translatedSector = translator.translateCategory(sector.getJsonKey());
+            System.out.printf("ΤΟΜΕΑΣ: %s", translatedSector);
             
+            double sectorTotal = 0.0;
+
+            for (EnvUnit unit : sector.getUnits()) {
+                String translatedUnit = translator.translateCategory(unit.getJsonKey());
+                System.out.printf("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ: %s", translatedUnit);
+
+                double unitTotal = 0.0;
+
+                for (EnvEntry entry : unit.getEntries()) {
+                    String translatedEntry = translator.translateCategory(entry.get.JsonKey());
+                    double amount = entry.getAmount();
+
+                    unitTotal += amount;
+                }
+
+                System.out.printf("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ:" %,.2f €\n", unitTotal);
+
+                sectorTotal += unitTotal;
+            }
+
+            System.out.printf("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ "(%s): %,.2f €\n, translatedSector, sectorTotal);
+
         }
 
     }
