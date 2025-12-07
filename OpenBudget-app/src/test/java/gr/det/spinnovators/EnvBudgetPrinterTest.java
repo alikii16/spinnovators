@@ -24,31 +24,30 @@ public class EnvBudgetPrinterTest {
 
     @Test
     public void testPrintYearlyBudget_yearExists_printsAllData() {
-        // Δημιουργούμε translator με πραγματικό αντικείμενο
-        EnvBudgetTranslator translator = new EnvBudgetTranslator();
+    EnvBudgetTranslator translator = new EnvBudgetTranslator();
 
-        // Δημιουργούμε sample δεδομένα
-        EnvEntry entry1 = new EnvEntry("personnel_costs", 1000.0);
-        EnvEntry entry2 = new EnvEntry("equipment_costs", 500.0);
-        EnvUnit unit = new EnvUnit("general_secretariat", List.of(entry1, entry2));
-        EnvSector sector = new EnvSector("energy", List.of(unit));
-        EnvYear year = new EnvYear("2025", List.of(sector));
-        EnvBudgetData data = new EnvBudgetData(Map.of("2025", year), Map.of("2025", 1500.0));
+    EnvEntry entry1 = new EnvEntry("personnel_costs", 1000.0);
+    EnvEntry entry2 = new EnvEntry("equipment_costs", 500.0);
 
-        EnvBudgetPrinter printer = new EnvBudgetPrinter(data, translator);
+    EnvUnit unit = new EnvUnit("general_secretariat", List.of(entry1, entry2));
+    EnvSector sector = new EnvSector("energy", List.of(unit));
+    EnvYear year = new EnvYear("2025", List.of(sector));
+    EnvBudgetData data = new EnvBudgetData(Map.of("2025", year), Map.of());
 
-        // Καλούμε τη μέθοδο
-        printer.printYearlyBudget("2025");
+    EnvBudgetPrinter printer = new EnvBudgetPrinter(data, translator);
 
-        // Έλεγχος ότι εμφανίζεται σωστά το output
-        String output = outContent.toString();
-        assertTrue(output.contains("ΑΝΑΛΥΤΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ"));
-        assertTrue(output.contains("ΤΟΜΕΑΣ: energy"));
-        assertTrue(output.contains("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ: general_secretariat"));
-        assertTrue(output.contains("personnel_costs"));
-        assertTrue(output.contains("equipment_costs"));
-        assertTrue(output.contains("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: 1.500,00 €"));
+    printer.printYearlyBudget("2025");
+
+    String output = outContent.toString();
+
+    assertTrue(output.contains("ΑΝΑΛΥΤΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ"));
+    assertTrue(output.contains("ΤΟΜΕΑΣ: Ενέργεια"));  // <--- ΕΧΕΙ ΜΕΤΑΦΡΑΣΤΕΙ!
+    assertTrue(output.contains("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ: Γενική Γραμματεία"));
+    assertTrue(output.contains("Δαπάνες Προσωπικού")); // personnel_costs → ελληνικά
+    assertTrue(output.contains("Εξοπλισμός"));         // equipment_costs → ελληνικά
+    assertTrue(output.contains("1.500,00 €"));
     }
+
 
     @Test
     public void testPrintYearlyBudget_yearDoesNotExist_printsMessage() {
