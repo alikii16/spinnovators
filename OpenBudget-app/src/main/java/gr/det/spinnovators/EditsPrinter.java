@@ -46,18 +46,15 @@ public class EditsPrinter {
                     unitTotal += amount;
                 }
 
-                System.out.printf("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ:" %,.2f €\n", unitTotal);
+                System.out.printf("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: %s", unitTotal);
 
                 sectorTotal += unitTotal;
             }
 
-            System.out.printf("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ "(%s): %,.2f €\n, translatedSector, sectorTotal);
+            System.out.printf("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ %s", translatedSector, sectorTotal);
 
         }
 
     }
-
-
-
-
 }
+
