@@ -1,9 +1,9 @@
 package gr.det.spinnovators;
 
-import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
-import gr.det.spinnovators.envdatamodel.EnvEntry;
+import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.EnvBudgetTranslator;
 
 
@@ -17,6 +17,7 @@ public class EditsPrinter {
         this.yearForPrinting = yearForPrinting;
     }
 
+    /** PRINTS THE RESULTS OF THE CHANGED YEARS */
     public void printEditYear(EnvYear year) {
 
         if (Integer.parseInt(year.getYear()) != this.yearForPrinting) {
@@ -30,14 +31,14 @@ public class EditsPrinter {
 
             String translatedSector = translator.translateCategory(sector.getJsonKey());
             System.out.printf("ΤΟΜΕΑΣ: %s", translatedSector);
-            
+ 
             double sectorTotal = 0.0;
 
             for (EnvUnit unit : sector.getUnits()) {
                 String translatedUnit = translator.translateCategory(unit.getJsonKey());
                 System.out.printf("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ: %s", translatedUnit);
 
-                double unitTotal = 0.0;
+        double unitTotal = 0.0;
 
                 for (EnvEntry entry : unit.getEntries()) {
                     String translatedEntry = translator.translateCategory(entry.getJsonKey());
@@ -48,13 +49,12 @@ public class EditsPrinter {
 
                 System.out.printf("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: %s", unitTotal);
 
-                sectorTotal += unitTotal;
-            }
-
-            System.out.printf("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ %s", translatedSector, sectorTotal);
-
-        }
-
+    sectorTotal += unitTotal;
     }
+
+System.out.printf("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ %s", translatedSector, sectorTotal);
+
 }
 
+}
+}
