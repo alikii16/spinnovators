@@ -9,7 +9,7 @@ import java.util.Scanner;
  * - Empty input
  * - Negative values
  * - Values exceeding the total ministry budget
- * - Extreme deviations (>20%)
+ * - Extreme deviations (>30%)
  */
 public class BudgetValidator {
 
@@ -35,6 +35,7 @@ public class BudgetValidator {
     public double getValidatedNewValue(double totalMinistryBudget, double oldValue, double initialNewValue) {
         double currentValue = initialNewValue;
 
+        //ignore in frontend
         System.out.printf("Παλιά τιμή: %,.2f € | Συνολικός προϋπολογισμός Υπουργείου: %,.2f €\n\n",
                          oldValue, totalMinistryBudget);
 
@@ -54,7 +55,7 @@ public class BudgetValidator {
                 continue;
             }
 
-            // CHECK 3: Extreme deviation (> 20%)
+            // CHECK 3: Extreme deviation (> 30%)
             if (isExtremeDeviation(oldValue, currentValue)) {
                 double deviation = calculateDeviationPercentage(oldValue, currentValue);
 
@@ -62,21 +63,21 @@ public class BudgetValidator {
                 System.out.println("ΠΡΟΕΙΔΟΠΟΙΗΣΗ: ΑΚΡΑΙΑ ΑΛΛΑΓΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ");
                 System.out.println("==============================================");
                 System.out.printf("Ποσοστιαία μεταβολή: %6.2f%%\n", deviation);
-                System.out.println("Η μεταβολή υπερβαίνει το όριο του 20%!");
+                System.out.println("Η μεταβολή υπερβαίνει το όριο του 30%!");
                 System.out.println("==============================================\n");
 
-                System.out.print("Είστε βέβαιος ότι θέλετε να εφαρμόσετε αυτή την τιμή; (yes/no): ");
+                System.out.print("Είστε βέβαιος ότι θέλετε να εφαρμόσετε αυτή την τιμή; (ΝΑΙ/ΟΧΙ): ");
                 String confirmation = scanner.nextLine().trim().toLowerCase();
 
-                if (confirmation.equals("yes")) {
+                if (confirmation.equals("ΝΑΙ")) {
                     System.out.println("Επιβεβαίωση: Η τιμή θα εφαρμοστεί.\n");
                     return currentValue;
-                } else if (confirmation.equals("no")) {
+                } else if (confirmation.equals("ΟΧΙ")) {
                     System.out.println("Ακύρωση: Παρακαλώ εισάγετε νέα τιμή.\n");
                     currentValue = getNewInputFromUser();
                     continue;
                 } else {
-                    System.out.println("Μη έγκυρη απάντηση. Παρακαλώ πληκτρολογήστε 'yes' ή 'no'.\n");
+                    System.out.println("Μη έγκυρη απάντηση. Παρακαλώ πληκτρολογήστε 'ΝΑΙ' ή 'ΟΧΙ'.\n");
                     currentValue = getNewInputFromUser();
                     continue;
                 }
@@ -116,15 +117,15 @@ public class BudgetValidator {
     }
 
     /**
-     * Checks if the deviation between old and new values is extreme (>20%).
+     * Checks if the deviation between old and new values is extreme (>30%).
      * @param oldValue Old value
      * @param newValue New value
-     * @return true if deviation > 20%, false otherwise
+     * @return true if deviation > 30%, false otherwise
      */
     private boolean isExtremeDeviation(double oldValue, double newValue) {
         // Calculate percentage deviation
         double percentageDeviation = Math.abs((newValue - oldValue) / oldValue) * 100.0;
-        return percentageDeviation > 20.0;
+        return percentageDeviation > 30.0;
     }
 
     /**
