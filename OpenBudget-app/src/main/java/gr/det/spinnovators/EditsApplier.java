@@ -7,12 +7,10 @@ import java.util.List;
 public class EditsApplier {
   private final EnvBudgetTranslator translator;
   private final Scanner scanner;
-  private double totalBudget = 0;
-
 
   //they preserve the data during the changes
   private double currentBalance = 0;
-
+  private double totalBudget = 0;
 
   public EditsApplier(EnvBudgetTranslator translator) {
     this.translator = translator;
@@ -23,86 +21,132 @@ public class EditsApplier {
     boolean keepEditing = true;
 
     System.out.println("\n--- ΕΝΑΡΞΗ ΕΠΕΞΕΡΓΑΣΙΑΣ ΓΙΑ ΤΟ ΕΤΟΣ " + year.getYear() + " ---");
-
+    
     String temp = year.getYear();
 
-
-    if (temp.equals("2025")) {
-      totalBudget = 2341227000.00;
-    } else if (temp.equals("2026")) {
-      totalBudget = 3133452000.00;
+    if ("2025".equals(temp)) {
+      this.totalBudget = 2341227000.00;
+    } else if ("2026".equals(temp)) {
+      this.totalBudget = 3133452000.00;
     }
 
     this.currentBalance = 0.0;
-    int counter = 0;
 
     while (keepEditing) {
-      if (counter == 0) {
-        counter = 3;
-      } else {
-        System.out.printf("ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ: this.currentBalance");
+      if (Math.abs(currentBalance) > 0.01) {
+        System.out.printf("\n>>> ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ: %,.2f € <<<", this.currentBalance);
       }
+      
+      EnvSector selectedSector = selectSector(year);
 
-      System.out.println("\\nΠληκτρολογήστε την κατηγορία που θέλετε να επεξεργαστείτε ή 'ΤΕΛΟΣ' για έξοδο.");
-      System.out.print("-->");
-
-      String searchInput = scanner.nextLine().trim();
-
-      if (searchInput.equalsIgnoreCase("ΤΕΛΟΣ") || searchInput.equalsIgnoreCase("TELOS")) {
-        if (Math.abs(this.currentBalance) == 0) {
-          System.out.println("O προυπολογισμός είναι ισοσκελισμένος!");
-          System.out.println("Τερματισμός Λειτουργίας");
+      if (selectedSector == null) {
+        if (Math.abs(this.currentBalance) < 0.01) {
+          System.out.println("Ο προυπολογισμός είναι ισοσκελισμένος!");
+          System.out.println("Τερματισμός Λειτουργίας.");
           keepEditing = false;
         } else {
-          System.out.printf("Δεν επιτρέπεται τερματισμός");
-          System.out.printf("Ο προϋπολογισμός δεν ισοσκελίστηκε, συνεχίστε τις αλλαγές");
-          System.out.printf("Υπόλοιπο: ", currentBalance);
+          System.out.println("!!! ΠΡΟΣΟΧΗ !!!");
+          System.out.println("Δεν επιτρέπεται τερματισμός.");
+          System.out.println("Ο προϋπολογισμός δεν ισοσκελίστηκε.");
+          System.out.printf("Πρέπει να καλύψετε διαφορά: %,.2f €\n", currentBalance);
         }
-      } else if (!searchInput.isEmpty()) {
-        findAndEditCategory(year, searchInput);
+        continue;
       }
+
+      EnvUnit selectedUnit = selectUnit(selectedSector);
+      if (selectedUnit == null) {
+        continue;
+      }
+
+      System.out.println("\n------------------------------------------------");
+      System.out.println("Μονάδα: " + translator.translateCategory(selectedUnit.getJsonKey()));
+      System.out.println("Πληκτρολογήστε το όνομα της κατηγορίας που θέλετε να επεξεργαστείτε:");
+      System.out.print("--> ");
+      
+      String searchInput = scanner.nextLine().trim();
+
+      if (!searchInput.isEmpty()) {
+        findAndEditEntryInUnit(selectedUnit, searchInput);
+      }
+
+      System.out.println("--- ΤΕΛΟΣ ΕΠΕΞΕΡΓΑΣΙΑΣ ---");
+
     }
-    System.out.println("--- ΤΕΛΟΣ ΕΠΕΞΕΡΓΑΣΙΑΣ ---");
   }
 
-  // This method searches for the category throughout the year
-  private void findAndEditCategory(EnvYear year, String searchName) {
+  private EnvSector selectSector(EnvYear year) {
+    List<EnvSector> sectors = year.getSectors();
+    System.out.println("\n==========================================");
+    System.out.println(" ΕΠΙΛΟΓΗ ΤΟΜΕΑ");
+    System.out.println("==========================================");
+      
+    for (int i = 0; i < sectors.size(); i++) {
+      String name = translator.translateCategory(sectors.get(i).getJsonKey());
+      System.out.println((i + 1) + ". " + name);
+    }
+    
+    System.out.println("0. ΤΕΛΟΣ / ΕΛΕΓΧΟΣ ΙΣΟΣΚΕΛΙΣΜΟΥ");
+    System.out.print("--> Επιλογή: ");
+
+    int choice = readIntegerChoice(sectors.size());
+    if (choice <= 0) return null;
+    return sectors.get(choice - 1);
+  }
+
+  private EnvUnit selectUnit(EnvSector sector) {
+    List<EnvUnit> units = sector.getUnits();
+    System.out.println("\n--- Επιλογή Μονάδας ---");
+
+    for (int i = 0; i < units.size(); i++) {
+      String name = translator.translateCategory(units.get(1).getJsonKey());
+      System.out.println((i + 1) + ". " + name);
+    }
+    System.out.println("0. Επιστροφή");
+    System.out.print("--> Επιλογή: ");
+
+    int choice = readIntegerChoice(units.size());
+    if (choice <= 0) return null;
+    return units.get(choice - 1);
+  }
+  
+
+  // This method searches for the category in the specific unit
+  private void findAndEditEntryInUnit(EnvUnit unit, String searchName) {
     boolean found = false;
 
     // A triple loop in order to search Sectors -> Units -> Entries
-    for (EnvSector sector : year.getSectors()) {
-      for (EnvUnit unit : sector.getUnits()) {
-        for (EnvEntry entry : unit.getEntries()) {
+    for (EnvEntry entry : unit.getEntries()) {
+                    
+      // Translation of the key in order to compare with the user's entry
+      String entryName = translator.translateCategory(entry.getJsonKey());
 
-        // Translation of the key in order to compare with the user's entry
-        String entryName = translator.translateCategory(entry.getJsonKey());
+      if (entryName.equalsIgnoreCase(searchName)) {
+        found = true;
+                       
+        // Asking for the new amount
+        System.out.printf("\nΒρέθηκε: %s | Τρέχον Ποσό: %,.2f €\n", entryName, entry.getAmount());
+        double oldAmount = entry.getAmount();
+        System.out.print("Δώσε το νέο ποσό: ");
 
-        if (entryName.equalsIgnoreCase(searchName)) {
-          found = true;
+        String amountInput = scanner.nextLine().trim();
 
-          // Asking for the new amount
-          System.out.printf("\nΒρέθηκε: %s | Τρέχον Ποσό: %,.2f €\n", entryName, entry.getAmount());
-          double oldAmount = entry.getAmount();
-          System.out.print("Δώσε το νέο ποσό: ");
-
-          String amountInput = scanner.nextLine().trim();
-
-            try {
-              double newAmount = Double.parseDouble(amountInput);
-
-              BudgetValidator obj = new BudgetValidator();
-              newAmount = obj.getValidatedNewValue(totalBudget, oldAmount, newAmount);
-
-              entry.setAmount(newAmount);
-              double offsetAmount = oldAmount - newAmount;
-              //CURRENT BALANCE CORRECTION
-              this.currentBalance += offsetAmount;
-              System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Δημιουργήθηκε διαφορά: ", offsetAmount, " ευρώ");
-            } catch (NumberFormatException e) {
-              System.out.println(" Λάθος: Παρακαλώ δώστε έγκυρο αριθμό.");
-            }
-          return;
+        if (!amountInput.isEmpty()) {
+          try {
+            amountInput = amountInput.replace(",", ".");
+            double newAmount = Double.parseDouble(amountInput);
+            entry.setAmount(newAmount);
+              
+            double offsetAmount = oldAmount - newAmount;
+            //Current balance correction
+            this.currentBalance += offsetAmount;
+            System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Δημιουργήθηκε διαφορά: %,.2f €\\n", offsetAmount);
+          } catch (NumberFormatException e) {
+            System.out.println(" Λάθος: Παρακαλώ δώστε έγκυρο αριθμό.");
+          }
+        } else {
+          System.out.println(" Δεν δόθηκε τιμή. Καμία αλλαγή.");
         }
+        return;
       }
     }
 
@@ -111,4 +155,19 @@ public class EditsApplier {
       System.out.println(" Συμβουλή: Προσέξτε τους τόνους και την ορθογραφία!");
     }
   }
+
+  private int readIntegerChoice(int maxOption) {
+    try {
+      String input = scanner.nextLine().trim();
+      if (input.isEmpty()) return -1;
+      int val = Integer.parseInt(input);
+      if (val >= 0 && val <= maxOption) return val;
+    } catch (NumberFormatException e) {
+      // We ignore the mistake and return -1
+    }
+    System.out.println("Μη έγκυρη επιλογή.");
+    return -1;
+  }
 }
+  
+
