@@ -6,7 +6,7 @@ import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.EnvBudgetTranslator;
 
-
+/** PRINTS THE RESULTS OF CHANGED DATA */
 public class EditsPrinter {
 
     private final EnvBudgetTranslator translator;
@@ -21,7 +21,8 @@ public class EditsPrinter {
     public void printEditYear(EnvYear year) {
 
         if (Integer.parseInt(year.getYear()) != this.yearForPrinting) {
-            System.out.println("Το έτος " + this.yearForPrinting +  "δεν ταιριάζει με το φορτωμένα δεδομένα");
+            System.out.println("Το έτος " + this.yearForPrinting
+                    + "δεν ταιριάζει με το φορτωμένα δεδομένα");
             return;
         }
 
@@ -31,7 +32,7 @@ public class EditsPrinter {
 
             String translatedSector = translator.translateCategory(sector.getJsonKey());
             System.out.printf("ΤΟΜΕΑΣ: %s", translatedSector);
- 
+
             double sectorTotal = 0.0;
 
             for (EnvUnit unit : sector.getUnits()) {
