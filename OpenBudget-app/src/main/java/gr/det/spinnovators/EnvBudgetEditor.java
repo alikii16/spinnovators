@@ -1,6 +1,8 @@
 package gr.det.spinnovators;
 
 import gr.det.spinnovators.envdatamodel.*;
+
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class EnvBudgetEditor {
@@ -36,5 +38,8 @@ public class EnvBudgetEditor {
 
     EditsApplier applier = new EditsApplier(translator);
     applier.applyEditsToYear(selectedYear);
+
+    EditsPrinter printer = new EditsPrinter(translator, yearInput);
+    printer.printEditYear(selectedYear);
   }
 }

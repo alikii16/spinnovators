@@ -10,9 +10,9 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 
 public class EditsPrinter {
   private final EnvBudgetTranslator translator;
-  private final int yearForPrinting;
+  private final String yearForPrinting;
 
-  public EditsPrinter(EnvBudgetTranslator translator, int yearForPrinting) {
+  public EditsPrinter(EnvBudgetTranslator translator, String yearForPrinting) {
     this.translator  = translator;
     this.yearForPrinting = yearForPrinting;
   }
@@ -22,11 +22,6 @@ public class EditsPrinter {
    * @param year the ministry year data to print.
    */
   public void printEditYear(EnvYear year) {
-    if (Integer.parseInt(year.getYear()) != this.yearForPrinting) {
-      System.out.println("Το έτος " + this.yearForPrinting
-          + " δεν ταιριάζει με το φορτωμένα δεδομένα");
-      return;
-    }
 
     System.out.println("ΕΝΗΜΕΡΩΜΕΝΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΓΙΑ ΤΟ ΕΤΟΣ " + year.getYear());
 
