@@ -98,7 +98,7 @@ public class EditsApplier {
     System.out.println("\n--- Επιλογή Μονάδας ---");
 
     for (int i = 0; i < units.size(); i++) {
-      String name = translator.translateCategory(units.get(1).getJsonKey());
+      String name = translator.translateCategory(units.get(i).getJsonKey());
       System.out.println((i + 1) + ". " + name);
     }
     System.out.println("0. Επιστροφή");
@@ -114,7 +114,7 @@ public class EditsApplier {
   private void findAndEditEntryInUnit(EnvUnit unit, String searchName) {
     boolean found = false;
 
-    // A triple loop in order to search Sectors -> Units -> Entries
+    // A loop in order to search the Unit and do the entry
     for (EnvEntry entry : unit.getEntries()) {
                     
       // Translation of the key in order to compare with the user's entry
@@ -135,6 +135,10 @@ public class EditsApplier {
             amountInput = amountInput.replace(",", ".");
             double newAmount = Double.parseDouble(amountInput);
             entry.setAmount(newAmount);
+            
+            //Check new amount's validation
+            BudgetValidator obj = new BudgetValidator();
+            newAmount = obj.getValidatedNewValue(totalBudget, oldAmount, newAmount);
               
             double offsetAmount = oldAmount - newAmount;
             //Current balance correction
@@ -170,4 +174,3 @@ public class EditsApplier {
   }
 }
   
-
