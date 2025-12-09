@@ -3,10 +3,8 @@ package gr.det.spinnovators;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpExchange;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +13,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
+import gr.det.spinnovators.envdatamodel.EnvEntry;
+import gr.det.spinnovators.envdatamodel.EnvSector;
+import gr.det.spinnovators.envdatamodel.EnvUnit;
+import gr.det.spinnovators.envdatamodel.EnvYear;
+
+
 
 /**
  * Web server class to handle login functionality via HTTP.
@@ -22,7 +26,8 @@ import gr.det.spinnovators.envdatamodel.EnvBudgetData;
  */
 
 public final class LoginWebServer {
-    
+
+
   private static final int PORT = 8080;
   private static final String MINISTER = "Minister";
   private static final String PASSWORD_MINISTER = "m1n1st3r";
@@ -32,13 +37,45 @@ public final class LoginWebServer {
   private static EnvBudgetData envBudgetData = null;
   private static EnvBudgetTranslator translator = null;
   private static EnvBudgetPrinter envPrinter = null;
-    
+     // ------------------------------------------
+  // CHANGE-BUDGET SESSION + STATE
+  // ------------------------------------------
+
+  private enum ChangeState {
+      START,
+      SELECT_YEAR,
+      SELECT_SECTOR,
+      SELECT_UNIT,
+      SELECT_ENTRY,
+      EDIT_VALUE,
+      CONFIRM_EXTREME,
+      FINISH
+  }
+
+  private static class ChangeSession {
+      public ChangeState state = ChangeState.START;
+
+      public EnvYear envYear;
+
+      public EnvSector selectedSector;
+      public EnvUnit selectedUnit;
+      public EnvEntry selectedEntry;
+
+      public double totalBudget = 0.0;
+      public double currentBalance = 0.0;
+      public double oldValue;
+      public Double pendingValue;
+  }
+
+  private static ChangeSession changeSession = new ChangeSession();
+ 
   /**
    * Private constructor to prevent instantiation.
    */
   private LoginWebServer() {
   }
-    
+ 
+
   /**
    * Initializes budget data from JSON file.
    */
@@ -121,44 +158,11 @@ public final class LoginWebServer {
             serveHtmlWithUsername(exchange, frontendPath, "employee_budget.html", username);
         }
     });
-    server.createContext("/change-budget", exchange -> {
-    System.out.println("[DEBUG] Request to /change-budget : " + exchange.getRequestMethod());
-
-    if ("POST".equals(exchange.getRequestMethod())) {
-
-        // Διαβάζουμε την απάντηση (YES/NO)
-        String formData = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-        System.out.println("[DEBUG] /change-budget formData = " + formData);
-
-        // Αν πατήσει ΟΧΙ → επιστροφή στη minister_budget.html
-        if (formData.contains("answer=NO")) {
-            System.out.println("[DEBUG] User selected NO, redirecting to minister_budget.html");
-            redirect(exchange, "/minister_budget.html");
-            return;
-        }
-
-        // Αν πατήσει ΝΑΙ → εμφάνιση δεύτερης ερώτησης
-        System.out.println("[DEBUG] User selected YES, showing year selection question");
-        handleChangeBudgetStart(exchange, frontendPath);
-
-    } else {
-        // GET → εμφάνιση μόνο της πρώτης ερώτησης
-        Path filePath = Paths.get(frontendPath, "change-budget.html");
-        String html = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
-
-        // Κρύβουμε πάντα τη 2η ερώτηση, τον πίνακα και το menu
-        html = html.replace("{{secondQuestion}}", "");
-        html = html.replace("{{budgetTable}}", "");
-        html = html.replace("{{categoryMenu}}", "");
-
-        sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
-    }
-});
-server.createContext("/change-budget-year", exchange -> {
-    if ("POST".equals(exchange.getRequestMethod())) {
-        handleChangeBudgetYear(exchange, frontendPath);
-    } else {
-        redirect(exchange, "/change-budget");
+server.createContext("/change-budget", exchange -> {
+    if ("GET".equals(exchange.getRequestMethod())) {
+        serveChangeBudgetPage(exchange, frontendPath);
+    } else if ("POST".equals(exchange.getRequestMethod())) {
+        handleChangeBudgetPost(exchange, frontendPath);
     }
 });
 
@@ -402,6 +406,160 @@ server.createContext("/change-budget-year", exchange -> {
     exchange.getResponseHeaders().set("Location", location);
     exchange.sendResponseHeaders(302, -1);
     exchange.close();
+  }
+
+  // Shared styling for change-budget pages to match minister_budget.html
+  private static String buildStyledChangePage(String innerCardHtml, String extraBelowCard) {
+    String styles = """
+        <style>
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body {
+                background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 25%, #0a3d15 50%, #0d4f1c 75%, #1b5e20 100%);
+                background-color: #0a3d15;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px;
+                position: relative;
+            }
+            body::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background:
+                    radial-gradient(circle at 15% 40%, rgba(13, 79, 28, 0.18) 0%, transparent 45%),
+                    radial-gradient(circle at 80% 70%, rgba(5, 26, 10, 0.25) 0%, transparent 55%);
+                pointer-events: none;
+                z-index: 0;
+            }
+            .ministry-header {
+                text-align: center;
+                margin-top: 30px;
+                margin-bottom: 40px;
+                width: 100%;
+                position: relative;
+                z-index: 1;
+            }
+            .ministry-header h1 {
+                color: #e8f5e9;
+                font-size: 34px;
+                font-weight: 600;
+                letter-spacing: 2px;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+                text-transform: uppercase;
+                line-height: 1.2;
+            }
+            .container {
+                width: 100%;
+                max-width: 640px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+                z-index: 1;
+            }
+            .card {
+                width: 100%;
+                background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+                border-radius: 20px;
+                padding: 40px 36px;
+                box-shadow:
+                    0 12px 48px rgba(0, 0, 0, 0.35),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                    0 0 0 2px rgba(13, 79, 28, 0.2);
+                border: 3px solid #0d4f1c;
+            }
+            .section-title {
+                text-align: center;
+                font-size: 24px;
+                font-weight: 700;
+                color: #0d4f1c;
+                margin-bottom: 16px;
+            }
+            .description {
+                text-align: center;
+                font-size: 16px;
+                color: #2e7d32;
+                margin-bottom: 18px;
+            }
+            .input-box, input[type=number], select {
+                width: 100%;
+                padding: 14px;
+                border: 2px solid #a5d6a7;
+                border-radius: 8px;
+                font-size: 16px;
+                background: #fafafa;
+                transition: border-color 0.25s, box-shadow 0.25s;
+                margin-top: 10px;
+            }
+            .input-box:focus, input[type=number]:focus, select:focus {
+                outline: none;
+                border-color: #1b5e20;
+                box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.15);
+                background: #fff;
+            }
+            .primary-btn, .secondary-btn, .wide-btn {
+                display: inline-block;
+                width: 100%;
+                padding: 15px;
+                background: linear-gradient(135deg, #0d4f1c 0%, #1b5e20 100%);
+                color: #ffffff;
+                text-align: center;
+                text-decoration: none;
+                font-size: 17px;
+                font-weight: 600;
+                border-radius: 10px;
+                border: none;
+                cursor: pointer;
+                box-shadow: 0 6px 18px rgba(13, 79, 28, 0.4);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                margin-top: 14px;
+            }
+            .primary-btn:hover, .secondary-btn:hover, .wide-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 24px rgba(13, 79, 28, 0.45);
+            }
+            .secondary-btn {
+                background: linear-gradient(135deg, #558b2f 0%, #33691e 100%);
+                box-shadow: 0 6px 18px rgba(85, 139, 47, 0.4);
+            }
+            .choice-group {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-top: 10px;
+            }
+            .error-box {
+                margin-top: 16px;
+                padding: 14px 16px;
+                background: #fff3e0;
+                border: 1px solid #ffb74d;
+                border-radius: 10px;
+                color: #e65100;
+                font-weight: 600;
+                text-align: center;
+            }
+        </style>
+        """;
+
+    String header = """
+        <div class="ministry-header">
+            <h1>ΥΠΟΥΡΓΕΙΟ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ</h1>
+        </div>
+        """;
+
+    String extra = (extraBelowCard == null || extraBelowCard.isBlank()) ? "" : extraBelowCard;
+
+    return "<!DOCTYPE html><html lang='el'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>"
+            + "<title>Αλλαγή Προϋπολογισμού</title>" + styles + "</head><body>"
+            + header
+            + "<div class='container'><div class='card'>"
+            + innerCardHtml
+            + "</div></div>"
+            + extra
+            + "</body></html>";
   }
     
   /**
@@ -846,113 +1004,451 @@ server.createContext("/change-budget-year", exchange -> {
     String errorHtml = "<html><body><h1>Error " + statusCode + "</h1><p>" + message + "</p></body></html>";
     sendResponse(exchange, errorHtml, statusCode, "text/html; charset=UTF-8");
   }
-private static void handleChangeBudgetStart(HttpExchange exchange, String frontendPath) throws IOException {
+private static void serveChangeBudgetPage(HttpExchange exchange, String frontendPath) throws IOException {
 
-    String secondQuestionHtml =
-        "<div class='big-card'>" +
-          "<h2>Επιλογή Έτους</h2>" +
-          "<p style='text-align:center; margin-bottom:14px;'>Για ποιο έτος θέλετε να κάνετε αλλαγές; (2025 / 2026)</p>" +
-          "<form method='POST' action='/change-budget-year'>" +
-            "<input type='text' name='year' class='input-box' placeholder='π.χ. 2025'>" +
-            "<button class='green-button'>Συνέχεια</button>" +
-          "</form>" +
-        "</div>";
+    initializeBudgetData();
 
-    Path htmlPath = Paths.get(frontendPath, "change-budget.html");
-    String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
+    String inner = """
+        <h2 class='section-title'>Θέλετε να κάνετε αλλαγή στον προϋπολογισμό;</h2>
+        <form method='POST'>
+            <div class='choice-group'>
+                <button class='primary-btn' name='answer' value='yes' style='flex:1;'>ΝΑΙ</button>
+                <button class='secondary-btn' name='answer' value='no' style='flex:1;'>ΟΧΙ</button>
+            </div>
+        </form>
+        """;
 
-    html = html.replace("{{secondQuestion}}", secondQuestionHtml);
-    html = html.replace("{{budgetTable}}", "");
-    html = html.replace("{{categoryMenu}}", "");
-
+    String html = buildStyledChangePage(inner, "");
     sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
 }
 
-private static void handleChangeBudgetYear(HttpExchange exchange, String frontendPath) throws IOException {
-  
-  String formData = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-  String year = null;
-  if (formData != null && !formData.isEmpty()) {
-    String[] pairs = formData.split("&");
-    for (String pair : pairs) {
-      String[] keyValue = pair.split("=", 2);
-      if (keyValue.length == 2 && "year".equals(java.net.URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8))) {
-        year = java.net.URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
-      }
+
+// -------------------------------------------------------
+// 2) HANDLE YES / NO
+// -------------------------------------------------------
+private static void handleChangeBudgetPost(HttpExchange exchange, String frontendPath) throws IOException {
+
+    String formData = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+
+    if (formData.contains("answer=no")) {
+        redirect(exchange, "/minister_statebudget.html");
+        return;
     }
-  }
 
-  System.out.println("[DEBUG] /change-budget-year year = " + year);
+    if (formData.contains("answer=yes")) {
+        changeSession = new ChangeSession();
+        changeSession.state = ChangeState.SELECT_YEAR;
+        serveYearQuestion(exchange);
+        return;
+    }
 
-  Path htmlPath = Paths.get(frontendPath, "change-budget.html");
-  String html = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
+    switch (changeSession.state) {
+        case SELECT_YEAR -> handleYearInput(exchange, formData);
+        case SELECT_SECTOR -> handleSectorInput(exchange, formData);
+        case SELECT_UNIT -> handleUnitInput(exchange, formData);
+        case SELECT_ENTRY -> handleEntryInput(exchange, formData);
+        case EDIT_VALUE -> handleValueChange(exchange, formData);
+        case CONFIRM_EXTREME -> handleExtremeConfirmation(exchange, formData);
+        default -> serveChangeBudgetPage(exchange, frontendPath);
+    }
+}
 
-  
-  if (!"2025".equals(year) && !"2026".equals(year)) {
-    String error =
-        "<div class='big-card'>" +
-          "<h2>Σφάλμα</h2>" +
-          "<p style='color:#b71c1c; font-weight:600; text-align:center; margin-top:8px;'>"
-            + "Σφάλμα: Δεν βρέθηκαν δεδομένα για το έτος " + (year == null ? "" : year) + ".<br>"
-            + "Επιτρέπονται μόνο τα έτη 2025 και 2026."
-          + "</p>" +
-        "</div>";
 
-    html = html.replace("{{secondQuestion}}", error);
-    html = html.replace("{{budgetTable}}", "");
-    html = html.replace("{{categoryMenu}}", "");
+// -------------------------------------------------------
+// 3) YEAR INPUT PAGE
+// -------------------------------------------------------
+private static void serveYearQuestion(HttpExchange exchange) throws IOException {
+
+    String inner = """
+        <h2 class='section-title'>Εισάγετε το έτος</h2>
+        <p class='description'>(Επιτρέπονται: 2025 ή 2026)</p>
+        <form method='POST'>
+            <input class='input-box' type='number' name='year' placeholder='π.χ. 2025' required>
+            <button class='primary-btn' type='submit'>Συνέχεια</button>
+        </form>
+        """;
+
+    String html = buildStyledChangePage(inner, "");
     sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
-    return;
-  }
+}
 
-  initializeBudgetData();
 
-  MinistryDataInput allData = new MinistryDataInput();
-  FullBudgetPrinter printer = new FullBudgetPrinter(allData);
+// -------------------------------------------------------
+// 4) HANDLE YEAR
+// -------------------------------------------------------
+private static void handleYearInput(HttpExchange exchange, String formData) throws IOException {
 
-  ByteArrayOutputStream baos = new ByteArrayOutputStream();
-  PrintStream prev = System.out;
-  System.setOut(new PrintStream(baos, true, StandardCharsets.UTF_8));
+    String year = extractFormValue(formData, "year");
 
-  printer.showBudget(year);
+    if (!year.equals("2025") && !year.equals("2026")) {
+        serveErrorPage(exchange, "Το έτος πρέπει να είναι 2025 ή 2026.");
+        return;
+    }
 
-  System.setOut(prev);
+    changeSession.envYear = envBudgetData.getBudgetForYear(year);
+    changeSession.totalBudget = year.equals("2025") ? 2341227000.00 : 3133452000.00;
+    changeSession.currentBalance = 0.0;
 
-  String budgetOutput = baos.toString(StandardCharsets.UTF_8);
+    changeSession.state = ChangeState.SELECT_SECTOR;
+    serveSectorQuestion(exchange, null);
+}
 
-    String budgetHtml =
-      "<div class='table-wrapper'>" +
-        "<div class='table-header'>Προϋπολογισμός " + year + "</div>" +
-        "<div class='table-content'>" +
-          "<pre style='white-space:pre-wrap; font-size:14px; line-height:1.5;'>" +
-            budgetOutput +
-          "</pre>" +
-        "</div>" +
-      "</div>";
 
-      String categoriesHtml =
-      "<div class='big-card'>" +
-        "<h2>Επεξεργασία Κατηγορίας</h2>" +
-        "<p style='text-align:center; font-size:16px; color:#1b5e20; margin-bottom:16px;'>" +
-          "Πληκτρολογήστε την κατηγορία που θέλετε να επεξεργαστείτε ή 'ΤΕΛΟΣ' για έξοδο." +
-          "<br>" +
-          "<span style='font-size:14px; color:#2e7d32;'>(Στην ιστοσελίδα επιλέξτε από το μενού)</span>" +
-        "</p>" +
-        "<form method='POST' action='/change-budget-category'>" +
-          "<select name='category' class='input-box' required>" +
-            "<option value=''>-- Επιλέξτε κατηγορία --</option>" +
-            "<option value='Αποδοχές Υπαλλήλων'>Αποδοχές Υπαλλήλων</option>" +
-            "<option value='Λειτουργικές Δαπάνες'>Λειτουργικές Δαπάνες</option>" +
-            "<option value='Προμήθειες'>Προμήθειες</option>" +
-            "<option value='Επενδύσεις'>Επενδύσεις</option>" +
-                   "</select>" +
-          "<button type='submit' class='green-button'>Συνέχεια</button>" +
-        "</form>" +
-      "</div>";
-  html = html.replace("{{secondQuestion}}", "");
-  html = html.replace("{{budgetTable}}", budgetHtml);
-  html = html.replace("{{categoryMenu}}", categoriesHtml);
+// -------------------------------------------------------
+// 5) SECTOR SELECTION PAGE
+// -------------------------------------------------------
+private static void serveSectorQuestion(HttpExchange exchange, String infoMessage) throws IOException {
 
-  sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+    StringBuilder buttons = new StringBuilder();
+    buttons.append("<h2 class='section-title'>Επιλέξτε Τομέα</h2>");
+    if (infoMessage != null && !infoMessage.isBlank()) {
+        buttons.append("<div class='error-box' style='background:#e8f5e9; border:1px solid #a5d6a7; color:#1b5e20; margin-bottom:12px;'>")
+               .append(infoMessage)
+               .append("</div>");
+    }
+    buttons.append("<form method='POST' style='display:flex; flex-direction:column; gap:10px;'>");
+    for (EnvSector s : changeSession.envYear.getSectors()) {
+        String name = translator.translateCategory(s.getJsonKey());
+        buttons.append("<button class='primary-btn' name='sector' value='")
+               .append(name).append("'>").append(name).append("</button>");
+    }
+    buttons.append("<button class='secondary-btn' name='sector' value='__end__'>ΤΕΛΟΣ / ΕΛΕΓΧΟΣ ΙΣΟΣΚΕΛΙΣΜΟΥ</button>");
+    buttons.append("</form>");
+
+    String html = buildStyledChangePage(buttons.toString(), "");
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+}
+
+
+// -------------------------------------------------------
+// 6) HANDLE SECTOR
+// -------------------------------------------------------
+private static void handleSectorInput(HttpExchange exchange, String formData) throws IOException {
+
+    String chosen = extractFormValue(formData, "sector");
+
+    if ("__end__".equals(chosen)) {
+        handleEndAttempt(exchange);
+        return;
+    }
+
+    for (EnvSector s : changeSession.envYear.getSectors()) {
+        if (translator.translateCategory(s.getJsonKey()).equals(chosen)) {
+            changeSession.selectedSector = s;
+            changeSession.state = ChangeState.SELECT_UNIT;
+            serveUnitQuestion(exchange);
+            return;
+        }
+    }
+
+    serveErrorPage(exchange, "Ο τομέας δεν βρέθηκε.");
+}
+
+private static void handleEndAttempt(HttpExchange exchange) throws IOException {
+    if (Math.abs(changeSession.currentBalance) < 0.01) {
+        String msg = "Ο προϋπολογισμός είναι ισοσκελισμένος! Τερματισμός Λειτουργίας.";
+        serveEndMessage(exchange, msg, true);
+    } else {
+        String msg = "!!! ΠΡΟΣΟΧΗ !!! Δεν επιτρέπεται τερματισμός. Ο προϋπολογισμός δεν ισοσκελίστηκε. Πρέπει να καλύψετε διαφορά: "
+                + String.format("%,.2f €", changeSession.currentBalance);
+        changeSession.state = ChangeState.SELECT_SECTOR;
+        serveSectorQuestion(exchange, msg);
+    }
+}
+
+private static void serveEndMessage(HttpExchange exchange, String message, boolean success) throws IOException {
+    String color = success ? "#1b5e20" : "#b71c1c";
+    String buttonHtml;
+    if (success) {
+        buttonHtml = "<a class='primary-btn' href='/minister_statebudget.html' style='text-decoration:none; margin-top:18px;'>Επιστροφή</a>";
+    } else {
+        buttonHtml = """
+            <form method='POST' style='margin-top:18px;'>
+                <button class='primary-btn' type='submit' name='continue' value='yes'>Συνέχεια Αλλαγών</button>
+            </form>
+            """;
+    }
+    String inner = """
+        <h2 class='section-title'>Έλεγχος Ισοσκελισμού</h2>
+        <div class='description' style='color:%s; font-weight:700;'>%s</div>
+        %s
+        """.formatted(color, message, buttonHtml);
+    String html = buildStyledChangePage(inner, "");
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+}
+
+
+// -------------------------------------------------------
+// 7) UNIT SELECTION PAGE
+// -------------------------------------------------------
+private static void serveUnitQuestion(HttpExchange exchange) throws IOException {
+
+    StringBuilder buttons = new StringBuilder();
+    buttons.append("<h2 class='section-title'>Επιλέξτε Μονάδα</h2>");
+    buttons.append("<form method='POST'>");
+    for (EnvUnit u : changeSession.selectedSector.getUnits()) {
+        String name = translator.translateCategory(u.getJsonKey());
+        buttons.append("<button class='primary-btn' name='unit' value='")
+               .append(name).append("'>").append(name).append("</button>");
+    }
+    buttons.append("</form>");
+
+    String html = buildStyledChangePage(buttons.toString(), "");
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+}
+
+
+// -------------------------------------------------------
+// 8) HANDLE UNIT
+// -------------------------------------------------------
+private static void handleUnitInput(HttpExchange exchange, String formData) throws IOException {
+
+    String chosen = extractFormValue(formData, "unit");
+
+    for (EnvUnit u : changeSession.selectedSector.getUnits()) {
+        if (translator.translateCategory(u.getJsonKey()).equals(chosen)) {
+            changeSession.selectedUnit = u;
+            changeSession.state = ChangeState.SELECT_ENTRY;
+            serveEntryQuestion(exchange);
+            return;
+        }
+    }
+
+    serveErrorPage(exchange, "Η μονάδα δεν βρέθηκε.");
+}
+
+
+// -------------------------------------------------------
+// 9) ENTRY SELECTION PAGE
+// -------------------------------------------------------
+private static void serveEntryQuestion(HttpExchange exchange) throws IOException {
+
+    StringBuilder buttons = new StringBuilder();
+    buttons.append("<h2 class='section-title'>Επιλέξτε Κατηγορία</h2>");
+    buttons.append("<form method='POST'>");
+    for (EnvEntry e : changeSession.selectedUnit.getEntries()) {
+        String name = translator.translateCategory(e.getJsonKey());
+        buttons.append("<button class='primary-btn' name='entry' value='")
+               .append(name).append("'>").append(name).append("</button>");
+    }
+    buttons.append("</form>");
+
+    String html = buildStyledChangePage(buttons.toString(), "");
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+}
+
+
+// -------------------------------------------------------
+// 10) HANDLE ENTRY
+// -------------------------------------------------------
+private static void handleEntryInput(HttpExchange exchange, String formData) throws IOException {
+
+    String chosen = extractFormValue(formData, "entry");
+
+    for (EnvEntry e : changeSession.selectedUnit.getEntries()) {
+        if (translator.translateCategory(e.getJsonKey()).equals(chosen)) {
+            changeSession.selectedEntry = e;
+            changeSession.oldValue = e.getAmount();
+            changeSession.pendingValue = null;
+
+            changeSession.state = ChangeState.EDIT_VALUE;
+            serveValueEditor(exchange);
+            return;
+        }
+    }
+
+    serveErrorPage(exchange, "Η κατηγορία δεν βρέθηκε.");
+}
+
+
+// -------------------------------------------------------
+// 11) VALUE EDIT PAGE
+// -------------------------------------------------------
+private static void serveValueEditor(HttpExchange exchange) throws IOException {
+    serveValueEditor(exchange, null);
+}
+
+private static void serveValueEditor(HttpExchange exchange, String validationMessage) throws IOException {
+
+    String entryName = translator.translateCategory(changeSession.selectedEntry.getJsonKey());
+
+    String inner = """
+        <h2 class='section-title'>Αλλαγή ποσού</h2>
+        <div class='description'>Κατηγορία: <b>""" + entryName + "</b></div>" +
+        "<div class='description' style='color:#0d4f1c; font-weight:700;'>Τρέχον ποσό: " + String.format("%,.2f €", changeSession.oldValue) + "</div>" +
+        "<form method='POST' style='margin-top:18px; display:flex; flex-direction:column; gap:12px;'>"
+        + "<input class='input-box' type='text' name='newValue' placeholder='π.χ. 2.000.000 ή 2000000,50' required>"
+        + "<button class='primary-btn' type='submit'>Αποθήκευση</button>"
+        + "</form>";
+
+    if (validationMessage != null && !validationMessage.isBlank()) {
+        inner += "<div class='error-box' style='margin-top:14px;'>" + validationMessage + "</div>";
+    }
+
+    String html = buildStyledChangePage(inner, "");
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+}
+
+
+// -------------------------------------------------------
+// 12) HANDLE VALUE CHANGE
+// -------------------------------------------------------
+private static void handleValueChange(HttpExchange exchange, String formData) throws IOException {
+
+    String raw = extractFormValue(formData, "newValue");
+
+    if (raw == null || raw.isBlank()) {
+        serveValueEditor(exchange, "Δεν δόθηκε τιμή. Καμία αλλαγή.");
+        return;
+    }
+
+    String cleaned = raw.replace(" ", "")
+                        .replace(".", "")
+                        .replace(",", ".")
+                        .trim();
+
+    double newValue;
+    try {
+        newValue = Double.parseDouble(cleaned);
+    } catch (NumberFormatException e) {
+        serveValueEditor(exchange, "Λάθος: Παρακαλώ δώστε έγκυρο αριθμό.");
+        return;
+    }
+
+    if (newValue < 0) {
+        serveValueEditor(exchange, "ΣΦΑΛΜΑ: Η τιμή δεν μπορεί να είναι αρνητική.");
+        return;
+    }
+
+    if (newValue > changeSession.totalBudget) {
+        String msg = String.format("ΣΦΑΛΜΑ: Η τιμή (%,.2f €) υπερβαίνει τον συνολικό προϋπολογισμό του Υπουργείου (%,.2f €).", newValue, changeSession.totalBudget);
+        serveValueEditor(exchange, msg);
+        return;
+    }
+
+    double deviation = Math.abs((newValue - changeSession.oldValue) / changeSession.oldValue) * 100.0;
+    if (deviation > 30.0) {
+        changeSession.pendingValue = newValue;
+        changeSession.state = ChangeState.CONFIRM_EXTREME;
+        serveExtremeWarning(exchange, deviation);
+        return;
+    }
+
+    applyNewValueAndFinish(exchange, newValue);
+}
+
+private static void applyNewValueAndFinish(HttpExchange exchange, double newValue) throws IOException {
+    changeSession.selectedEntry.setAmount(newValue);
+    changeSession.pendingValue = null;
+
+    double offset = changeSession.oldValue - newValue;
+    changeSession.currentBalance += offset;
+    StringBuilder banner = new StringBuilder();
+    banner.append("[OK] Η τιμή άλλαξε επιτυχώς. Δημιουργήθηκε διαφορά: ")
+          .append(String.format("%,.2f €", offset));
+
+    String balanceInfo;
+    if (Math.abs(changeSession.currentBalance) < 0.01) {
+        balanceInfo = "Ο προϋπολογισμός είναι ισοσκελισμένος!";
+    } else {
+        balanceInfo = String.format("ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ: %,.2f €", changeSession.currentBalance);
+    }
+    banner.append(" | ").append(balanceInfo);
+
+    changeSession.state = ChangeState.SELECT_SECTOR;
+    serveSectorQuestion(exchange, banner.toString());
+}
+
+
+// -------------------------------------------------------
+// 13) ERROR PAGE
+// -------------------------------------------------------
+private static void serveErrorPage(HttpExchange exchange, String message) throws IOException {
+
+    String inner = """
+        <h2 class='section-title'>Σφάλμα</h2>
+        <div class='error-box'>""" + message + "</div>" +
+        "<a class='secondary-btn' href='/change-budget' style='text-decoration:none; margin-top:18px;'>Ξανά προσπάθεια</a>";
+
+    String html = buildStyledChangePage(inner, "");
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+}
+
+
+// -------------------------------------------------------
+// 15) FORM VALUE HELPER
+// -------------------------------------------------------
+private static String extractFormValue(String formData, String key) {
+    for (String pair : formData.split("&")) {
+        String[] kv = pair.split("=", 2);
+        if (kv.length == 2 && kv[0].equals(key)) {
+            return java.net.URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
+        }
+    }
+    return "";
+}
+
+// -------------------------------------------------------
+// EXTREME DEVIATION CONFIRMATION (30%)
+// -------------------------------------------------------
+private static void serveExtremeWarning(HttpExchange exchange, double deviation) throws IOException {
+
+    String formatted = String.format("%6.2f", deviation);
+
+    double prospectiveBalance = changeSession.currentBalance;
+    if (changeSession.pendingValue != null) {
+        double offset = changeSession.oldValue - changeSession.pendingValue;
+        prospectiveBalance += offset;
+    }
+
+    String balanceInfo;
+    if (Math.abs(prospectiveBalance) < 0.01) {
+        balanceInfo = "Ο προϋπολογισμός θα είναι ισοσκελισμένος.";
+    } else {
+        balanceInfo = String.format("ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ (αν εφαρμοστεί): %,.2f €", prospectiveBalance);
+    }
+
+    String inner = """
+        <h2 class='section-title'>ΠΡΟΕΙΔΟΠΟΙΗΣΗ: ΑΚΡΑΙΑ ΑΛΛΑΓΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ</h2>
+
+        <p class='description' style='color:#b71c1c; font-weight:700;'>
+        Ποσοστιαία μεταβολή:
+        """ + formatted + """
+        %
+        </p>
+
+        <p class='description'>Η μεταβολή υπερβαίνει το όριο του 30%!</p>
+
+        <p class='description' style='color:#0d4f1c; font-weight:700;'>
+        """ + balanceInfo + """
+        </p>
+
+        <div class='choice-group' style='margin-top:18px;'>
+            <form method='POST' style='flex:1;'>
+                <button class='primary-btn' name='confirmExtreme' value='yes' style='width:100%;'>ΝΑΙ</button>
+            </form>
+            <form method='POST' style='flex:1;'>
+                <button class='secondary-btn' name='confirmExtreme' value='no' style='width:100%;'>ΟΧΙ</button>
+            </form>
+        </div>
+        """;
+    String html = buildStyledChangePage(inner, "");
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+}
+
+// -------------------------------------------------------
+// HANDLE EXTREME DEVIATION CONFIRMATION
+// -------------------------------------------------------
+private static void handleExtremeConfirmation(HttpExchange exchange, String formData) throws IOException {
+    String choice = extractFormValue(formData, "confirmExtreme");
+
+    if ("yes".equals(choice) && changeSession.pendingValue != null) {
+        applyNewValueAndFinish(exchange, changeSession.pendingValue);
+        return;
+    }
+
+    // "no" or anything else: ask again for new value
+    serveValueEditor(exchange, "Ακύρωση: Παρακαλώ εισάγετε νέα τιμή.");
+    changeSession.state = ChangeState.EDIT_VALUE;
 }
 }
