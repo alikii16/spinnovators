@@ -6,7 +6,7 @@ import java.io.File;
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 
 
-public class App {
+public class OpenBudgetApplication {
     public static void main( String[] args ) {
 
         EnvBudgetTranslator translator = new EnvBudgetTranslator();
@@ -19,7 +19,7 @@ public class App {
             String frontendPath = null;
             
             // Try to find frontend directory from classpath resources
-            java.net.URL resourceUrl = App.class.getClassLoader().getResource("frontend/login.html");
+            java.net.URL resourceUrl = OpenBudgetApplication.class.getClassLoader().getResource("frontend/login.html");
             if (resourceUrl != null && resourceUrl.getProtocol().equals("file")) {
                 try {
                     frontendPath = java.nio.file.Paths.get(resourceUrl.toURI()).getParent().toString();
