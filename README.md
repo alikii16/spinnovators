@@ -2,49 +2,49 @@
 # [Prime] Minister for a Day 
 ##  Budget Management System
 ### Title: OpenBudget
-This is a command-line application that allows the user to view, edit, and analyze the Greek state budget, focusing on Ministry of Environment and Energy — as if someone were the *Prime Minister for a day*.  
-The program provides an overview of key budget categories, supports the introduction of changes, checks for rule violations and compares made-up scenarios. 
+This is a command-line and web-based application that allows users to view, edit, and analyze the Greek state budget, focusing on the Ministry of Environment and Energy — as if someone were the *Prime Minister for a day*.
+The program provides an overview of key budget categories, supports the introduction of changes, checks for rule violations, and compares made-up scenarios.   
 ## Main Features
 ### 1. Budget Overview:
-Displays all main categories of the national budget (e.g. Education, Health, Defense, Infrastructure, etc.).
+Displays all main categories of the national budget (e.g. Education, Health, Defense, Infrastructure, etc.) for years 2023-2026.
 ### 2. Data Editing and Updates
-Users can input changes directly through the command line. The system allows simulation of revised budget allocations — for instance, increasing investments in renewable energy or reducing defense spending — and automatically recalculates totals and balances.
+Users can input changes directly through the command line or web interface to the Ministry of Environment and Energy. The system allows simulation of revised budget allocations — for instance, increasing investments in renewable energy or reducing permanent assets — and automatically recalculates totals and balances.
 ### 3. Restriction and Validation Checks
-Automatic checks ensure that user modifications comply with fiscal and legal rules (e.g., no negative budgets, total spending cannot exceed total income).
-### 4. Change Tracking
-A detailed log shows every modification made during the session, including before-and-after comparisons for each category.
-### 5. Ministry of Environment and Energy Focus
-Special emphasis on environmental policies, green energy funding, and sustainability initiatives, exploring how changes affect long-term national performance.
-### 6. Yearly Budget Comparison
-Compare the current budget with the previous year’s data, highlighting increases or decreases per sector.
-### 7. Scenario Analysis
-Simulate hypothetical “what-if” cases and analyze impacts on Technology, Health, and Environment pillars.
-### 8. ESG Score Evaluation
-Evaluate Environmental, Social, and Governance (ESG) indicators to measure how sustainable and responsible the proposed budget changes are.
-### 9. Results and Conclusions
-Summarizes user actions and outlines potential long-term effects, balancing economic growth, social welfare, and environmental protection.
+Automatic checks ensure that user modifications comply with fiscal and legal rules (e.g., no negative budgets, total spending cannot exceed total income, warnings for changes exceeding 30%).
+### 4. Ministry of Environment and Energy Focus
+Special emphasis on environmental policies, green energy funding, and sustainability initiatives. 
+### 5. Yearly Budget Comparison
+Compare the current budget with previous years' data, highlighting increases or decreases per sector.
+### 6. Budget Forecasting
+Predict future budgets for 2027 based on historical data from 2024-2026 using linear regression analysis.
+### 7. ESG Score Evaluation
+Evaluate Environmental, Social, and Governance (ESG) indicators to measure how sustainable and responsible the proposed budget changes are. The system tags budget categories as "GREEN" or "NEUTRAL" and calculates a sustainability score (scale from 0 to 100).
+### 8. Crisis Mode Simulation
+Simulate crisis scenarios (Floods, Pandemic, Energy Crisis) that automatically reduce budgets by 10-15% and reallocate resources to critical ministries.
 
 ---
 
 ## Purpose
 The goal of **OpenBudget** is to encourage critical thinking about how national budgets are structured and how policy decisions influence sustainability, equality, and progress.  
+
 By simulating the decision-making process, users can experience the challenges of real-world governance — stepping into the role of the **Prime Minister for a Day**.
 
 ---
 
 ## Technical Architecture and Components
 
-### 1. Application Entry Point (App.java)
-The `App` class serves as the main entry point of **OpenBudget**.  
+### 1. Application Entry Point (OpenBudgetApplication.java)
+The OpenBudgetApplication class serves as the main entry point of OpenBudget.
 - It starts by invoking `FirstLogin.login()` to authenticate users as either a Minister or an employee.  
 - After login, it initializes `MinistryDataInput` and `FullBudgetPrinter` objects.  
-- Users can select the year of the budget to display (2023, 2024, 2025) or exit with `0000`.  
+- Users can select the year of the budget to display (2023, 2024, 2025, 2026) or exit with 0000.
 - The system prints a formatted table of ministries and their allocated budgets with a total summary.
+- Automatically starts an embedded HTTP server on port 8080 and opens the web interface in the default browser.
 
 ### 2. Data Model (MinistryDataInput.java)
-- Contains the budget data for three years: 2023, 2024, 2025.  
-- Each year has an array of **ministry names** and their respective **budget amounts**.  
-- Provides getter methods to access names, amounts, and the number of ministries for each year.  
+- Contains the budget data for four years: 2023, 2024, 2025, 2026.
+- Each year has an array of **ministry names** and their respective **budget amounts**.
+- Provides getter methods to access names, amounts, and the number of ministries for each year.
 - Supports fast lookup for printing or calculations in the CLI.
 
 ### 3. Budget Display (FullBudgetPrinter.java)
@@ -59,10 +59,10 @@ The `App` class serves as the main entry point of **OpenBudget**.
   - Any other employee with password `3mpl0y33`
 - The system enforces repeated login attempts until valid credentials are entered.
 
-### 5. Environment Ministry Data Handling
+## 5. Environment Ministry Data Handling
 The application also includes a **hierarchical and detailed structure** for the Ministry of Environment and Energy:
 
-#### a. Model Classes (Inside envdatamodel file)
+#### a. Model Classes (envdatamodel package)
 - `EnvBudgetData`: Holds all budget data per year, including **total ministry budget**.  
 - `EnvYear`: Represents budget data for a specific year, including multiple `EnvSector` objects.  
 - `EnvSector`: Represents major policy sectors (e.g., energy, natural resources) and contains `EnvUnit` objects.  
@@ -73,21 +73,39 @@ The application also includes a **hierarchical and detailed structure** for the 
 - Reads JSON data from `env_budget_data.json` in `src/main/resources`.  
 - Constructs the complete hierarchy: year → sector → unit → entry.  
 - Handles **JSON syntax errors** and **file-not-found exceptions** using `EnvDataLoadException`.
+- Uses Gson library for robust JSON parsing with type safety.
 
 #### c. Translation Support (EnvBudgetTranslator.java)
 - Loads `env_budget_translations.properties` to map JSON keys to official Greek ministry descriptions.  
 - Provides safe translation with fallback to readable names if a key is missing.  
 - Enhances user-friendliness in CLI output.
 
-#### d. Error Handling (EnvDataLoadException.java)
-- Custom exception for any **loading or parsing errors** in the Environment Ministry budget.  
-- Includes constructors to wrap `IOException` or `JsonSyntaxException` with meaningful messages.
+#### d. Budget Editing (EditsApplier.java)
+- Manages the interactive editing workflow for budget modifications.
+- Implements state management for multi-step editing process (sector → unit → entry → value).
+- Tracks balance changes and enforces budget equilibrium before allowing session termination.
+- Integrates with BudgetValidator for comprehensive validation.
+
+### e. Budget Validation (BudgetValidator.java)
+- **CHECK 1**: Prevents negative budget values
+- **CHECK 2**: Ensures new values don't exceed total ministry budget
+- **CHECK 3**: Warns about extreme deviations (>30%) and requires explicit confirmation
+- Provides user-friendly error messages in Greek
+- Handles non-numeric input gracefully
+
+### f. Budget Printing Services
+- EnvBudgetPrinter.java: Formats and displays detailed Environment Ministry budget with hierarchical structure
+- EditsPrinter.java: Shows updated budget data after modifications
+
 
 ### 6. System Capabilities for Environmental Analysis
 - Users can **view detailed breakdowns** of environmental sector allocations.  
 - Supports **updating entries** via code (in future versions, may include CLI editing).  
 - Enables **scenario testing**: modify amounts and observe impacts on total budgets.  
 - Integrates **translation services** for internationalization or clear Greek descriptions.
+- Integrates **balance tracking**, as running balance is maintained to ensure budget equilibrium.
+
+
 
 ---
 ## JSON and Translation Files
@@ -121,7 +139,7 @@ personnel_costs=Παροχές σε εργαζομένους
 purchase_of_goods_and_services=Αγορές αγαθών και υπηρεσιών
 permanent_assets=Πάγια Περιουσιακά Στοιχεία
 
-### 3. Ensuring the application runs correctly from the command line (pom.xml)
+### 3. Maven Configuration (pom.xml)
 - Maven project configuration for OpenBudget-app.
 - The Project Object Model (pom.xml) manages the project's dependencies and build process.
 - Java 17, dependencies for Gson and JUnit, plugins for testing and execution.
@@ -131,11 +149,18 @@ permanent_assets=Πάγια Περιουσιακά Στοιχεία
 ---
 
 ### 1. Web Server, Authentication & Dynamic Budget Rendering (LoginWebServer.java)
-- Implements a simple HTTP server that handles login and serves HTML pages for the budgeting app.
+- Implements an embedded HTTP server using com.sun.net.httpserver.HttpServer
+- Serves HTML pages from src/main/resources/frontend/
 - Authenticates users as either Minister or Employee and redirects them to the appropriate dashboard.
-- Loads budget data for selected years and injects dynamic output into the HTML templates.
-- Reads, processes, and returns frontend files with optional error messages.
-- Provides utility methods for redirects, parameter extraction, and building dynamic responses.
+- Dynamic Budget Rendering: Injects budget data into HTML templates
+- Change Budget Workflow: Multi-step state machine for web-based budget editing
+- Provides endpoints for:
+
+/login - User authentication
+/minister_statebudget.html - Full state budget view
+/minister_budget.html - Environment ministry budget
+/employee_statebudget.html - Employee view
+/change-budget - Interactive budget modification
 
 ### 2. Display of the employee dashboard for selecting a year and viewing Environment Ministry budget data (employee_budget.html)
 - Description: Main interface for employees to choose a fiscal year.
@@ -170,20 +195,166 @@ permanent_assets=Πάγια Περιουσιακά Στοιχεία
 ---
 
 ### a. Capabilities
-- Budget Review: Displays budget data for 2023, 2024, and 2025.
+- Budget Review: Displays budget data for 2023, 2024, 2025, and 2026.
 - Editing Functionality: Allows the user to select any leaf node (EnvEntry) and introduce a new monetary value (setAmount).
 - Real-time Changes: Changes are immediately reflected in the in-memory data structure.
 - Localization: Uses EnvBudgetTranslator to display all official names (Sectors, Units, Entries) in Greek.
+- Web & CLI Interface: Dual-mode operation for flexibility.
+- Balance Tracking: Maintains running balance during edit sessions to ensure fiscal equilibrium.
+- State Machine Editing: Multi-step workflow guides users through budget modifications.
 
 ### b. Constraints and Restrictions
-- Minimum Requirement Check: The application includes a check to ensure that a newly entered budget amount is not negative (though more complex restrictions should be added by the user).
+- Validation Rules:
+
+No negative budget values
+New values cannot exceed total ministry budget
+Changes >30% trigger confirmation warnings
+
 - Data Persistence: Changes are currently not saved back to the JSON file. Modifications are only valid for the current application session.
-- Scope: The system focuses exclusively on the budget of the Ministry of Environment and Energy (ΥΠΕΝ).
+- Scope: Detailed editing is currently limited to the Ministry of Environment and Energy (ΥΠΕΝ). Other ministries show summary data only.
+- Concurrent Access: ThreadLocal session management supports concurrent users but does not persist across server restarts.
   
 ---
+## Installation and Running
+---
+### Prerequisites
+- Java 17 or higher
+- Maven 3.8+
+
+### Steps
+- 1. Clone the repository
+git clone https://github.com/yourusername/openbudget.git
+cd openbudget
+- 2. Build the project
+mvn clean install
+-  3. Run the application
+mvn exec:java -Dexec.mainClass="gr.det.spinnovators.OpenBudgetApplication"
+- 4. Open browser at:
+http://localhost:8080/login.html
+
+#### Login Credentials 
+| Role | Username | Password |
+|-----|---------|----------|
+| Minister | Minister | `m1n1st3r` |
+| Employee | Any | `3mpl0y33` |
+
+---
+### Usage
+---
+#### Web Interface
+- Login: Enter credentials at http://localhost:8080/login.html
+- View Budget: Select a year (2023-2026) to view state or ministry budget
+- Edit Budget (Ministry of Environment and Energy / Minister only):
+-- Navigate to "Change Budget" option
+-- Select year
+-- Choose Sector → Unit → Entry
+-- Enter new value
+-- System validates and tracks balance changes
+-- Balance Management: System prevents termination until budget is balanced
+
+#### Terminal Interface
+- Login: Terminal prompts for credentials
+- Year Selection: Enter year or 0000 to exit
+- View Data: Budget data displayed in formatted tables
+- Edit Budget (Ministry of Environment and Energy / Minister only):
+-- Select year
+-- Choose Sector → Unit → Entry
+-- Enter new value
+-- System validates and tracks balance changes
+-- Balance Management: System prevents termination until budget is balanced
+
+---
+## Project Structure
+---
+
+OpenBudget/
+├── src/main/java/gr/det/spinnovators/
+│   ├── authentication/
+│   │   └── FirstLogin.java
+│   ├── data/
+│   │   └── MinistryDataInput.java
+│   ├── editor/
+│   │   └── EnvBudgetEditor.java
+│   ├── envdatamodel/
+│   │   ├── EnvBudgetData.java
+│   │   ├── EnvYear.java
+│   │   ├── EnvSector.java
+│   │   ├── EnvUnit.java
+│   │   └── EnvEntry.java
+│   ├── printer/
+│   │   ├── EditsPrinter.java
+│   │   ├── EnvBudgetPrinter.java
+│   │   └── FullBudgetPrinter.java
+│   ├── service/
+│   │   ├── BudgetValidator.java
+│   │   ├── EditsApplier.java
+│   │   ├── EnvBudgetLoader.java
+│   │   └── EnvBudgetTranslator.java
+│   ├── web/
+│   │   └── LoginWebServer.java
+│   └── OpenBudgetApplication.java
+│
+├── src/main/resources/
+│   ├── env_budget_data.json
+│   ├── env_budget_translations.properties
+│   └── frontend/
+│       ├── login.html
+│       ├── minister_statebudget.html
+│       ├── minister_budget.html
+│       ├── employee_statebudget.html
+│       └── employee_budget.html
+│
+├── src/test/java/
+│   └── [Test classes]
+│
+├── pom.xml
+└── README.md
+
+---
 ## Future Extensions
+---
 The current system lays a foundation for advanced features:
-- Interactive command-line editing for Environment Ministry entries.  
-- Comparison across years with **highlighted differences** in key sectors.  
-- ESG (Environmental, Social, Governance) scoring based on budget allocations.   
-- Integration with GUI frontends for enhanced user experience.
+- ESG Score Calculator: Automated sustainability scoring based on budget allocations
+
+Tags categories as GREEN/NEUTRAL
+Calculates percentage of "green" spending
+Provides grade from A+ to D
+
+- Budget Forecasting: Predict 2027 budget using linear regression on 2024-2026 data
+- Crisis Mode Simulation: Simulate emergency scenarios
+
+Floods: 10% reduction
+Pandemic: 15% reduction
+Energy Crisis: 12% reduction
+Automatic reallocation to crisis response ministries
+
+---
+## Planned Features
+---
+- Chart Visualization: Integration with Chart.js for pie and bar charts
+Budget distribution per sector
+Year-over-year comparisons
+Real-time updates during editing
+
+- Advanced Comparison: Side-by-side year comparisons with delta highlighting
+- Advanced ESG Metrics: Integration with international sustainability frameworks
+---
+## Testing
+---
+### Run all tests
+mvn test
+
+### Run specific test class
+mvn test -Dtest=EnvBudgetLoaderTest
+
+### Run tests with coverage
+mvn clean test jacoco:report
+
+---
+## License
+---
+This project is developed for educational purposes as part of the Java Programming course.
+### Team - Spinnovators
+Developed by the Spinnovators team for academic coursework.
+
+## ⚡ OpenBudget - Be Prime Minister for a Day!
