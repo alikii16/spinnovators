@@ -1,4 +1,6 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.printer;
+
+import gr.det.spinnovators.data.MinistryDataInput;
 
 public final class FullBudgetPrinter {
 
@@ -86,7 +88,7 @@ public final class FullBudgetPrinter {
             System.out.println("----------------------------");
             System.out.printf(
                 " * %-55s: %,.2f €\n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget
-            );    
+            );
 
         } else if ("2023".equals(year)) {
 

@@ -1,27 +1,27 @@
-//Τranslator class responsible for converting English JSON keys into their official Greek descriptions. 
+//Τranslator class responsible for converting English JSON keys into their official Greek descriptions.
 //It reads the 'env_budget_translations.properties' file and provides a translation service
-package gr.det.spinnovators;
+package gr.det.spinnovators.service;
 
-import java.util.ResourceBundle;
 import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 public class EnvBudgetTranslator {
-  
+
 // The name of the properties file located in src/main/resources
   private static final String BUNDLE_NAME = "env_budget_translations";
 // ResourceBundle holds the key-translations
   private ResourceBundle categoryBundle;
-  
+
   public EnvBudgetTranslator() {
         try {
-            this.categoryBundle = ResourceBundle.getBundle(BUNDLE_NAME); 
+            this.categoryBundle = ResourceBundle.getBundle(BUNDLE_NAME);
         } catch (MissingResourceException e) {
             // Silent failure cause of frontend
-            this.categoryBundle = null; 
+            this.categoryBundle = null;
         }
   }
   public String translateCategory(String jsonKey) {
-        // Input Validation 
+        // Input Validation
         if (jsonKey == null || jsonKey.trim().isEmpty()) {
             return "";
         }
@@ -34,6 +34,6 @@ public class EnvBudgetTranslator {
             }
         }
         // For Safety:  Returns the key by replacing underscores with spaces.
-        return jsonKey.replace('_', ' '); 
-    }  
+        return jsonKey.replace('_', ' ');
+    }
 }

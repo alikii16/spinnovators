@@ -1,7 +1,4 @@
-package gr.det.spinnovators;
-
-import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpExchange;
+package gr.det.spinnovators.web;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,11 +9,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+
+import gr.det.spinnovators.data.MinistryDataInput;
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.printer.EnvBudgetPrinter;
+import gr.det.spinnovators.printer.FullBudgetPrinter;
+import gr.det.spinnovators.service.EnvBudgetLoader;
+import gr.det.spinnovators.service.EnvBudgetTranslator;
 
 /**
  * Web server class to handle login functionality via HTTP.
@@ -73,7 +78,7 @@ public final class LoginWebServer {
       public Double pendingValue;
   }
 
-  private static final ThreadLocal<ChangeSession> changeSessionThreadLocal = 
+  private static final ThreadLocal<ChangeSession> changeSessionThreadLocal =
       ThreadLocal.withInitial(ChangeSession::new);
 
   private static ChangeSession getChangeSession() {
@@ -95,7 +100,7 @@ public final class LoginWebServer {
       envPrinter = new EnvBudgetPrinter(envBudgetData, translator);
     }
   }
-    
+
   public static void startServer(final String frontendPath) throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
@@ -145,7 +150,7 @@ public final class LoginWebServer {
         if ("POST".equals(exchange.getRequestMethod())) {
             handleYearSubmission(exchange, frontendPath, "minister_budget.html", null);
         } else {
-          
+
             serveStaticFile(exchange, frontendPath, "minister_budget.html");
         }
     });
@@ -173,8 +178,8 @@ server.createContext("/change-budget", exchange -> {
     System.out.println("Server started: http://localhost:" + PORT);
   }
 
-  private static void serveLoginPage(final HttpExchange exchange, 
-                                     final String frontendPath, 
+  private static void serveLoginPage(final HttpExchange exchange,
+                                     final String frontendPath,
                                      final String errorMessage) throws IOException {
     try {
       Path htmlPath = Paths.get(frontendPath, "login.html");
@@ -196,12 +201,12 @@ server.createContext("/change-budget", exchange -> {
       }
       sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
     } catch (IOException e) {
-      sendErrorResponse(exchange, 500, 
+      sendErrorResponse(exchange, 500,
           "Unable to load login page. Please check if login.html exists in the frontend directory.", e);
     }
   }
-  
-  private static void handleLoginPost(final HttpExchange exchange, 
+
+  private static void handleLoginPost(final HttpExchange exchange,
                                       final String frontendPath) throws IOException {
     try {
       java.util.Map<String, String> formData = parseFormData(exchange);
@@ -225,7 +230,7 @@ server.createContext("/change-budget", exchange -> {
   }
 
   private static void serveStaticFile(final HttpExchange exchange,
-                                      final String frontendPath, 
+                                      final String frontendPath,
                                       final String filename) throws IOException {
     try {
       Path filePath = Paths.get(frontendPath, filename);
@@ -253,7 +258,7 @@ server.createContext("/change-budget", exchange -> {
       htmlContent = replaceUsernamePlaceholdersSafe(htmlContent, username, filename);
       sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
     } catch (IOException e) {
-      sendErrorResponse(exchange, 500, 
+      sendErrorResponse(exchange, 500,
           "Unable to read or process file '" + filename + "'. Please check file permissions and try again.", e);
     }
   }
@@ -276,7 +281,7 @@ server.createContext("/change-budget", exchange -> {
     return null;
   }
 
-  private static void redirect(final HttpExchange exchange, 
+  private static void redirect(final HttpExchange exchange,
       final String location) throws IOException {
     exchange.getResponseHeaders().set("Location", location);
     exchange.sendResponseHeaders(302, -1);
@@ -436,9 +441,9 @@ server.createContext("/change-budget", exchange -> {
             + "</body></html>";
   }
 
-  private static void sendResponse(final HttpExchange exchange, 
-                                     final String response, 
-                                     final int statusCode, 
+  private static void sendResponse(final HttpExchange exchange,
+                                     final String response,
+                                     final int statusCode,
                                      final String contentType) throws IOException {
     exchange.getResponseHeaders().set("Content-Type", contentType);
     byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
@@ -463,7 +468,7 @@ server.createContext("/change-budget", exchange -> {
       }
       boolean isBudgetPage = filename.contains("budget.html") && !filename.contains("statebudget");
       if (!isValidYear(year, VALID_BUDGET_YEARS)) {
-        serveYearPageWithError(exchange, frontendPath, filename, formUsername, 
+        serveYearPageWithError(exchange, frontendPath, filename, formUsername,
             "Δεν υπάρχουν δεδομένα για το έτος " + year + ". Παρακαλώ επιλέξτε 2023, 2024, 2025 ή 2026.");
         return;
       }
@@ -542,7 +547,7 @@ server.createContext("/change-budget", exchange -> {
       sendErrorResponse(exchange, 500, "Error loading page", e);
     }
   }
-  
+
 
   private static String replaceUsernamePlaceholders(String htmlContent, String username, String filename) {
     return replaceUsernamePlaceholdersSafe(htmlContent, username, filename);
@@ -707,7 +712,7 @@ server.createContext("/change-budget", exchange -> {
       if (htmlContent.contains("</form>")) {
         htmlContent = htmlContent.replace("</form>", "</form>" + errorHtml);
       } else if (htmlContent.contains("        </div>\n    </div>")) {
-        htmlContent = htmlContent.replace("        </div>\n    </div>", errorHtml  
+        htmlContent = htmlContent.replace("        </div>\n    </div>", errorHtml
             +"\n        </div>\n    </div>");
       } else if (htmlContent.contains("    </div>\n\n    <div class=\"container\"")) {
         htmlContent = htmlContent.replace("    </div>\n\n    <div class=\"container\"", errorHtml + "\n    </div>\n\n    <div class=\"container\"");
@@ -722,9 +727,9 @@ server.createContext("/change-budget", exchange -> {
       sendErrorResponse(exchange, 500, "Error loading page", e);
     }
   }
-    
-  private static void sendErrorResponse(final HttpExchange exchange, 
-                                         final int statusCode, 
+
+  private static void sendErrorResponse(final HttpExchange exchange,
+                                         final int statusCode,
                                          final String message) throws IOException {
     logError("HTTP " + statusCode + ": " + message);
     String errorHtml = "<html><head><meta charset='UTF-8'><title>Error " + statusCode + "</title></head>"
@@ -732,28 +737,28 @@ server.createContext("/change-budget", exchange -> {
         + "<h1>Error " + statusCode + "</h1><p>" + escapeHtml(message) + "</p></body></html>";
     sendResponse(exchange, errorHtml, statusCode, "text/html; charset=UTF-8");
   }
-  
-  private static void sendErrorResponse(final HttpExchange exchange, 
-                                         final int statusCode, 
+
+  private static void sendErrorResponse(final HttpExchange exchange,
+                                         final int statusCode,
                                          final String userMessage,
                                          final Exception exception) throws IOException {
     logError("HTTP " + statusCode + ": " + userMessage, exception);
     sendErrorResponse(exchange, statusCode, userMessage);
   }
-  
+
   private static void logError(String message) {
     System.err.println("[ERROR] " + message);
   }
-  
+
   private static void logError(String message, Exception exception) {
     System.err.println("[ERROR] " + message);
     if (exception != null) exception.printStackTrace(System.err);
   }
-  
+
   private static void logDebug(String message) {
     System.out.println("[DEBUG] " + message);
   }
-  
+
   private static void serveChangeBudgetPage(HttpExchange exchange, String frontendPath) throws IOException {
     initializeBudgetData();
 
@@ -789,7 +794,7 @@ server.createContext("/change-budget", exchange -> {
         return;
     }
     String formDataString = convertFormDataMapToString(formDataMap);
-    
+
     ChangeSession changeSession = getChangeSession();
     switch (changeSession.state) {
         case SELECT_YEAR -> handleYearInput(exchange, formDataString);
@@ -883,7 +888,7 @@ private static void handleSectorInput(HttpExchange exchange, String formData) th
 
   private static void handleEndAttempt(HttpExchange exchange) throws IOException {
     ChangeSession changeSession = getChangeSession();
-    
+
     if (Math.abs(changeSession.currentBalance) < 0.01) {
         String msg = "Ο προϋπολογισμός είναι ισοσκελισμένος! Τερματισμός Λειτουργίας.";
         serveEndMessage(exchange, msg, true);
@@ -1063,7 +1068,7 @@ private static void handleValueChange(HttpExchange exchange, String formData) th
 
 private static void applyNewValueAndFinish(HttpExchange exchange, double newValue) throws IOException {
     ChangeSession changeSession = getChangeSession();
-    
+
     changeSession.selectedEntry.setAmount(newValue);
     changeSession.pendingValue = null;
 
@@ -1235,7 +1240,7 @@ private static void applyNewValueAndFinish(HttpExchange exchange, double newValu
 
   private static void handleExtremeConfirmation(HttpExchange exchange, String formData) throws IOException {
     ChangeSession changeSession = getChangeSession();
-    
+
     String choice = extractFormValue(formData, "confirmExtreme");
 
     if ("yes".equals(choice) && changeSession.pendingValue != null) {

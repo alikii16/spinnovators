@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.data;
 
 /**Class that inputs budget data about each ministry. */
 public final class MinistryDataInput {
@@ -353,30 +353,30 @@ public final class MinistryDataInput {
       this.budgetAmount23[i] = AMOUNTS_2023[i];
     }
   }
-  
+
   /**Returns the array of ministry names for 2026.
    *
    * @return The String array containg names.
    */
-  
+
   public String[] getNames26() {
     return names26;
   }
-  
+
   /**Returns the array of budget amounts for 2026.
    *
    * @return The double array containing budget amounts.
    */
-  
+
   public double[] getBudgetAmount26() {
     return budgetAmount26;
   }
-  
+
   /**Returns the size of the 2026 budget data set.
    *
    * @return the integer size of the data set.
    */
-  
+
   public int getSize26() {
     return size26;
   }
@@ -385,25 +385,25 @@ public final class MinistryDataInput {
    *
    * @return The String array containg names.
    */
-  
+
   public String[] getNames25() {
     return names25;
   }
-  
+
   /**Returns the array of budget amounts for 2025.
    *
    * @return The double array containing budget amounts.
    */
-  
+
   public double[] getBudgetAmount25() {
     return budgetAmount25;
   }
-  
+
   /** Returns the size of the 2025 budget data set.
    *
    * @return the integer size of the data set.
    */
-  
+
   public int getSize25() {
     return size25;
   }
@@ -412,25 +412,25 @@ public final class MinistryDataInput {
    *
    * @return The String array containg names.
    */
-  
+
   public String[] getNames24() {
     return names24;
   }
-  
+
   /**Returns the array of budget amounts for 2024.
    *
    * @return The double array containing budget amounts.
    */
-  
+
   public double[] getBudgetAmount24() {
     return budgetAmount24;
   }
-  
+
   /** Returns the size of the 2024 budget data set.
    *
    * @return the integer size of the data set.
    */
-  
+
   public int getSize24() {
     return size24;
   }
@@ -439,7 +439,7 @@ public final class MinistryDataInput {
    *
    *  @return The String array containg names.
    */
-  
+
   public String[] getNames23() {
     return names23;
   }
@@ -448,7 +448,7 @@ public final class MinistryDataInput {
    *
    * @return The double array containing budget amounts.
    */
-  
+
   public double[] getBudgetAmount23() {
     return budgetAmount23;
   }
@@ -457,7 +457,7 @@ public final class MinistryDataInput {
    *
    * @return the integer size of the data set.
    */
-  
+
   public int getSize23() {
     return size23;
   }

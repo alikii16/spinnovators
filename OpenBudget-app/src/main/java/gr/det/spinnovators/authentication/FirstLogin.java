@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.authentication;
 
 /**
  * This file will be used for users login.
@@ -6,7 +6,7 @@ package gr.det.spinnovators;
 import java.util.Scanner;
 
 /**
- * Utility class to handle user login process. 
+ * Utility class to handle user login process.
  * It prompts the user for credentials and validates them,
  */
 public final class FirstLogin {
@@ -38,14 +38,14 @@ public final class FirstLogin {
         do {
 
             String username;
-                
-            String password; 
-                
+
+            String password;
+
             System.out.print("Εισάγετε όνομα χρήστη: ");
             username = input.nextLine();
             System.out.print("Εισάγετε κωδικό: ");
             password = input.nextLine();
-      
+
             if (username.equals(minister)
                     && password.equals(passwordMinister)) {
                 isValid = true;
@@ -65,6 +65,6 @@ public final class FirstLogin {
                 );
             }
 
-        } while (!isValid); 
+        } while (!isValid);
     }
 }
