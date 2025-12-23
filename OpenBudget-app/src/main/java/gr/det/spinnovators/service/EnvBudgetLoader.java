@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.service;
 
 import java.io.IOException;
 import java.io.InputStream;

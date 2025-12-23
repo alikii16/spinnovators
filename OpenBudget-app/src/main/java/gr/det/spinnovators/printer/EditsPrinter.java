@@ -1,10 +1,12 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.printer;
 
+import gr.det.spinnovators.EnvBudgetTranslator;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
-import gr.det.spinnovators.EnvBudgetTranslator;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+
+
 
 /** PRINTS THE RESULTS OF CHANGED DATA. */
 
@@ -17,8 +19,8 @@ public class EditsPrinter {
     this.yearForPrinting = yearForPrinting;
   }
 
-  /** PRINTS THE RESULTS OF THE CHANGED YEARS. 
-   * 
+  /** PRINTS THE RESULTS OF THE CHANGED YEARS.
+   *
    * @param year the ministry year data to print.
    */
   public void printEditYear(EnvYear year) {
@@ -31,7 +33,7 @@ public class EditsPrinter {
       String translatedSector = translator.translateCategory(sector.getJsonKey());
       System.out.printf("ΤΟΜΕΑΣ: %s%n", translatedSector);
       double sectorTotal = 0.0;
-      
+
       for (EnvUnit unit : sector.getUnits()) {
         String translatedUnit = translator.translateCategory(unit.getJsonKey());
         System.out.printf("ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ: %s%n", translatedUnit);
@@ -47,7 +49,7 @@ public class EditsPrinter {
         System.out.printf("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: %.2f%n", unitTotal);
         sectorTotal += unitTotal;
       }
-      
+
       System.out.printf("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ %s: %.2f%n%n",
             translatedSector, sectorTotal);
     }
