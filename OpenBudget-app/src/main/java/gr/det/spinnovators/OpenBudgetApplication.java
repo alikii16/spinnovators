@@ -1,9 +1,16 @@
 package gr.det.spinnovators;
 
-import java.util.Scanner;
 import java.io.File;
+import java.util.Scanner;
 
+import gr.det.spinnovators.authentication.FirstLogin;
+import gr.det.spinnovators.data.MinistryDataInput;
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
+import gr.det.spinnovators.printer.EnvBudgetPrinter;
+import gr.det.spinnovators.printer.FullBudgetPrinter;
+import gr.det.spinnovators.service.EnvBudgetLoader;
+import gr.det.spinnovators.service.EnvBudgetTranslator;
+import gr.det.spinnovators.web.LoginWebServer;
 
 
 public class OpenBudgetApplication {
@@ -17,7 +24,7 @@ public class OpenBudgetApplication {
         // Start web server for HTML interface
         try {
             String frontendPath = null;
-            
+
             // Try to find frontend directory from classpath resources
             java.net.URL resourceUrl = OpenBudgetApplication.class.getClassLoader().getResource("frontend/login.html");
             if (resourceUrl != null && resourceUrl.getProtocol().equals("file")) {
@@ -27,7 +34,7 @@ public class OpenBudgetApplication {
                     // Continue to fallback paths
                 }
             }
-            
+
             // Fallback: try common paths if resource not found
             // Prefer src/main/resources/frontend first (for development) before target/classes/frontend
             if (frontendPath == null || !new File(frontendPath).exists()) {
@@ -37,7 +44,7 @@ public class OpenBudgetApplication {
                     currentDir + File.separator + "OpenBudget-app" + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "frontend",
                     currentDir + File.separator + "target" + File.separator + "classes" + File.separator + "frontend"
                 };
-                
+
                 for (String path : possiblePaths) {
                     File dir = new File(path);
                     if (dir.exists() && dir.isDirectory()) {
@@ -46,11 +53,11 @@ public class OpenBudgetApplication {
                     }
                 }
             }
-            
+
             if (frontendPath != null && new File(frontendPath).exists()) {
                 LoginWebServer.startServer(frontendPath);
                 System.out.println("Web interface available at http://localhost:8080/login.html");
-                
+
                 // Try to open browser automatically
                 try {
                     String url = "http://localhost:8080/login.html";
@@ -64,7 +71,7 @@ public class OpenBudgetApplication {
                 } catch (Exception browserEx) {
                     System.out.println("Please open http://localhost:8080/login.html manually in your browser");
                 }
-                
+
                 System.out.println("You can also use the terminal interface below:");
                 System.out.println("==========================================");
             } else {
@@ -77,17 +84,17 @@ public class OpenBudgetApplication {
 
         // Terminal interface (original functionality)
         FirstLogin.login();
-    
-        MinistryDataInput allData = new MinistryDataInput(); 
-        FullBudgetPrinter printer = new FullBudgetPrinter(allData); 
+
+        MinistryDataInput allData = new MinistryDataInput();
+        FullBudgetPrinter printer = new FullBudgetPrinter(allData);
 
         Scanner scanner = new Scanner(System.in);
         String chosenYear;
         String tempChosenYear = "0000";
 
         do {
-            System.out.println("================================="); 
-            System.out.print("Ποιού έτους τον προϋπολογισμό θα θέλατε να δείτε; (2023, 2024 ή 2025): "); 
+            System.out.println("=================================");
+            System.out.print("Ποιού έτους τον προϋπολογισμό θα θέλατε να δείτε; (2023, 2024 ή 2025): ");
             chosenYear = scanner.nextLine();
 
 
@@ -97,12 +104,12 @@ public class OpenBudgetApplication {
             } else if (!chosenYear.equals("2023") && !chosenYear.equals("2024") && !chosenYear.equals("2025") && !chosenYear.equals("0000")) {
                 System.out.println("Μη έγκυρη επιλογή. Δοκιμάστε ξανά.");
             } else {
-                System.out.println("Θα εμφανιστεί ο προϋπολογισμός του Υπουργείου Περιβάλλοντος και Ενέργειας.");                
+                System.out.println("Θα εμφανιστεί ο προϋπολογισμός του Υπουργείου Περιβάλλοντος και Ενέργειας.");
                 envPrinter.printYearlyBudget(tempChosenYear);
             }
 
         } while (!chosenYear.equals("0000"));
 
-        scanner.close(); 
-    } 
+        scanner.close();
+    }
 }

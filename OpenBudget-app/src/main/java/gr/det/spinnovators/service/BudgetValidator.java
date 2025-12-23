@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.service;
 
 import java.util.Scanner;
 
@@ -57,7 +57,7 @@ public class BudgetValidator {
             // CHECK 3: Extreme deviation (> 30%)
             if (isExtremeDeviation(oldValue, currentValue)) {
                 double deviation = calculateDeviationPercentage(oldValue, currentValue);
-               
+
                 System.out.println("\n==============================================");
                 System.out.println("ΠΡΟΕΙΔΟΠΟΙΗΣΗ: ΑΚΡΑΙΑ ΑΛΛΑΓΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ");
                 System.out.println("==============================================");

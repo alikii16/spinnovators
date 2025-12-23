@@ -1,8 +1,12 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.service;
 
-import gr.det.spinnovators.envdatamodel.*;
-import java.util.Scanner;
 import java.util.List;
+import java.util.Scanner;
+
+import gr.det.spinnovators.envdatamodel.EnvEntry;
+import gr.det.spinnovators.envdatamodel.EnvSector;
+import gr.det.spinnovators.envdatamodel.EnvUnit;
+import gr.det.spinnovators.envdatamodel.EnvYear;
 
 public class EditsApplier {
   private final EnvBudgetTranslator translator;
@@ -21,7 +25,7 @@ public class EditsApplier {
     boolean keepEditing = true;
 
     System.out.println("\n--- ΕΝΑΡΞΗ ΕΠΕΞΕΡΓΑΣΙΑΣ ΓΙΑ ΤΟ ΕΤΟΣ " + year.getYear() + " ---");
-    
+
     String temp = year.getYear();
 
     if ("2025".equals(temp)) {
@@ -36,7 +40,7 @@ public class EditsApplier {
       if (Math.abs(currentBalance) > 0.01) {
         System.out.printf("\n>>> ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ: %,.2f € <<<", this.currentBalance);
       }
-      
+
       EnvSector selectedSector = selectSector(year);
 
       if (selectedSector == null) {
@@ -62,7 +66,7 @@ public class EditsApplier {
       System.out.println("Μονάδα: " + translator.translateCategory(selectedUnit.getJsonKey()));
       System.out.println("Πληκτρολογήστε το όνομα της κατηγορίας που θέλετε να επεξεργαστείτε:");
       System.out.print("--> ");
-      
+
       String searchInput = scanner.nextLine().trim();
 
       if (!searchInput.isEmpty()) {
@@ -79,12 +83,12 @@ public class EditsApplier {
     System.out.println("\n==========================================");
     System.out.println(" ΕΠΙΛΟΓΗ ΤΟΜΕΑ");
     System.out.println("==========================================");
-      
+
     for (int i = 0; i < sectors.size(); i++) {
       String name = translator.translateCategory(sectors.get(i).getJsonKey());
       System.out.println((i + 1) + ". " + name);
     }
-    
+
     System.out.println("0. ΤΕΛΟΣ / ΕΛΕΓΧΟΣ ΙΣΟΣΚΕΛΙΣΜΟΥ");
     System.out.print("--> Επιλογή: ");
 
@@ -108,7 +112,7 @@ public class EditsApplier {
     if (choice <= 0) return null;
     return units.get(choice - 1);
   }
-  
+
 
   // This method searches for the category in the specific unit
   private void findAndEditEntryInUnit(EnvUnit unit, String searchName) {
@@ -116,13 +120,13 @@ public class EditsApplier {
 
     // A loop in order to search the Unit and do the entry
     for (EnvEntry entry : unit.getEntries()) {
-                    
+
       // Translation of the key in order to compare with the user's entry
       String entryName = translator.translateCategory(entry.getJsonKey());
 
       if (entryName.equalsIgnoreCase(searchName)) {
         found = true;
-                       
+
         // Asking for the new amount
         System.out.printf("\nΒρέθηκε: %s | Τρέχον Ποσό: %,.2f €\n", entryName, entry.getAmount());
         double oldAmount = entry.getAmount();
@@ -135,7 +139,7 @@ public class EditsApplier {
             amountInput = amountInput.replace(",", ".");
             double newAmount = Double.parseDouble(amountInput);
             entry.setAmount(newAmount);
-            
+
             //Check new amount's validation
             BudgetValidator obj = new BudgetValidator();
             newAmount = obj.getValidatedNewValue(totalBudget, oldAmount, newAmount);
@@ -173,4 +177,3 @@ public class EditsApplier {
     return -1;
   }
 }
-  
