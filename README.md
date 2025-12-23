@@ -155,11 +155,11 @@ permanent_assets=Πάγια Περιουσιακά Στοιχεία
 - Dynamic Budget Rendering: Injects budget data into HTML templates
 - Change Budget Workflow: Multi-step state machine for web-based budget editing
 - Provides endpoints for:
- - /login - User authentication
- - /minister_statebudget.html - Full state budget view
- - /minister_budget.html - Environment ministry budget
- - /employee_statebudget.html - Employee view
- - /change-budget - Interactive budget modification
+  - /login - User authentication
+  - /minister_statebudget.html - Full state budget view
+  - /minister_budget.html - Environment ministry budget
+  - /employee_statebudget.html - Employee view
+  - /change-budget - Interactive budget modification
 
 ### 2. Display of the employee dashboard for selecting a year and viewing Environment Ministry budget data (employee_budget.html)
 - Description: Main interface for employees to choose a fiscal year.
@@ -204,9 +204,9 @@ permanent_assets=Πάγια Περιουσιακά Στοιχεία
 
 ### b. Constraints and Restrictions
 - Validation Rules:
- - No negative budget values
- - New values cannot exceed total ministry budget
- - Changes >30% trigger confirmation warnings
+  - No negative budget values
+  - New values cannot exceed total ministry budget
+  - Changes >30% trigger confirmation warnings
 - Data Persistence: Changes are currently not saved back to the JSON file. Modifications are only valid for the current application session.
 - Scope: Detailed editing is currently limited to the Ministry of Environment and Energy (ΥΠΕΝ). Other ministries show summary data only.
 - Concurrent Access: ThreadLocal session management supports concurrent users but does not persist across server restarts.
@@ -220,8 +220,8 @@ permanent_assets=Πάγια Περιουσιακά Στοιχεία
 
 ### Steps
 - 1. Clone the repository
- - git clone https://github.com/yourusername/openbudget.git
- - cd openbudget
+  - git clone https://github.com/yourusername/openbudget.git
+  - cd openbudget
 - 2. Build the project
 mvn clean install
 -  3. Run the application
@@ -242,47 +242,47 @@ http://localhost:8080/login.html
 - Login: Enter credentials at http://localhost:8080/login.html
 - View Budget: Select a year (2023-2026) to view state or ministry budget
 - Edit Budget (Ministry of Environment and Energy / Minister only):
- - Navigate to "Change Budget" option
- - Select year
- - Choose Sector → Unit → Entry
- - Enter new value
- - System validates and tracks balance changes
- - Balance Management: System prevents termination until budget is balanced
+  - Navigate to "Change Budget" option
+  - Select year
+  - Choose Sector → Unit → Entry
+  - Enter new value
+  - System validates and tracks balance changes
+  - Balance Management: System prevents termination until budget is balanced
 
 #### Terminal Interface
 - Login: Terminal prompts for credentials
 - Year Selection: Enter year or 0000 to exit
 - View Data: Budget data displayed in formatted tables
 - Edit Budget (Ministry of Environment and Energy / Minister only):
- - Select year
- - Choose Sector → Unit → Entry
- - Enter new value
- - System validates and tracks balance changes
- - Balance Management: System prevents termination until budget is balanced
+  - Select year
+  - Choose Sector → Unit → Entry
+  - Enter new value
+  - System validates and tracks balance changes
+  - Balance Management: System prevents termination until budget is balanced
 
 ---
 ## Future Extensions
 ---
 The current system lays a foundation for advanced features:
 - ESG Score Calculator: Automated sustainability scoring based on budget allocations
- - Tags categories as GREEN/NEUTRAL
- - Calculates percentage of "green" spending
- - Provides grade from A+ to D
+  - Tags categories as GREEN/NEUTRAL
+  - Calculates percentage of "green" spending
+  - Provides grade from A+ to D
 
 - Budget Forecasting: Predict 2027 budget using linear regression on 2024-2026 data
 - Crisis Mode Simulation: Simulate emergency scenarios
- - Floods: 10% reduction
- - Pandemic: 15% reduction
- - Energy Crisis: 12% reduction
- - Automatic reallocation to crisis response ministries
+  - Floods: 10% reduction
+  - Pandemic: 15% reduction
+  - Energy Crisis: 12% reduction
+  - Automatic reallocation to crisis response ministries
 
 ---
 ## Planned Features
 ---
 - Chart Visualization: Integration with Chart.js for pie and bar charts
- - Budget distribution per sector
- - Year-over-year comparisons
- - Real-time updates during editing
+  - Budget distribution per sector
+  - Year-over-year comparisons
+  - Real-time updates during editing
 
 - Advanced Comparison: Side-by-side year comparisons with delta highlighting
 - Advanced ESG Metrics: Integration with international sustainability frameworks
