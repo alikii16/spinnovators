@@ -13,71 +13,71 @@ import java.util.Scanner;
  */
 public class BudgetValidator {
 
-    private final Scanner scanner;
+  private final Scanner scanner;
 
 
-    /**
-     * Constructor - creates a new BudgetValidator with its own Scanner
-     */
-    public BudgetValidator() {
-        this.scanner = new Scanner(System.in);
-    }
+  /**
+   * Constructor - creates a new BudgetValidator with its own Scanner
+   */
+  public BudgetValidator() {
+    this.scanner = new Scanner(System.in);
+  }
 
-    /**
-     * Validates a new budget value.
-     * If validation fails, requests a new value from the user until a valid value is entered.
-     *
-     * @param totalBudget Total budget of the ministry for the current year
-     * @param oldAmount Existing (old) value of the category
-     * @param newAmount Initial new value entered by the user
-     * @return The validated new value after all checks
-     */
-    public double getValidatedNewValue(double totalBudget, double oldValue, double initialNewValue) {
-        double currentValue = initialNewValue;
-        //ignore in frontend
-        System.out.printf("Παλιά τιμή: %,.2f € | Συνολικός προϋπολογισμός Υπουργείου: %,.2f €\n\n",
-                         oldValue, totalBudget);
+  /**
+   * Validates a new budget value.
+   * If validation fails, requests a new value from the user until a valid value is entered.
+   *
+   * @param totalBudget Total budget of the ministry for the current year
+   * @param oldAmount Existing (old) value of the category
+   * @param newAmount Initial new value entered by the user
+   * @return The validated new value after all checks
+   */
+  public double getValidatedNewValue(double totalBudget, double oldValue, double initialNewValue) {
+    double currentValue = initialNewValue;
+    //ignore in frontend
+    System.out.printf("Παλιά τιμή: %,.2f € | Συνολικός προϋπολογισμός Υπουργείου: %,.2f €\n\n",
+      oldValue, totalBudget);
 
-        while (true) {
-            // CHECK 1: Negative value
-            if (currentValue < 0) {
-                System.out.println("ΣΦΑΛΜΑ: Η τιμή δεν μπορεί να είναι αρνητική.");
-                currentValue = getNewInputFromUser();
-                continue;
-            }
+    while (true) {
+      // CHECK 1: Negative value
+      if (currentValue < 0) {
+        System.out.println("ΣΦΑΛΜΑ: Η τιμή δεν μπορεί να είναι αρνητική.");
+        currentValue = getNewInputFromUser();
+        continue;
+      }
 
-            // CHECK 2: Value exceeds total budget
-            if (currentValue > totalBudget) {
-                System.out.printf("ΣΦΑΛΜΑ: Η τιμή (%,.2f €) υπερβαίνει τον συνολικό προϋπολογισμό του Υπουργείου (%,.2f €).\n",
-                currentValue, totalBudget);
-                currentValue = getNewInputFromUser();
-                continue;
-            }
+      // CHECK 2: Value exceeds total budget
+      if (currentValue > totalBudget) {
+        System.out.printf("ΣΦΑΛΜΑ: Η τιμή (%,.2f €) υπερβαίνει τον συνολικό προϋπολογισμό του Υπουργείου (%,.2f €).\n",
+          currentValue, totalBudget);
+        currentValue = getNewInputFromUser();
+        continue;
+      }
 
-            // CHECK 3: Extreme deviation (> 30%)
-            if (isExtremeDeviation(oldValue, currentValue)) {
-                double deviation = calculateDeviationPercentage(oldValue, currentValue);
+      // CHECK 3: Extreme deviation (> 30%)
+      if (isExtremeDeviation(oldValue, currentValue)) {
+        double deviation = calculateDeviationPercentage(oldValue, currentValue);
 
-                System.out.println("\n==============================================");
-                System.out.println("ΠΡΟΕΙΔΟΠΟΙΗΣΗ: ΑΚΡΑΙΑ ΑΛΛΑΓΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ");
-                System.out.println("==============================================");
-                System.out.printf("Ποσοστιαία μεταβολή: %6.2f%%\n", deviation);
-                System.out.println("Η μεταβολή υπερβαίνει το όριο του 30%!");
-                System.out.println("==============================================\n");
+        System.out.println("\n==============================================");
+        System.out.println("ΠΡΟΕΙΔΟΠΟΙΗΣΗ: ΑΚΡΑΙΑ ΑΛΛΑΓΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ");
+        System.out.println("==============================================");
+        System.out.printf("Ποσοστιαία μεταβολή: %6.2f%%\n", deviation);
+        System.out.println("Η μεταβολή υπερβαίνει το όριο του 30%!");
+        System.out.println("==============================================\n");
 
-                System.out.print("Είστε βέβαιος ότι θέλετε να εφαρμόσετε αυτή την τιμή; (ΝΑΙ/ΟΧΙ): ");
-                String confirmation = scanner.nextLine().trim().toLowerCase();
+        System.out.print("Είστε βέβαιος ότι θέλετε να εφαρμόσετε αυτή την τιμή; (ΝΑΙ/ΟΧΙ): ");
+        String confirmation = scanner.nextLine().trim().toLowerCase();
 
-                if (confirmation.equals("ΝΑΙ")) {
-                    System.out.println("Επιβεβαίωση: Η τιμή θα εφαρμοστεί.\n");
-                    return currentValue;
-                } else if (confirmation.equals("ΟΧΙ")) {
-                    System.out.println("Ακύρωση: Παρακαλώ εισάγετε νέα τιμή.\n");
-                    currentValue = getNewInputFromUser();
-                    continue;
-                } else {
-                    System.out.println("Μη έγκυρη απάντηση. Παρακαλώ πληκτρολογήστε 'ΝΑΙ' ή 'ΟΧΙ'.\n");
-                    currentValue = getNewInputFromUser();
+          if (confirmation.equals("ΝΑΙ")) {
+            System.out.println("Επιβεβαίωση: Η τιμή θα εφαρμοστεί.\n");
+            return currentValue;
+          } else if (confirmation.equals("ΟΧΙ")) {
+            System.out.println("Ακύρωση: Παρακαλώ εισάγετε νέα τιμή.\n");
+            currentValue = getNewInputFromUser();
+            continue;
+          } else {
+            System.out.println("Μη έγκυρη απάντηση. Παρακαλώ πληκτρολογήστε 'ΝΑΙ' ή 'ΟΧΙ'.\n");
+            currentValue = getNewInputFromUser();
                     continue;
                 }
             }

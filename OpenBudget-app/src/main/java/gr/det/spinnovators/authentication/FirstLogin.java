@@ -11,60 +11,57 @@ import java.util.Scanner;
  */
 public final class FirstLogin {
 
-    /**
-     * Private constructor for utility class to prevent instantiation.
-     */
+  /**
+   * Private constructor for utility class to prevent instantiation.
+   */
 
-    private FirstLogin() {
+  private FirstLogin() {
 
-    }
+  }
 
-    /**
-     * It has to do with the login of the user,
-     * repeating it until connection.
-     */
+  /**
+   * It has to do with the login of the user,
+   * repeating it until connection.
+   */
 
-    public static void login() {
-        @SuppressWarnings("resource")
-        Scanner input = new Scanner(System.in);
+  public static void login() {
+    @SuppressWarnings("resource")
+    Scanner input = new Scanner(System.in);
 
-        String minister = "Minister";
-        String passwordMinister = "m1n1st3r";
-        String passwordEmployee = "3mpl0y33";
+    String minister = "Minister";
+    String passwordMinister = "m1n1st3r";
+    String passwordEmployee = "3mpl0y33";
+    boolean isValid;
 
-        boolean isValid;
+    do {
 
+      String username;
 
-        do {
+      String password;
 
-            String username;
+      System.out.print("Εισάγετε όνομα χρήστη: ");
+      username = input.nextLine();
+      System.out.print("Εισάγετε κωδικό: ");
+      password = input.nextLine();
 
-            String password;
+        if (username.equals(minister)
+           && password.equals(passwordMinister)) {
+          isValid = true;
+          System.out.println("Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ.");
+            
+        } else if (!username.equals(minister)
+            && password.equals(passwordEmployee)) {
+          isValid = true;
+          System.out.println(
+          "Επιτυχής σύνδεση! Καλωσήρθατε " + username + "."
+        );
+        } else {
+            isValid = false;
+        System.out.println(
+            "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."
+        );
+      }
 
-            System.out.print("Εισάγετε όνομα χρήστη: ");
-            username = input.nextLine();
-            System.out.print("Εισάγετε κωδικό: ");
-            password = input.nextLine();
-
-            if (username.equals(minister)
-                    && password.equals(passwordMinister)) {
-                isValid = true;
-                System.out.println(
-                    "Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."
-                );
-            } else if (!username.equals(minister)
-                && password.equals(passwordEmployee)) {
-                isValid = true;
-                System.out.println(
-                    "Επιτυχής σύνδεση! Καλωσήρθατε " + username + "."
-                );
-            } else {
-                isValid = false;
-                System.out.println(
-                    "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."
-                );
-            }
-
-        } while (!isValid);
-    }
+    } while (!isValid);
+  }
 }
