@@ -1,8 +1,5 @@
 package gr.det.spinnovators;
 
-import java.io.File;
-import java.util.Scanner;
-
 import gr.det.spinnovators.authentication.FirstLogin;
 import gr.det.spinnovators.data.MinistryDataInput;
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
@@ -13,8 +10,11 @@ import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.web.LoginWebServer;
 
 
+import java.io.File;
+import java.util.Scanner;
+
 public class OpenBudgetApplication {
-  public static void main( String[] args ) {
+  public static void main(String[] args) {
 
     EnvBudgetTranslator translator = new EnvBudgetTranslator();
     EnvBudgetLoader envLoader = new EnvBudgetLoader();
@@ -26,7 +26,8 @@ public class OpenBudgetApplication {
       String frontendPath = null;
 
       // Try to find frontend directory from classpath resources
-      java.net.URL resourceUrl = OpenBudgetApplication.class.getClassLoader().getResource("frontend/login.html");
+      java.net.URL resourceUrl = OpenBudgetApplication.class.getClassLoader()
+          .getResource("frontend/login.html");
       if (resourceUrl != null && resourceUrl.getProtocol().equals("file")) {
         try {
           frontendPath = java.nio.file.Paths.get(resourceUrl.toURI()).getParent().toString();
@@ -40,9 +41,13 @@ public class OpenBudgetApplication {
       if (frontendPath == null || !new File(frontendPath).exists()) {
         String currentDir = System.getProperty("user.dir");
         String[] possiblePaths = {
-          currentDir + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "frontend",
-          currentDir + File.separator + "OpenBudget-app" + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "frontend",
-          currentDir + File.separator + "target" + File.separator + "classes" + File.separator + "frontend"
+            currentDir + File.separator + "src" + File.separator + "main" + File.separator
+                + "resources" + File.separator + "frontend",
+            currentDir + File.separator + "OpenBudget-app" + File.separator + "src"
+                + File.separator + "main" + File.separator + "resources"
+                + File.separator + "frontend",
+            currentDir + File.separator + "target" + File.separator + "classes"
+                + File.separator + "frontend"
         };
 
         for (String path : possiblePaths) {
@@ -65,11 +70,12 @@ public class OpenBudgetApplication {
           if (desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
             desktop.browse(new java.net.URI(url));
           } else {
-          // Fallback for Windows
+            // Fallback for Windows
             new ProcessBuilder("cmd", "/c", "start", url).start();
           }
         } catch (Exception browserEx) {
-          System.out.println("Please open http://localhost:8080/login.html manually in your browser");
+          System.out.println("Please open http://localhost:8080/login.html "
+              + "manually in your browser");
         }
 
         System.out.println("You can also use the terminal interface below:");
@@ -100,10 +106,12 @@ public class OpenBudgetApplication {
       if (!chosenYear.equals("0000")) {
         printer.showBudget(chosenYear);
         tempChosenYear = chosenYear;
-      } else if (!chosenYear.equals("2023") && !chosenYear.equals("2024") && !chosenYear.equals("2025") && !chosenYear.equals("0000")) {
+      } else if (!chosenYear.equals("2023") && !chosenYear.equals("2024")
+          && !chosenYear.equals("2025") && !chosenYear.equals("0000")) {
         System.out.println("Μη έγκυρη επιλογή. Δοκιμάστε ξανά.");
       } else {
-        System.out.println("Θα εμφανιστεί ο προϋπολογισμός του Υπουργείου Περιβάλλοντος και Ενέργειας.");
+        System.out.println("Θα εμφανιστεί ο προϋπολογισμός του Υπουργείου "
+            + "Περιβάλλοντος και Ενέργειας.");
         envPrinter.printYearlyBudget(tempChosenYear);
       }
 

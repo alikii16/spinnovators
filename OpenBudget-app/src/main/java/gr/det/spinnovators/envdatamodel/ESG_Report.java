@@ -7,6 +7,7 @@ package gr.det.spinnovators.envdatamodel;
  * an overall sustainability score from 0 to 100.
  *
  * @author Spinnovators Team
+ * 
  * @version 1.0
  */
 public class ESG_Report {
@@ -27,14 +28,23 @@ public class ESG_Report {
    * Constructs an ESG report with all calculated values.
    *
    * @param year The budget year
+   * 
    * @param totalBudget Total budget amount
+   * 
    * @param environmentalAmount Amount allocated to environmental expenses
+   * 
    * @param socialAmount Amount allocated to social expenses
+   * 
    * @param governanceAmount Amount allocated to governance expenses
+   * 
    * @param neutralAmount Amount allocated to neutral expenses
+   * 
    * @param environmentalScore Environmental score (0-100)
+   * 
    * @param socialScore Social score (0-100)
+   * 
    * @param governanceScore Governance score (0-100)
+   * 
    * @param overallScore Overall weighted ESG score (0-100)
    */
   public ESG_Report(String year, double totalBudget,
@@ -101,12 +111,18 @@ public class ESG_Report {
    * @return Rating string: Excellent, Good, Moderate, Poor, or Critical
    */
   public String getRating() {
-    if (overallScore >= 80) return "Excellent";
-    if (overallScore >= 60) return "Good";
-    if (overallScore >= 40) return "Moderate";
-    if (overallScore >= 20) return "Poor";
+    if (overallScore >= 80) {
+      return "Excellent";
+    } else if (overallScore >= 60) {
+      return "Good";
+    } else if (overallScore >= 40) {
+      return "Moderate";
+    } else if (overallScore >= 20) {
+      return "Poor";
+    } else {
       return "Critical";
     }
+  }
 
   /**
    * Gets the Greek translation of the rating.
@@ -114,10 +130,16 @@ public class ESG_Report {
    * @return Greek rating string
    */
   public String getRatingGreek() {
-    if (overallScore >= 80) return "Άριστη";
-    if (overallScore >= 60) return "Καλή";
-    if (overallScore >= 40) return "Μέτρια";
-    if (overallScore >= 20) return "Χαμηλή";
+    if (overallScore >= 80) {
+      return "Άριστη";
+    } else if (overallScore >= 60) {
+      return "Καλή";
+    } else if (overallScore >= 40) {
+      return "Μέτρια";
+    } else if (overallScore >= 20) {
+      return "Χαμηλή";
+    } else {
       return "Πολύ Χαμηλή";
     }
+  }
 }  
