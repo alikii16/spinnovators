@@ -1,9 +1,10 @@
 package gr.det.spinnovators.service;
 
+import gr.det.spinnovators.envdatamodel.ESG_Category;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import gr.det.spinnovators.envdatamodel.ESG_Category;
 
 /**
  * Classifies budget sectors, units, and entries into ESG categories.
@@ -12,6 +13,7 @@ import gr.det.spinnovators.envdatamodel.ESG_Category;
  * counted as Environmental, Social, Governance, or Neutral for ESG scoring.
  *
  * @author Spinnovators Team
+ * 
  * @version 1.0
  */
 public class ESG_Classifier {
@@ -54,7 +56,9 @@ public class ESG_Classifier {
    *
    *
    * @param sectorKey The JSON key of the sector (e.g., "natural_environment_and_water_protection")
+   * 
    * @param entryKey The JSON key of the entry (e.g., "personnel_costs")
+   * 
    * @return The ESG category for this entry
    */
   public ESG_Category classifyEntry(String sectorKey, String entryKey) {
@@ -95,6 +99,7 @@ public class ESG_Classifier {
    * Checks if an entry is context-dependent (classification depends on sector).
    *
    * @param entryKey The entry JSON key
+   * 
    * @return true if context-dependent, false otherwise
    */
   private boolean isContextDependentEntry(String entryKey) {
@@ -110,6 +115,7 @@ public class ESG_Classifier {
    * others are governance (coordination).\
    *
    * @param entryKey The entry JSON key
+   * 
    * @return ESG category for this energy entry
    */
   private ESG_Category classifyEnergyEntry(String entryKey) {
@@ -132,6 +138,7 @@ public class ESG_Classifier {
    * Gets the full name of a sector's ESG classification.
    *
    * @param sectorKey The sector JSON key
+   * 
    * @return Greek name of the ESG category
    */
   public String getSectorClassificationName(String sectorKey) {

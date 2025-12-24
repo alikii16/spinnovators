@@ -1,14 +1,14 @@
 package gr.det.spinnovators.service;
 
-import java.util.List;
-import java.util.Scanner;
-
 import gr.det.spinnovators.envdatamodel.ESG_Report;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.printer.ESG_Printer;
+
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Applies edits to budget entries and tracks ESG sustainability impact.
@@ -17,6 +17,7 @@ import gr.det.spinnovators.printer.ESG_Printer;
  * and calculates the ESG sustainability score before and after modifications.</p>
  *
  * @author Spinnovators Team
+ * 
  * @version 2.0 (ESG-enabled)
  */
 

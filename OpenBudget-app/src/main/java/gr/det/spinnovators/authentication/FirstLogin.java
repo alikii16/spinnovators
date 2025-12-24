@@ -14,16 +14,13 @@ public final class FirstLogin {
   /**
    * Private constructor for utility class to prevent instantiation.
    */
-
   private FirstLogin() {
-
   }
 
   /**
    * It has to do with the login of the user,
    * repeating it until connection.
    */
-
   public static void login() {
     @SuppressWarnings("resource")
     Scanner input = new Scanner(System.in);
@@ -34,9 +31,7 @@ public final class FirstLogin {
     boolean isValid;
 
     do {
-
       String username;
-
       String password;
 
       System.out.print("Εισάγετε όνομα χρήστη: ");
@@ -44,22 +39,16 @@ public final class FirstLogin {
       System.out.print("Εισάγετε κωδικό: ");
       password = input.nextLine();
 
-        if (username.equals(minister)
-           && password.equals(passwordMinister)) {
-          isValid = true;
-          System.out.println("Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ.");
-            
-        } else if (!username.equals(minister)
-            && password.equals(passwordEmployee)) {
-          isValid = true;
-          System.out.println(
-          "Επιτυχής σύνδεση! Καλωσήρθατε " + username + "."
-        );
-        } else {
-            isValid = false;
-        System.out.println(
-            "Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά."
-        );
+      if (username.equals(minister) && password.equals(passwordMinister)) {
+        isValid = true;
+        System.out.println("Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ.");
+
+      } else if (!username.equals(minister) && password.equals(passwordEmployee)) {
+        isValid = true;
+        System.out.println("Επιτυχής σύνδεση! Καλωσήρθατε " + username + ".");
+      } else {
+        isValid = false;
+        System.out.println("Λάθος όνομα ή κωδικός. Προσπαθήστε ξανά.");
       }
 
     } while (!isValid);

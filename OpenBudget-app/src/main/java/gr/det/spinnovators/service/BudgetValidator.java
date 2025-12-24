@@ -28,8 +28,11 @@ public class BudgetValidator {
    * If validation fails, requests a new value from the user until a valid value is entered.
    *
    * @param totalBudget Total budget of the ministry for the current year
+   * 
    * @param oldAmount Existing (old) value of the category
+   * 
    * @param newAmount Initial new value entered by the user
+   * 
    * @return The validated new value after all checks
    */
   public double getValidatedNewValue(double totalBudget, double oldValue, double initialNewValue) {
@@ -117,8 +120,11 @@ public class BudgetValidator {
 
   /**
    * Checks if the deviation between old and new values is extreme (>30%).
+   * 
    * @param oldValue Old value
+   * 
    * @param newValue New value
+   * 
    * @return true if deviation > 30%, false otherwise
    */
   private boolean isExtremeDeviation(double oldValue, double newValue) {
@@ -129,8 +135,11 @@ public class BudgetValidator {
 
   /**
    * Calculates the percentage deviation between old and new values!
+   * 
    * @param oldValue Old value
+   * 
    * @param newValue New value
+   * 
    * @return Deviation percentage (e.g., 25.5 for 25.5%)
    */
   private double calculateDeviationPercentage(double oldValue, double newValue) {
