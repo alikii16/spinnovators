@@ -22,19 +22,19 @@ import com.google.gson.stream.JsonReader;
  */
 public class ESG_Loader {
 
-    private static final String CONFIG_FILE = "esg_config.json";
-    private static final Logger LOGGER = Logger.getLogger(ESG_Loader.class.getName());
+  private static final String CONFIG_FILE = "esg_config.json";
+  private static final Logger LOGGER = Logger.getLogger(ESG_Loader.class.getName());
 
-    private JsonObject config;
-    private final Gson gson;
+  private JsonObject config;
+  private final Gson gson;
 
-    /**
-     * Constructs an ESG config loader and loads the configuration file.
-     */
-    public ESG_Loader() {
-        this.gson = new Gson();
-        this.config = loadConfigFile();
-    }
+  /**
+   * Constructs an ESG config loader and loads the configuration file.
+   */
+  public ESG_Loader() {
+    this.gson = new Gson();
+    this.config = loadConfigFile();
+  }
 
     /**
      * Loads the ESG configuration JSON file.
