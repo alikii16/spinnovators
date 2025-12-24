@@ -1,14 +1,14 @@
 package gr.det.spinnovators.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import gr.det.spinnovators.envdatamodel.ESG_Category;
 import gr.det.spinnovators.envdatamodel.ESG_Report;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Calculates ESG sustainability scores for ministry budgets.

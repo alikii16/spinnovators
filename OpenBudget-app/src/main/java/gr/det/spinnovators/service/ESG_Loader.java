@@ -18,6 +18,7 @@ import com.google.gson.stream.JsonReader;
  * and display settings defined in esg_config.json.
  *
  * @author Spinnovators Team
+ * 
  * @version 2.0
  */
 public class ESG_Loader {
@@ -87,6 +88,7 @@ public class ESG_Loader {
 
   /**
    * Gets the weight for Environmental score.
+   * 
    * @return Weight value (default: 0.40)
    */
   public double getEnvironmentalWeight() {
@@ -95,6 +97,7 @@ public class ESG_Loader {
 
   /**
    * Gets the weight for Social score.
+   * 
    * @return Weight value (default: 0.30)
    */
   public double getSocialWeight() {
@@ -103,6 +106,7 @@ public class ESG_Loader {
 
   /**
    * Gets the weight for Governance score.
+   * 
    * @return Weight value (default: 0.30)
    */
   public double getGovernanceWeight() {
@@ -113,6 +117,7 @@ public class ESG_Loader {
 
   /**
    * Gets the threshold for "Excellent" rating.
+   * 
    * @return Threshold value (default: 80)
    */
   public int getExcellentThreshold() {
@@ -121,6 +126,7 @@ public class ESG_Loader {
 
   /**
    * Gets the threshold for "Good" rating.
+   * 
    * @return Threshold value (default: 60)
    */
   public int getGoodThreshold() {
@@ -129,6 +135,7 @@ public class ESG_Loader {
 
   /**
    * Gets the threshold for "Moderate" rating.
+   * 
    * @return Threshold value (default: 40)
    */
   public int getModerateThreshold() {
@@ -137,6 +144,7 @@ public class ESG_Loader {
 
   /**
    * Gets the threshold for "Poor" rating.
+   * 
    * @return Threshold value (default: 20)
    */
   public int getPoorThreshold() {
@@ -149,6 +157,7 @@ public class ESG_Loader {
    * Gets the ESG classification for a sector.
    *
    * @param sectorKey The JSON key of the sector
+   * 
    * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE, MIXED, NEUTRAL)
    */
   public String getSectorClassification(String sectorKey) {
@@ -168,6 +177,7 @@ public class ESG_Loader {
    * Gets the ESG classification for an entry type.
    *
    * @param entryKey The JSON key of the entry
+   * 
    * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE,
    * CONTEXT_DEPENDENT, NEUTRAL)
    */
@@ -189,7 +199,9 @@ public class ESG_Loader {
    * If entry is CONTEXT_DEPENDENT, inherits from sector.
    *
    * @param entryKey The entry JSON key
+   * 
    * @param sectorKey The parent sector JSON key
+   * 
    * @return The effective ESG category
    */
   public String getEffectiveCategory(String entryKey, String sectorKey) {
@@ -206,6 +218,7 @@ public class ESG_Loader {
 
   /**
    * Gets the progress bar width for terminal display.
+   * 
    * @return Width in characters (default: 20)
    */
   public int getProgressBarWidth() {
@@ -214,6 +227,7 @@ public class ESG_Loader {
 
   /**
    * Checks if ESG reporting is enabled.
+   * 
    * @return true if enabled (default: true)
    */
   public boolean isEsgEnabled() {
@@ -222,6 +236,7 @@ public class ESG_Loader {
 
   /**
    * Checks if ESG should be shown in terminal.
+   * 
    * @return true if enabled (default: true)
    */
   public boolean showEsgInTerminal() {
@@ -230,6 +245,7 @@ public class ESG_Loader {
 
   /**
    * Checks if ESG should be shown in web interface.
+   * 
    * @return true if enabled (default: true)
    */
   public boolean showEsgInWeb() {
@@ -238,6 +254,7 @@ public class ESG_Loader {
 
   /**
    * Checks if compact ESG summary should be shown after edits.
+   * 
    * @return true if enabled (default: true)
    */
   public boolean showCompactAfterEdit() {
@@ -248,6 +265,7 @@ public class ESG_Loader {
 
   /**
    * Gets threshold for low environmental score warning.
+   * 
    * @return Threshold value (default: 50)
    */
   public int getEnvironmentalLowThreshold() {
@@ -256,6 +274,7 @@ public class ESG_Loader {
 
   /**
    * Gets threshold for low social score warning.
+   * 
    * @return Threshold value (default: 20)
    */
   public int getSocialLowThreshold() {
@@ -264,6 +283,7 @@ public class ESG_Loader {
 
   /**
    * Gets threshold for low governance score warning.
+   * 
    * @return Threshold value (default: 15)
    */
   public int getGovernanceLowThreshold() {
@@ -274,6 +294,7 @@ public class ESG_Loader {
 
   /**
    * Gets the default language code.
+   * 
    * @return Language code (default: "el")
    */
   public String getDefaultLanguage() {
@@ -284,7 +305,9 @@ public class ESG_Loader {
    * Gets localized rating text.
    *
    * @param rating The rating level (excellent, good, moderate, poor, critical)
+   * 
    * @param language The language code ("el" or "en")
+   * 
    * @return Localized rating text
    */
   public String getRatingText(String rating, String language) {
@@ -307,6 +330,7 @@ public class ESG_Loader {
 
   /**
    * Gets minimum score difference to show comparison.
+   * 
    * @return Threshold value (default: 0.1)
    */
   public double getMinScoreDiffToShow() {
@@ -315,6 +339,7 @@ public class ESG_Loader {
 
   /**
    * Gets decimal places for score display.
+   * 
    * @return Number of decimal places (default: 2)
    */
   public int getScoreDecimalPlaces() {
@@ -323,6 +348,7 @@ public class ESG_Loader {
 
   /**
    * Checks if detailed logging is enabled.
+   * 
    * @return true if enabled (default: false)
    */
   public boolean isLoggingEnabled() {
@@ -331,6 +357,7 @@ public class ESG_Loader {
 
   /**
    * Checks if ESG calculation caching is enabled.
+   * 
    * @return true if enabled (default: false)
    */
   public boolean isCachingEnabled() {
@@ -343,7 +370,9 @@ public class ESG_Loader {
    * Gets a string value from a dot-notation path in JSON.
    *
    * @param path Dot-separated path (e.g., "weights.environmental")
+   * 
    * @param defaultValue Default value if path not found
+   * 
    * @return The string value or default
    */
   private String getStringFromPath(String path, String defaultValue) {
@@ -416,6 +445,7 @@ public class ESG_Loader {
    * Useful for advanced operations.
    *
    * @return The JsonObject configuration
+   * 
    */
   public JsonObject getConfig() {
     return config;
