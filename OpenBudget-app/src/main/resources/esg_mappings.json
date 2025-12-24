@@ -1,0 +1,78 @@
+{
+  "sectors": {
+    "natural_environment_and_water_protection": "ENVIRONMENTAL",
+    "spatial_planning_and_urban_environment": "ENVIRONMENTAL",
+    "executive_coordination_and_investments": "GOVERNANCE",
+    "energy_and_mineral_resources_management": "MIXED"
+  },
+
+  "entries": {
+    "personnel_costs": "SOCIAL",
+    "community_benefits": "SOCIAL",
+    "purchase_of_goods_and_services": "GOVERNANCE",
+    "credits_under_allocation": "CONTEXT_DEPENDENT",
+    "transfers": "CONTEXT_DEPENDENT",
+    "permanent_assets": "CONTEXT_DEPENDENT"
+  },
+
+  "weights": {
+    "environmental": 0.40,
+    "social": 0.30,
+    "governance": 0.30
+  },
+
+  "thresholds": {
+    "excellent": 80,
+    "good": 60,
+    "moderate": 40,
+    "poor": 20
+  },
+
+  "display_settings": {
+    "progress_bar_width": 20,
+    "enable_esg": true,
+    "show_esg_terminal": true,
+    "show_esg_web": true,
+    "show_compact_after_edit": true
+  },
+
+  "improvement_suggestions": {
+    "environmental_low": 50,
+    "social_low": 20,
+    "governance_low": 15,
+    "excellent_threshold": 60
+  },
+
+  "localization": {
+    "default_language": "el",
+    "ratings": {
+      "excellent": {
+        "el": "Άριστη",
+        "en": "Excellent"
+      },
+      "good": {
+        "el": "Καλή",
+        "en": "Good"
+      },
+      "moderate": {
+        "el": "Μέτρια",
+        "en": "Moderate"
+      },
+      "poor": {
+        "el": "Χαμηλή",
+        "en": "Poor"
+      },
+      "critical": {
+        "el": "Πολύ Χαμηλή",
+        "en": "Critical"
+      }
+    }
+  },
+
+  "advanced_settings": {
+    "min_score_diff_to_show": 0.1,
+    "score_decimal_places": 2,
+    "enable_logging": false,
+    "enable_caching": false
+  }
+}
