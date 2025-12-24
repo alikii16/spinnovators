@@ -4,6 +4,8 @@ package gr.det.spinnovators;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import gr.det.spinnovators.printer.*;
+import gr.det.spinnovators.data.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

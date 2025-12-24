@@ -1,6 +1,7 @@
 package gr.det.spinnovators;
 
 import org.junit.jupiter.api.Test;
+import gr.det.spinnovators.service.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

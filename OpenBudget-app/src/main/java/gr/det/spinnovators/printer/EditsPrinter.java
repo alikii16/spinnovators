@@ -1,10 +1,10 @@
 package gr.det.spinnovators.printer;
 
-import gr.det.spinnovators.EnvBudgetTranslator;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.service.*;
 
 
 

@@ -2,6 +2,7 @@ package gr.det.spinnovators;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import gr.det.spinnovators.web.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
