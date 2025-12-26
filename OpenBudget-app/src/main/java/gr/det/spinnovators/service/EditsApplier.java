@@ -125,13 +125,22 @@ public class EditsApplier {
   private void calculateAndDisplayInitialEsg(EnvYear year) {
     System.out.println("\n Υπολογισμός αρχικού ESG Score...\n");
 
-    this.initialEsgReport = (ESG_Report) esgCalculator.calculateReport(year, totalBudget);
-    this.currentEsgReport = initialEsgReport;
+    try {
+      // Calculate initial ESG report
+      this.initialEsgReport = esgCalculator.calculateReport(year, totalBudget);
+      this.currentEsgReport = initialEsgReport;
 
-    esgPrinter.printReport(initialEsgReport);
+      // Display the report
+      esgPrinter.printReport(initialEsgReport);
 
-    System.out.println(" Μπορείτε να δείτε πώς οι αλλαγές σας επηρεάζουν το ESG score!");
-    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+      System.out.println(" Μπορείτε να δείτε πώς οι αλλαγές σας επηρεάζουν το ESG score!");
+      System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+    } catch (Exception e) {
+      System.err.println(" Σφάλμα κατά τον υπολογισμό ESG: " + e.getMessage());
+      System.out.println("Η επεξεργασία θα συνεχιστεί χωρίς ESG tracking.\n");
+      this.initialEsgReport = null;
+      this.currentEsgReport = null;
+    }
   }
 
   private EnvSector selectSector(EnvYear year) {

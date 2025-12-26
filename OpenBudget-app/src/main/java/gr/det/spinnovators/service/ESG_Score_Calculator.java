@@ -41,7 +41,7 @@ public class ESG_Score_Calculator {
      * @param totalBudget The total ministry budget for that year
      * @return Complete ESG report with scores and breakdowns
      */
-    public EsgReport calculateReport(EnvYear year, double totalBudget) {
+    public ESG_Report calculateReport(EnvYear year, double totalBudget) {
         // Aggregate amounts by ESG category
         Map<ESG_Category, Double> categoryAmounts = aggregateByCategory(year);
 
@@ -80,7 +80,7 @@ public class ESG_Score_Calculator {
      * @param year The budget year to analyze
      * @return Map of ESG category to total amount
      */
-    private Map<EsgCategory, Double> aggregateByCategory(EnvYear year) {
+    private Map<ESG_Category, Double> aggregateByCategory(EnvYear year) {
         Map<ESG_Category, Double> totals = new HashMap<>();
 
         // Initialize all categories with 0
