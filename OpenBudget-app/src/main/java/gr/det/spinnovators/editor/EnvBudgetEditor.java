@@ -1,7 +1,9 @@
 package gr.det.spinnovators.editor;
 
-import gr.det.spinnovators.envdatamodel.*;
-import gr.det.spinnovators.service.*;
+import gr.det.spinnovators.envdatamodel.EnvBudgetData;
+import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.service.EditsApplier;
+import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.printer.EditsPrinter;
 import java.util.ArrayList;
 import java.util.Scanner;

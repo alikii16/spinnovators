@@ -7,7 +7,6 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 
 
-
 /** PRINTS THE RESULTS OF CHANGED DATA. */
 
 public class EditsPrinter {
