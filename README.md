@@ -15,12 +15,10 @@ Automatic checks ensure that user modifications comply with fiscal and legal rul
 Special emphasis on environmental policies, green energy funding, and sustainability initiatives. 
 ### 5. Yearly Budget Comparison
 Compare the current budget with previous years' data, highlighting increases or decreases per sector.
-### 6. Budget Forecasting
-Predict future budgets for 2027 based on historical data from 2024-2026 using linear regression analysis.
-### 7. ESG Score Evaluation
+### 6. ESG Score Evaluation
 Evaluate Environmental, Social, and Governance (ESG) indicators to measure how sustainable and responsible the proposed budget changes are. The system tags budget categories as "GREEN" or "NEUTRAL" and calculates a sustainability score (scale from 0 to 100).
-### 8. Crisis Mode Simulation
-Simulate crisis scenarios (Floods, Pandemic, Energy Crisis) that automatically reduce budgets by 10-15% and reallocate resources to critical ministries.
+### 7. Updated Budget and Initial Budget Comparison
+Compare the new budget, changed by the Minister, with the initial Ministry's of Environment and Energy budget, highlighting increases or decreases per sector, presenting pie charts and top changes.
 
 ---
 
@@ -85,6 +83,8 @@ The application also includes a **hierarchical and detailed structure** for the 
 - Implements state management for multi-step editing process (sector → unit → entry → value).
 - Tracks balance changes and enforces budget equilibrium before allowing session termination.
 - Integrates with BudgetValidator for comprehensive validation.
+- Allows the comparison of 2 budgets.
+- Presents the ESG Score of the Ministry's budget and offers valuable insights and recommendations.
 
 ### e. Budget Validation (BudgetValidator.java)
 - **CHECK 1**: Prevents negative budget values
@@ -97,7 +97,23 @@ The application also includes a **hierarchical and detailed structure** for the 
 - EnvBudgetPrinter.java: Formats and displays detailed Environment Ministry budget with hierarchical structure
 - EditsPrinter.java: Shows updated budget data after modifications
 
+### g. ESG Scoring System
+- ESG_Category.java: Enumeration representing ESG (Environmental, Social, Governance) categories for budget classification and sustainability scoring.
+- ESG_Report.java: Represents a complete ESG sustainability report for a ministry budget.
+- ESG_Classifier.java: Classifies budget sectors, units, and entries into ESG categories.
+- ESG_Score_Calculator.java: Calculates ESG sustainability scores for ministry budgets.
+- ESG_Printer.java: Prints formatted ESG sustainability reports to the console.
+- ESG_Loader.java: Provides centralized access to ESG weights, thresholds, classifications, and display settings defined in esg_mappings.json.
 
+### h. Updated Budget Comparison with the Initial Budget (InitialBudgetComparison.java)
+- Analyzes and compares budget data before and after changes.
+- Provides comprehensive comparison including:
+  - Sector-by-sector breakdown
+  - Percentage changes
+  - Visual pie charts
+  - ESG impact analysis
+  - Recommendations based on changes
+  - 
 ### 6. System Capabilities for Environmental Analysis
 - Users can **view detailed breakdowns** of environmental sector allocations.  
 - Supports **updating entries** via code (in future versions, may include CLI editing).  
@@ -139,7 +155,12 @@ personnel_costs=Παροχές σε εργαζομένους
 purchase_of_goods_and_services=Αγορές αγαθών και υπηρεσιών
 permanent_assets=Πάγια Περιουσιακά Στοιχεία
 
-### 3. Maven Configuration (pom.xml)
+### 3. ESG Configuration File (esg_mappings.json)
+- Defines the ESG (Environmental, Social, Governance) evaluation logic, scoring rules, and display behavior used by the system to analyze and present budget data.
+- Makes the ESG system fully configurable without code changes
+- Ensures transparent, explainable, and consistent ESG evaluation
+
+### 4. Maven Configuration (pom.xml)
 - Maven project configuration for OpenBudget-app.
 - The Project Object Model (pom.xml) manages the project's dependencies and build process.
 - Java 17, dependencies for Gson and JUnit, plugins for testing and execution.
@@ -263,12 +284,6 @@ http://localhost:8080/login.html
 ---
 ## Future Extensions
 ---
-The current system lays a foundation for advanced features:
-- ESG Score Calculator: Automated sustainability scoring based on budget allocations
-  - Tags categories as GREEN/NEUTRAL
-  - Calculates percentage of "green" spending
-  - Provides grade from A+ to D
-
 - Budget Forecasting: Predict 2027 budget using linear regression on 2024-2026 data
 - Crisis Mode Simulation: Simulate emergency scenarios
   - Floods: 10% reduction
