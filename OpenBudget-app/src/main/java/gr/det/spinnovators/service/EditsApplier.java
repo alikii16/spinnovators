@@ -1,14 +1,14 @@
 package gr.det.spinnovators.service;
 
+import java.util.List;
+import java.util.Scanner;
+
 import gr.det.spinnovators.envdatamodel.ESG_Report;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.printer.ESG_Printer;
-
-import java.util.List;
-import java.util.Scanner;
 
 /**
  * Applies edits to budget entries and tracks ESG sustainability impact.
@@ -17,15 +17,15 @@ import java.util.Scanner;
  * and calculates the ESG sustainability score before and after modifications.</p>
  *
  * @author Spinnovators Team
- * 
  * @version 2.0 (ESG-enabled)
  */
-
 public class EditsApplier {
+
   private final EnvBudgetTranslator translator;
   private final Scanner scanner;
   private final ESG_Score_Calculator esgCalculator;
   private final ESG_Printer esgPrinter;
+  private final InitialBudgetComparison comparisonAnalyzer;
 
   // Budget tracking - preserve data during changes
   private double currentBalance = 0;
@@ -34,6 +34,9 @@ public class EditsApplier {
   // ESG tracking
   private ESG_Report initialEsgReport;
   private ESG_Report currentEsgReport;
+
+  // Deep copy for final comparison
+  private EnvYear originalYearSnapshot;
 
   /**
    * Constructs an EditsApplier with the specified translator.
@@ -45,7 +48,9 @@ public class EditsApplier {
     this.scanner = new Scanner(System.in);
     this.esgCalculator = new ESG_Score_Calculator();
     this.esgPrinter = new ESG_Printer();
+    this.comparisonAnalyzer = new InitialBudgetComparison(translator);
   }
+
   /**
    * Starts the interactive editing session for a specific budget year.
    *
@@ -65,12 +70,17 @@ public class EditsApplier {
     }
 
     this.currentBalance = 0.0;
+
+    // Create deep copy of original state for final comparison
+    this.originalYearSnapshot = createDeepCopy(year);
+
     // Calculate and display initial ESG report
     calculateAndDisplayInitialEsg(year);
 
     while (keepEditing) {
+      // Display balance status
       if (Math.abs(currentBalance) > 0.01) {
-        System.out.printf("\n>>> ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ: %,.2f € <<<", this.currentBalance);
+        System.out.printf("\n>>> ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ: %,.2f € <<<\n", this.currentBalance);
       }
 
       // Also show current ESG score
@@ -81,10 +91,11 @@ public class EditsApplier {
       EnvSector selectedSector = selectSector(year);
 
       if (selectedSector == null) {
+        // User wants to exit - check if budget is balanced
         if (Math.abs(this.currentBalance) < 0.01) {
-          System.out.println("Ο προυπολογισμός είναι ισοσκελισμένος!");
+          System.out.println(" Ο προϋπολογισμός είναι ισοσκελισμένος!");
           System.out.println("Τερματισμός Λειτουργίας.");
-          keepEditing = false;
+          keepEditing = false; // EXIT LOOP
         } else {
           System.out.println("!!! ΠΡΟΣΟΧΗ !!!");
           System.out.println("Δεν επιτρέπεται τερματισμός.");
@@ -109,13 +120,47 @@ public class EditsApplier {
       if (!searchInput.isEmpty()) {
         findAndEditEntryInUnit(selectedUnit, searchInput, year);
       }
-
-      // Display final ESG comparison
-      displayFinalEsgComparison();
-
-      System.out.println("--- ΤΕΛΟΣ ΕΠΕΞΕΡΓΑΣΙΑΣ ---");
-
     }
+
+    System.out.println("\n Προετοιμασία αναλυτικής σύγκρισης...\n");
+
+    // Perform full comparison between original and modified budget
+    comparisonAnalyzer.performFullComparison(
+        originalYearSnapshot,  // Original state (snapshot)
+        year,                  // Modified state (current)
+        totalBudget
+    );
+
+    System.out.println("\n--- ΤΕΛΟΣ ΕΠΕΞΕΡΓΑΣΙΑΣ ---");
+  }
+
+  /**
+   * Creates a deep copy of EnvYear for comparison purposes.
+   *
+   * @param year The year to copy
+   * @return A deep copy of the year
+   */
+  private EnvYear createDeepCopy(EnvYear year) {
+    List<EnvSector> copiedSectors = new java.util.ArrayList<>();
+
+    for (EnvSector sector : year.getSectors()) {
+      List<EnvUnit> copiedUnits = new java.util.ArrayList<>();
+
+      for (EnvUnit unit : sector.getUnits()) {
+        List<EnvEntry> copiedEntries = new java.util.ArrayList<>();
+
+        for (EnvEntry entry : unit.getEntries()) {
+          // Create new entry with same values
+          copiedEntries.add(new EnvEntry(entry.getJsonKey(), entry.getAmount()));
+        }
+
+        copiedUnits.add(new EnvUnit(unit.getJsonKey(), copiedEntries));
+      }
+
+      copiedSectors.add(new EnvSector(sector.getJsonKey(), copiedUnits));
+    }
+
+    return new EnvYear(year.getYear(), copiedSectors);
   }
 
   /**
@@ -137,13 +182,19 @@ public class EditsApplier {
       System.out.println(" Μπορείτε να δείτε πώς οι αλλαγές σας επηρεάζουν το ESG score!");
       System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
     } catch (Exception e) {
-      System.err.println(" Σφάλμα κατά τον υπολογισμό ESG: " + e.getMessage());
+      System.err.println("  Σφάλμα κατά τον υπολογισμό ESG: " + e.getMessage());
       System.out.println("Η επεξεργασία θα συνεχιστεί χωρίς ESG tracking.\n");
       this.initialEsgReport = null;
       this.currentEsgReport = null;
     }
   }
 
+  /**
+   * Allows user to select a sector.
+   *
+   * @param year The budget year
+   * @return Selected sector or null to exit
+   */
   private EnvSector selectSector(EnvYear year) {
     List<EnvSector> sectors = year.getSectors();
     System.out.println("\n==========================================");
@@ -159,10 +210,18 @@ public class EditsApplier {
     System.out.print("--> Επιλογή: ");
 
     int choice = readIntegerChoice(sectors.size());
-    if (choice <= 0) return null;
+    if (choice <= 0) {
+      return null;
+    }
     return sectors.get(choice - 1);
   }
 
+  /**
+   * Allows user to select a unit from a sector.
+   *
+   * @param sector The selected sector
+   * @return Selected unit or null to go back
+   */
   private EnvUnit selectUnit(EnvSector sector) {
     List<EnvUnit> units = sector.getUnits();
     System.out.println("\n--- Επιλογή Μονάδας ---");
@@ -175,12 +234,20 @@ public class EditsApplier {
     System.out.print("--> Επιλογή: ");
 
     int choice = readIntegerChoice(units.size());
-    if (choice <= 0) return null;
+    if (choice <= 0) {
+      return null;
+    }
     return units.get(choice - 1);
   }
 
-
-  // This method searches for the category in the specific unit
+  /**
+   * Searches for an entry in a unit and allows editing.
+   * This method searches for the category in the specific unit.
+   *
+   * @param unit The unit to search in
+   * @param searchName The category name to search for
+   * @param year The current budget year (for ESG recalculation)
+   */
   private void findAndEditEntryInUnit(EnvUnit unit, String searchName, EnvYear year) {
     boolean found = false;
 
@@ -204,17 +271,23 @@ public class EditsApplier {
           try {
             amountInput = amountInput.replace(",", ".");
             double newAmount = Double.parseDouble(amountInput);
-            entry.setAmount(newAmount);
 
-            //Check new amount's validation
+            // Check new amount's validation BEFORE setting
             BudgetValidator obj = new BudgetValidator();
             newAmount = obj.getValidatedNewValue(totalBudget, oldAmount, newAmount);
 
+            // Set the validated amount
+            entry.setAmount(newAmount);
+
             double offsetAmount = oldAmount - newAmount;
-            //Current balance correction
+            // Current balance correction
             this.currentBalance += offsetAmount;
-            System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Δημιουργήθηκε διαφορά: %,.2f €\\n", offsetAmount);
+            System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Δημιουργήθηκε διαφορά: %,.2f €\n",
+                offsetAmount);
+
+            // Recalculate ESG score after change
             recalculateEsgScore(year);
+
           } catch (NumberFormatException e) {
             System.out.println(" Λάθος: Παρακαλώ δώστε έγκυρο αριθμό.");
           }
@@ -231,12 +304,22 @@ public class EditsApplier {
     }
   }
 
+  /**
+   * Reads an integer choice from user input.
+   *
+   * @param maxOption Maximum valid option number
+   * @return User's choice or -1 if invalid
+   */
   private int readIntegerChoice(int maxOption) {
     try {
       String input = scanner.nextLine().trim();
-      if (input.isEmpty()) return -1;
+      if (input.isEmpty()) {
+        return -1;
+      }
       int val = Integer.parseInt(input);
-      if (val >= 0 && val <= maxOption) return val;
+      if (val >= 0 && val <= maxOption) {
+        return val;
+      }
     } catch (NumberFormatException e) {
       // We ignore the mistake and return -1
     }
@@ -245,30 +328,25 @@ public class EditsApplier {
   }
 
   /**
-  * Displays final ESG comparison between initial and final state.
-  */
-  private void displayFinalEsgComparison() {
-    if (initialEsgReport != null && currentEsgReport != null) {
-      System.out.println("\n╔════════════════════════════════════════════════╗");
-      System.out.println("║    ΤΕΛΙΚΗ ΑΝΑΦΟΡΑ ESG - ΣΥΝΟΛΙΚΗ ΕΠΙΠΤΩΣΗ      ║");
-      System.out.println("╚════════════════════════════════════════════════╝");
-      esgPrinter.printComparison(initialEsgReport, currentEsgReport);
-    }
-  }
-
-  /**
-  * Recalculates the ESG score after a budget change.
-  *
-  * @param year The current budget year
-  */
+   * Recalculates the ESG score after a budget change.
+   *
+   * @param year The current budget year
+   */
   private void recalculateEsgScore(EnvYear year) {
+    if (this.currentEsgReport == null) {
+      return; // ESG tracking is disabled
+    }
+
     System.out.println("\n Ανανέωση ESG Score...");
 
-    ESG_Report previousReport = this.currentEsgReport;
+    try {
+      ESG_Report previousReport = this.currentEsgReport;
+      this.currentEsgReport = esgCalculator.calculateReport(year, totalBudget);
 
-    this.currentEsgReport = (ESG_Report) esgCalculator.calculateReport(year, totalBudget);
-
-    // Show comparison
-    esgPrinter.printComparison(previousReport, currentEsgReport);
+      // Show comparison
+      esgPrinter.printComparison(previousReport, currentEsgReport);
+    } catch (Exception e) {
+      System.err.println("  Σφάλμα κατά την ανανέωση ESG: " + e.getMessage());
+    }
   }
 }
