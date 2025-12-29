@@ -1,9 +1,8 @@
 package gr.det.spinnovators.authentication;
 
-/**
- * This file will be used for users login.
- * */
 import java.util.Scanner;
+
+// This file will be used for users login.
 
 /**
  * Utility class to handle user login process.

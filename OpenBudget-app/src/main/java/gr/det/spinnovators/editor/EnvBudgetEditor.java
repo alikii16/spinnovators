@@ -2,11 +2,15 @@ package gr.det.spinnovators.editor;
 
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.printer.EditsPrinter;
 import gr.det.spinnovators.service.EditsApplier;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
-import gr.det.spinnovators.printer.EditsPrinter;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+/**
+ * Javadoc comment needed.
+ */
 
 public class EnvBudgetEditor {
 
@@ -14,11 +18,23 @@ public class EnvBudgetEditor {
   private final EnvBudgetTranslator translator;
   private final Scanner scanner;
 
+  /**
+   * Javadoc comment needed.
+   * 
+   * @param data
+   * 
+   * @param translator
+   */
+
   public EnvBudgetEditor(EnvBudgetData data, EnvBudgetTranslator translator) {
     this.data = data;
     this.translator = translator;
     this.scanner = new Scanner(System.in);
   }
+
+  /**
+   * Javadoc comment needed
+   */
 
   public void startEditingSession() {
     System.out.println("\n------------------------------------------------");

@@ -24,10 +24,21 @@ public class EnvYear {
     return sectors;
   }
 
-  /*
-   *  Traverses sectors --> units --> entries and returns the EnvEntry object.
+  /**
+   * Traverses sectors --> units --> entries and returns the EnvEntry object.
    */
 
+  /**
+   * Javadoc comment needed
+   * @param sectorKey
+   * 
+   * @param unitKey
+   * 
+   * @param entryKey
+   * 
+   * @return
+   */
+  
   public EnvEntry findEntry(String sectorKey, String unitKey, String entryKey) {
     if (sectorKey == null || unitKey == null || entryKey == null) {
       return null;

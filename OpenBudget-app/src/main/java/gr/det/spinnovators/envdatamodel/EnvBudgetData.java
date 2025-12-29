@@ -20,9 +20,10 @@ public class EnvBudgetData {
     this.envMinistryTotalBudget = envMinistryTotalBudget;
   }
   
-  /* 
-   * javadoc.
+  /** 
+   * Javadoc comment needed
    */
+
   public EnvYear getBudgetForYear(String year) {
     if (dataByYear == null) {
       return null;

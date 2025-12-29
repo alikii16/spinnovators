@@ -11,9 +11,17 @@ import gr.det.spinnovators.web.LoginWebServer;
 
 
 import java.io.File;
+
 import java.util.Scanner;
 
+/**
+ * Javadoc comment needed
+ */
 public class OpenBudgetApplication {
+  /**
+   * Javadoc comment needed
+   * @param args
+   */
   public static void main(String[] args) {
 
     EnvBudgetTranslator translator = new EnvBudgetTranslator();

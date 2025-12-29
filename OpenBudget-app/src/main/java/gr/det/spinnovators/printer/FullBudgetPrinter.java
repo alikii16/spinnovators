@@ -2,6 +2,9 @@ package gr.det.spinnovators.printer;
 
 import gr.det.spinnovators.data.MinistryDataInput;
 
+/**
+ * Javadoc comment needed
+ */
 public final class FullBudgetPrinter {
 
   /**

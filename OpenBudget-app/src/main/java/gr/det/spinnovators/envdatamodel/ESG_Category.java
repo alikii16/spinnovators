@@ -3,8 +3,8 @@ package gr.det.spinnovators.envdatamodel;
 /**
  * Enumeration representing ESG (Environmental, Social, Governance) categories
  * for budget classification and sustainability scoring.
- *
- * Each budget entry is classified into one of these categories to calculate
+ * 
+ * <p> Each budget entry is classified into one of these categories to calculate
  * the overall ESG sustainability score of the ministry budget.
  *
  * @author Spinnovators Team
@@ -57,6 +57,7 @@ public enum ESG_Category {
    * Gets the English name of this category.
    * 
    * @return English name
+   * 
    */
   public String getNameEn() {
     return nameEn;
@@ -66,6 +67,7 @@ public enum ESG_Category {
    * Gets the Greek name of this category.
    * 
    * @return Greek name
+   * 
    */
   public String getNameEl() {
     return nameEl;

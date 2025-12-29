@@ -25,9 +25,14 @@ public class EnvSector {
   }
 
   // Helper method: locate a unit by its key
-  /*
-   *javadoc.
+  /**
+   * Javadoc comment needed
+   * 
+   * @param key
+   * 
+   * @return
    */
+
   public EnvUnit getUnitByKey(String key) {
     if (key == null) {
       return null; // NullPointerException

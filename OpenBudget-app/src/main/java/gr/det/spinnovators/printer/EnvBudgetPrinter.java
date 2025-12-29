@@ -64,7 +64,8 @@ public class EnvBudgetPrinter {
         System.out.printf(HELLENIC_LOCALE, " ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: %,.2f €\n\n", unitTotal);
         sectorTotal += unitTotal;
       }
-      System.out.printf(HELLENIC_LOCALE, " ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ (%s): %,.2f €\n", translatedSector, sectorTotal);
+      System.out.printf(HELLENIC_LOCALE, " ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ (%s): %,.2f €\n",
+                                     translatedSector, sectorTotal);
     }
     System.out.println("\n--------------------------------------------------------------------");
   }
