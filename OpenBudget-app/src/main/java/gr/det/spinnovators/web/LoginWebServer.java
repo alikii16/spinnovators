@@ -1152,7 +1152,7 @@ public final class LoginWebServer {
     ChangeSession changeSession = getChangeSession();
 
     String entryName = translator.translateCategory(changeSession.selectedEntry.getJsonKey());
-    String logLine = String.format("%s;%.2f;%.2f", entryName, changeSession.oldValue, newValue);
+    String logLine = String.format(java.util.Locale.US, "%s;%.2f;%.2f", entryName, changeSession.oldValue, newValue);
     changeSession.changeLog.add(logLine);
 
     changeSession.selectedEntry.setAmount(newValue);
