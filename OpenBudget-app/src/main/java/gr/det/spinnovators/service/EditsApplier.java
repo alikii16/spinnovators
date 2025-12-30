@@ -242,62 +242,83 @@ public class EditsApplier {
 
   /**
    * Searches for an entry in a unit and allows editing.
-   * This method searches for the category in the specific unit.
    *
-   * @param unit The unit to search in
+   * @param unit       The unit to search in
    * @param searchName The category name to search for
-   * @param year The current budget year (for ESG recalculation)
+   * @param year       The current budget year
    */
   private void findAndEditEntryInUnit(EnvUnit unit, String searchName, EnvYear year) {
     boolean found = false;
 
-    // A loop in order to search the Unit and do the entry
+    // A loop in order to search the Unit and find the desired entry
     for (EnvEntry entry : unit.getEntries()) {
-
-      // Translation of the key in order to compare with the user's entry
       String entryName = translator.translateCategory(entry.getJsonKey());
 
       if (entryName.equalsIgnoreCase(searchName)) {
         found = true;
-
-        // Asking for the new amount
         System.out.printf("\nΒρέθηκε: %s | Τρέχον Ποσό: %,.2f €\n", entryName, entry.getAmount());
+        
         double oldAmount = entry.getAmount();
-        System.out.print("Δώσε το νέο ποσό: ");
+        BudgetValidator validator = new BudgetValidator();
+        double finalValidatedAmount = oldAmount;
 
-        String amountInput = scanner.nextLine().trim();
+        // Loop for validation until we get a valid or confirmed value
+        while (true) {
+          System.out.print("Δώσε το νέο ποσό: ");
+          String amountInput = scanner.nextLine().trim();
 
-        if (!amountInput.isEmpty()) {
-          try {
-            amountInput = amountInput.replace(",", ".");
-            double newAmount = Double.parseDouble(amountInput);
-
-            // Check new amount's validation BEFORE setting
-            BudgetValidator obj = new BudgetValidator();
-            newAmount = obj.getValidatedNewValue(totalBudget, oldAmount, newAmount);
-
-            // Set the validated amount
-            entry.setAmount(newAmount);
-
-            double offsetAmount = oldAmount - newAmount;
-            // Current balance correction
-            this.currentBalance += offsetAmount;
-            System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Δημιουργήθηκε διαφορά: %,.2f €\n",
-                offsetAmount);
-
-            // Recalculate ESG score after change
-            recalculateEsgScore(year);
-
-          } catch (NumberFormatException e) {
-            System.out.println(" Λάθος: Παρακαλώ δώστε έγκυρο αριθμό.");
+          if (amountInput.isEmpty()) {
+            System.out.println(" Δεν δόθηκε τιμή. Καμία αλλαγή.");
+            return;
           }
-        } else {
-          System.out.println(" Δεν δόθηκε τιμή. Καμία αλλαγή.");
+
+          try {
+            // Replace comma with dot for decimal compatibility
+            amountInput = amountInput.replace(",", ".");
+            double inputAmount = Double.parseDouble(amountInput);
+
+            // Using the new validation logic
+            BudgetValidator.ValidationResult result = 
+                validator.validate(this.totalBudget, oldAmount, inputAmount);
+
+            if (result == BudgetValidator.ValidationResult.OK) {
+              finalValidatedAmount = inputAmount;
+              break;
+            } else if (result == BudgetValidator.ValidationResult.NEGATIVE_VALUE) {
+              System.out.println(" [!] ΣΦΑΛΜΑ: Η τιμή δεν μπορεί να είναι αρνητική.");
+            } else if (result == BudgetValidator.ValidationResult.EXCEEDS_TOTAL_BUDGET) {
+              System.out.printf(" [!] ΣΦΑΛΜΑ: Υπέρβαση προϋπολογισμού (Όριο: %,.2f €).\n", 
+                  this.totalBudget);
+            } else if (result == BudgetValidator.ValidationResult.EXTREME_DEVIATION) {
+              double dev = validator.calculateDeviationPercentage(oldAmount, inputAmount);
+              System.out.printf(" [!] ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Ακραία μεταβολή (%.2f%%).\n", dev);
+              System.out.print("     Είστε βέβαιος για αυτή την αλλαγή; (ΝΑΙ/ΟΧΙ): ");
+              
+              String confirm = scanner.nextLine().trim();
+              if (confirm.equalsIgnoreCase("ΝΑΙ")) {
+                finalValidatedAmount = inputAmount;
+                break;
+              } else {
+                System.out.println(" Η τιμή απορρίφθηκε. Παρακαλώ εισάγετε νέα τιμή.");
+              }
+            }
+          } catch (NumberFormatException e) {
+            System.out.println(" [!] ΣΦΑΛΜΑ: Παρακαλώ δώστε έγκυρο αριθμό.");
+          }
         }
+
+        // Apply changes
+        entry.setAmount(finalValidatedAmount);
+        double offsetAmount = oldAmount - finalValidatedAmount;
+        this.currentBalance += offsetAmount;
+        System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Διαφορά: %,.2f €\n", offsetAmount);
+        // Recalculate ESG score after the change
+        recalculateEsgScore(year);
         return;
       }
     }
 
+    // Message shown if no matching category was found
     if (!found) {
       System.out.println(" Δεν βρέθηκε κατηγορία με το όνομα: '" + searchName + "'");
       System.out.println(" Συμβουλή: Προσέξτε τους τόνους και την ορθογραφία!");
