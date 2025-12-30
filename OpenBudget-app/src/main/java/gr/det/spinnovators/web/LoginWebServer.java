@@ -75,6 +75,7 @@ public final class LoginWebServer {
 
     public double totalBudget = 0.0;
     public double currentBalance = 0.0;
+    public java.util.List<String> changeLog = new java.util.ArrayList<>();
     public double oldValue;
     public Double pendingValue;
   }
@@ -1126,6 +1127,10 @@ public final class LoginWebServer {
   private static void applyNewValueAndFinish(HttpExchange exchange,
                                              double newValue) throws IOException {
     ChangeSession changeSession = getChangeSession();
+
+    String entryName = translator.translateCategory(changeSession.selectedEntry.getJsonKey());
+    String logLine = String.format("%s;%.2f;%.2f", entryName, changeSession.oldValue, newValue);
+    changeSession.changeLog.add(logLine);
 
     changeSession.selectedEntry.setAmount(newValue);
     changeSession.pendingValue = null;
