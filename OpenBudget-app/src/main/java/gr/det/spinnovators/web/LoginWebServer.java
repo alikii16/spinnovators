@@ -175,6 +175,24 @@ public final class LoginWebServer {
       }
     });
 
+    server.createContext("/download_report", exchange -> {
+       ChangeSession session = getChangeSession();
+       
+       gr.det.spinnovators.export.EditedBudgetExporter exporter = 
+           new gr.det.spinnovators.export.TextReportExporter();
+
+       exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+       exchange.getResponseHeaders().set("Content-Disposition", "attachment; filename=\"Budget_Report.txt\"");
+       exchange.sendResponseHeaders(200, 0);
+
+       try {
+           exporter.export(session.changeLog, exchange.getResponseBody());
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+       exchange.close();
+    });
+
     server.setExecutor(null);
     server.start();
 
@@ -957,11 +975,16 @@ public final class LoginWebServer {
                                       String message, boolean success) throws IOException {
     String color = success ? "#1b5e20" : "#b71c1c";
     String buttonHtml;
+    
+    String downloadBtn = "<a class='secondary-btn' href='/download_report' "
+      +  "target='_blank' style='margin-top:10px; display:block; "
+      +  "text-decoration:none;'> Λήψη Αναφοράς Αλλαγών </a>";
+
     if (success) {
-      buttonHtml = "<a class='primary-btn' href='/minister_statebudget.html' "
+      buttonHtml = downloadBtn + "<a class='primary-btn' href='/minister_statebudget.html' "
           + "style='text-decoration:none; margin-top:18px;'>Επιστροφή</a>";
     } else {
-      buttonHtml = """
+      buttonHtml = downloadBtn + """
           <form method='POST' style='margin-top:18px;'>
               <button class='primary-btn' type='submit' name='continue' value='yes'>Συνέχεια Αλλαγών</button>
           </form>
