@@ -38,16 +38,17 @@ public class TextReportExporter implements EditedBudgetExporter {
       }
       
       // Print Official Header
-      writer.println("==================================================================================");
-      writer.println("                     ΥΠΟΥΡΓΕΙΟ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ                        ");
-      writer.println("                      ΑΝΑΦΟΡΑ ΤΡΟΠΟΠΟΙΗΣΗΣ ΠΡΟΥΠΟΛΟΓΙΣΜΟΥ                         ");
-      writer.println("==================================================================================");
+      writer.println("=========================================================================");
+      writer.println("                   ΥΠΟΥΡΓΕΙΟ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ                   ");
+      writer.println("                   ΑΝΑΦΟΡΑ ΤΡΟΠΟΠΟΙΗΣΗΣ ΠΡΟΥΠΟΛΟΓΙΣΜΟΥ                   ");
+      writer.println("=========================================================================");
       writer.println();
-      writer.printf(" Ημερομηνία Έκδοσης: %s%n", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+      writer.printf(" Ημερομηνία Έκδοσης: %s%n", LocalDateTime.now().format(DateTimeFormatter
+          .ofPattern("dd/MM/yyyy HH:mm")));
       writer.printf(" Οικονομικό Έτος:    %s%n", budgetYear);
       writer.println(" Κατάσταση:          ΕΓΚΡΙΘΗΚΕ");
       writer.println();
-      writer.println("-------------------------------- ΛΙΣΤΑ ΑΛΛΑΓΩΝ -----------------------------------");
+      writer.println("----------------------------- ΛΙΣΤΑ ΑΛΛΑΓΩΝ -----------------------------");
       writer.println();
             
       if (changeLog == null || changeLog.isEmpty()) {
@@ -73,9 +74,10 @@ public class TextReportExporter implements EditedBudgetExporter {
              
             // Line 2: Specific Category change with arrows
             writer.printf("     └── %-30s :  %,14.2f €  --->  %,14.2f €  (%s%,.2f €)%n", 
-              shorten(category, 30), oldVal, newVal, sign, diff);
-                        
-            writer.println("----------------------------------------------------------------------------------");
+                shorten(category, 30), oldVal, newVal, sign, diff);
+         
+            writer.println("----------------------------------------------------------------"
+                + "---------");
           } else if (parts.length >= 3) {
             // Fallback for older data format
             writer.println(" " + entry);
@@ -97,7 +99,7 @@ public class TextReportExporter implements EditedBudgetExporter {
    */
   private String shorten(String text, int maxLength) {
     if (text.length() <= maxLength) {
-        return text;
+      return text;
     }
     return text.substring(0, maxLength - 3) + "...";
   }

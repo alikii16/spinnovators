@@ -15,9 +15,7 @@ public interface EditedBudgetExporter {
    *
    * @param changeLog A list of strings, where each string represents a change record.
    * Expected format: "Year;Sector;Unit;Category;OldAmount;NewAmount".
-   * 
    * @param out       The {@link OutputStream} where the report will be written.
-   * 
    * @throws Exception If an Input/Output error occurs during the export process.
    */
   void export(List<String> changeLog, OutputStream out) throws Exception;
