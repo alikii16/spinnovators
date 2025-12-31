@@ -5,8 +5,20 @@ import java.util.List;
 
 /**
  * Interface for exporting budget change reports.
- * Uses the Strategy Pattern to allow different export formats (CSV, TXT).
+ * This interface follows the Strategy Pattern, allowing the application
+ * to switch between different export formats (e.g., CSV, TXT) dynamically.
  */
 public interface EditedBudgetExporter {
-    void export(List<String> changeLog, OutputStream out) throws Exception;
+
+  /**
+   * Exports the list of budget changes to the specified output stream.
+   *
+   * @param changeLog A list of strings, where each string represents a change record.
+   * Expected format: "Year;Sector;Unit;Category;OldAmount;NewAmount".
+   * 
+   * @param out       The {@link OutputStream} where the report will be written.
+   * 
+   * @throws Exception If an Input/Output error occurs during the export process.
+   */
+  void export(List<String> changeLog, OutputStream out) throws Exception;
 }

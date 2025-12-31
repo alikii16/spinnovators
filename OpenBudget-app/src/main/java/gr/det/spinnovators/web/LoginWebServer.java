@@ -1150,9 +1150,12 @@ public final class LoginWebServer {
   private static void applyNewValueAndFinish(HttpExchange exchange,
                                              double newValue) throws IOException {
     ChangeSession changeSession = getChangeSession();
-
+    String year = changeSession.envYear.getYear();
+    String sectorName = translator.translateCategory(changeSession.selectedSector.getJsonKey());
+    String unitName = translator.translateCategory(changeSession.selectedUnit.getJsonKey());
     String entryName = translator.translateCategory(changeSession.selectedEntry.getJsonKey());
-    String logLine = String.format(java.util.Locale.US, "%s;%.2f;%.2f", entryName, changeSession.oldValue, newValue);
+    String logLine = String.format(java.util.Locale.US, "%s;%s;%s;%s;%.2f;%.2f", 
+      year, sectorName, unitName, entryName, changeSession.oldValue, newValue);
     changeSession.changeLog.add(logLine);
 
     changeSession.selectedEntry.setAmount(newValue);
