@@ -23,7 +23,7 @@ public class CsvExporter implements EditedBudgetExporter {
   public void export(List<String> changeLog, OutputStream out) {
     // Use try-with-resources for auto-closing
     try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, 
-      StandardCharsets.UTF_8))) {
+        StandardCharsets.UTF_8))) {
       // Write BOM so Excel recognizes UTF-8 correctly
       writer.write('\ufeff');
             
