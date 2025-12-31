@@ -68,6 +68,7 @@ public final class LoginWebServer {
     public ChangeState state = ChangeState.START;
 
     public EnvYear envYear;
+    public EnvYear originalYearSnapshot;
 
     public EnvSector selectedSector;
     public EnvUnit selectedUnit;
@@ -171,6 +172,14 @@ public final class LoginWebServer {
         serveChangeBudgetPage(exchange, frontendPath);
       } else if ("POST".equals(exchange.getRequestMethod())) {
         handleChangeBudgetPost(exchange, frontendPath);
+      }
+    });
+
+    server.createContext("/esg.html", exchange -> {
+      if ("GET".equals(exchange.getRequestMethod())) {
+        handleEsgPage(exchange, frontendPath);
+      } else {
+        redirect(exchange, "/esg.html");
       }
     });
 
@@ -881,7 +890,9 @@ public final class LoginWebServer {
       return;
     }
 
-    changeSession.envYear = envBudgetData.getBudgetForYear(year);
+    EnvYear originalYear = envBudgetData.getBudgetForYear(year);
+    changeSession.originalYearSnapshot = createDeepCopy(originalYear);
+    changeSession.envYear = createDeepCopy(originalYear);
     changeSession.totalBudget = getBudgetAmountForYear(year);
     changeSession.currentBalance = 0.0;
 
@@ -957,8 +968,8 @@ public final class LoginWebServer {
     String color = success ? "#1b5e20" : "#b71c1c";
     String buttonHtml;
     if (success) {
-      buttonHtml = "<a class='primary-btn' href='/minister_statebudget.html' "
-          + "style='text-decoration:none; margin-top:18px;'>Επιστροφή</a>";
+      buttonHtml = "<a class='primary-btn' href='/esg.html' "
+          + "style='text-decoration:none; margin-top:18px;'>ESG Αξιολόγηση</a>";
     } else {
       buttonHtml = """
           <form method='POST' style='margin-top:18px;'>
@@ -1321,5 +1332,73 @@ public final class LoginWebServer {
     // "no" or anything else: ask again for new value
     serveValueEditor(exchange, "Ακύρωση: Παρακαλώ εισάγετε νέα τιμή.");
     changeSession.state = ChangeState.EDIT_VALUE;
+  }
+
+  /**
+   * Handles ESG page request.
+   */
+  private static void handleEsgPage(HttpExchange exchange, String frontendPath) throws IOException {
+    ChangeSession changeSession = getChangeSession();
+    
+    if (changeSession.originalYearSnapshot == null || changeSession.envYear == null) {
+      String errorHtml = buildStyledChangePage(
+          "<h2 class='section-title'>Σφάλμα</h2>"
+          + "<p class='description'>Δεν υπάρχουν δεδομένα για ESG σύγκριση.</p>"
+          + "<a class='primary-btn' href='/minister_statebudget.html' "
+          + "style='text-decoration:none; margin-top:18px;'>Επιστροφή</a>",
+          "");
+      sendResponse(exchange, errorHtml, 200, "text/html; charset=UTF-8");
+      return;
+    }
+    
+    Path htmlPath = Paths.get(frontendPath, "esg.html");
+    if (!Files.exists(htmlPath)) {
+      sendErrorResponse(exchange, 404, "esg.html not found");
+      return;
+    }
+    
+    String template = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
+    ESGWebDisplay esgDisplay = new ESGWebDisplay();
+    String content = esgDisplay.generateEsgComparisonContent(
+        changeSession.originalYearSnapshot,
+        changeSession.envYear,
+        changeSession.totalBudget
+    );
+    
+    String html = template.replace(
+        "<!-- Content will be generated dynamically by Java -->",
+        content
+    );
+    
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+  }
+
+  /**
+   * Creates a deep copy of EnvYear for comparison purposes.
+   *
+   * @param year The year to copy
+   * @return A deep copy of the year
+   */
+  private static EnvYear createDeepCopy(EnvYear year) {
+    java.util.List<EnvSector> copiedSectors = new java.util.ArrayList<>();
+
+    for (EnvSector sector : year.getSectors()) {
+      java.util.List<EnvUnit> copiedUnits = new java.util.ArrayList<>();
+
+      for (EnvUnit unit : sector.getUnits()) {
+        java.util.List<EnvEntry> copiedEntries = new java.util.ArrayList<>();
+
+        for (EnvEntry entry : unit.getEntries()) {
+          // Create new entry with same values
+          copiedEntries.add(new EnvEntry(entry.getJsonKey(), entry.getAmount()));
+        }
+
+        copiedUnits.add(new EnvUnit(unit.getJsonKey(), copiedEntries));
+      }
+
+      copiedSectors.add(new EnvSector(sector.getJsonKey(), copiedUnits));
+    }
+
+    return new EnvYear(year.getYear(), copiedSectors);
   }
 }
