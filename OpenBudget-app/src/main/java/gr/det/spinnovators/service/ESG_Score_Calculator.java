@@ -1,7 +1,7 @@
 package gr.det.spinnovators.service;
 
-import gr.det.spinnovators.envdatamodel.ESG_Category;
-import gr.det.spinnovators.envdatamodel.ESG_Report;
+import gr.det.spinnovators.envdatamodel.EsgCategory;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
@@ -40,14 +40,14 @@ public class ESG_Score_Calculator {
    * @param totalBudget The total ministry budget for that year
    * @return Complete ESG report with scores and breakdowns
    */
-  public ESG_Report calculateReport(EnvYear year, double totalBudget) {
+  public EsgReport calculateReport(EnvYear year, double totalBudget) {
     // Aggregate amounts by ESG category
-    Map<ESG_Category, Double> categoryAmounts = aggregateByCategory(year);
+    Map<EsgCategory, Double> categoryAmounts = aggregateByCategory(year);
 
-    double envAmount = categoryAmounts.getOrDefault(ESG_Category.ENVIRONMENTAL, 0.0);
-    double socAmount = categoryAmounts.getOrDefault(ESG_Category.SOCIAL, 0.0);
-    double govAmount = categoryAmounts.getOrDefault(ESG_Category.GOVERNANCE, 0.0);
-    double neutAmount = categoryAmounts.getOrDefault(ESG_Category.NEUTRAL, 0.0);
+    double envAmount = categoryAmounts.getOrDefault(EsgCategory.ENVIRONMENTAL, 0.0);
+    double socAmount = categoryAmounts.getOrDefault(EsgCategory.SOCIAL, 0.0);
+    double govAmount = categoryAmounts.getOrDefault(EsgCategory.GOVERNANCE, 0.0);
+    double neutAmount = categoryAmounts.getOrDefault(EsgCategory.NEUTRAL, 0.0);
 
     // Calculate individual scores (percentage of total budget)
     double envScore = (envAmount / totalBudget) * 100.0;
@@ -59,7 +59,7 @@ public class ESG_Score_Calculator {
                           (socScore * WEIGHT_SOCIAL) +
                           (govScore * WEIGHT_GOVERNANCE);
 
-    return new ESG_Report(
+    return new EsgReport(
       year.getYear(),
       totalBudget,
       envAmount,
@@ -79,11 +79,11 @@ public class ESG_Score_Calculator {
    * @param year The budget year to analyze
    * @return Map of ESG category to total amount
    */
-  private Map<ESG_Category, Double> aggregateByCategory(EnvYear year) {
-    Map<ESG_Category, Double> totals = new HashMap<>();
+  private Map<EsgCategory, Double> aggregateByCategory(EnvYear year) {
+    Map<EsgCategory, Double> totals = new HashMap<>();
 
     // Initialize all categories with 0
-    for (ESG_Category category : ESG_Category.values()) {
+    for (EsgCategory category : EsgCategory.values()) {
       totals.put(category, 0.0);
     }
 
@@ -93,7 +93,7 @@ public class ESG_Score_Calculator {
 
       for (EnvUnit unit : sector.getUnits()) {
         for (EnvEntry entry : unit.getEntries()) {
-          ESG_Category category = classifier.classifyEntry(
+          EsgCategory category = classifier.classifyEntry(
             sectorKey, entry.getJsonKey()
           );
 
@@ -114,7 +114,7 @@ public class ESG_Score_Calculator {
    * @param after ESG report after changes
    * @return Difference in overall score (positive = improvement)
    */
-  public double calculateScoreDifference(ESG_Report before, ESG_Report after) {
+  public double calculateScoreDifference(EsgReport before, EsgReport after) {
     return after.getOverallScore() - before.getOverallScore();
   }
 }

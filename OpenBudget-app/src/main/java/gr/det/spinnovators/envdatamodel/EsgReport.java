@@ -10,7 +10,7 @@ package gr.det.spinnovators.envdatamodel;
  * 
  * @version 1.0
  */
-public class ESG_Report {
+public class EsgReport {
   private final String year;
   private final double totalBudget;
 
@@ -47,7 +47,7 @@ public class ESG_Report {
    * 
    * @param overallScore Overall weighted ESG score (0-100)
    */
-  public ESG_Report(String year, double totalBudget,
+  public EsgReport(String year, double totalBudget,
                      double environmentalAmount, double socialAmount,
                      double governanceAmount, double neutralAmount,
                      double environmentalScore, double socialScore,
@@ -65,42 +65,72 @@ public class ESG_Report {
   }
 
   // Getters
+  /** 
+   * @return The fiscal year of the report. 
+   */
   public String getYear() {
     return year;
   }
 
+  /** 
+   * @return The total budget amount.
+   */
   public double getTotalBudget() {
     return totalBudget;
   }
 
+  /** 
+   * @return The total amount for environmental initiatives.
+   */
   public double getEnvironmentalAmount() {
     return environmentalAmount;
   }
 
+  /**
+   * @return The total amount for social responsibility.
+   */
   public double getSocialAmount() {
     return socialAmount;
   }
 
+  /** 
+   * @return The total amount for governance and administration.
+   */
   public double getGovernanceAmount() {
     return governanceAmount;
   }
 
+  /** 
+   * @return The total amount of neutral expenses.
+   */
   public double getNeutralAmount() {
     return neutralAmount;
   }
 
+  /** 
+   * @return The calculated environmental sustainability score.
+   */
   public double getEnvironmentalScore() {
     return environmentalScore;
   }
 
+  /** 
+   * @return The calculated social responsibility score.
+   */
   public double getSocialScore() {
     return socialScore;
   }
 
+  /** 
+   * @return The calculated governance and transparency score.
+   */
   public double getGovernanceScore() {
     return governanceScore;
   }
 
+  /** 
+   * @return The final weighted ESG sustainability score.
+   */
   public double getOverallScore() {
     return overallScore;
   }

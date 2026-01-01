@@ -1,6 +1,6 @@
 package gr.det.spinnovators.service;
 
-import gr.det.spinnovators.envdatamodel.ESG_Category;
+import gr.det.spinnovators.envdatamodel.EsgCategory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,29 +19,29 @@ import java.util.Map;
 public class ESG_Classifier {
 
   // Sector-level classifications
-  private static final Map<String, ESG_Category> SECTOR_CLASSIFICATIONS = new HashMap<>();
+  private static final Map<String, EsgCategory> SECTOR_CLASSIFICATIONS = new HashMap<>();
 
   // Entry-level classifications
-  private static final Map<String, ESG_Category> ENTRY_CLASSIFICATIONS = new HashMap<>();
+  private static final Map<String, EsgCategory> ENTRY_CLASSIFICATIONS = new HashMap<>();
 
   static {
     // Environmental sectors
     SECTOR_CLASSIFICATIONS.put("natural_environment_and_water_protection",
-        ESG_Category.ENVIRONMENTAL);
+        EsgCategory.ENVIRONMENTAL);
     SECTOR_CLASSIFICATIONS.put("spatial_planning_and_urban_environment",
-        ESG_Category.ENVIRONMENTAL);
+        EsgCategory.ENVIRONMENTAL);
 
     // Governance sector
     SECTOR_CLASSIFICATIONS.put("executive_coordination_and_investments",
-        ESG_Category.GOVERNANCE);
+        EsgCategory.GOVERNANCE);
 
     // Social entries (apply across all sectors)
-    ENTRY_CLASSIFICATIONS.put("personnel_costs", ESG_Category.SOCIAL);
-    ENTRY_CLASSIFICATIONS.put("community_benefits", ESG_Category.SOCIAL);
+    ENTRY_CLASSIFICATIONS.put("personnel_costs", EsgCategory.SOCIAL);
+    ENTRY_CLASSIFICATIONS.put("community_benefits", EsgCategory.SOCIAL);
 
     // Governance entries
     ENTRY_CLASSIFICATIONS.put("purchase_of_goods_and_services",
-        ESG_Category.GOVERNANCE);
+        EsgCategory.GOVERNANCE);
   }
 
   /**
@@ -61,7 +61,7 @@ public class ESG_Classifier {
    * 
    * @return The ESG category for this entry
    */
-  public ESG_Category classifyEntry(String sectorKey, String entryKey) {
+  public EsgCategory classifyEntry(String sectorKey, String entryKey) {
     // Priority 1: Entry-specific classifications (e.g., personnel = social)
     if (ENTRY_CLASSIFICATIONS.containsKey(entryKey)) {
       return ENTRY_CLASSIFICATIONS.get(entryKey);
@@ -69,18 +69,18 @@ public class ESG_Classifier {
 
     // Priority 2: Sector-level classification
     if (SECTOR_CLASSIFICATIONS.containsKey(sectorKey)) {
-      ESG_Category sectorCategory = SECTOR_CLASSIFICATIONS.get(sectorKey);
+      EsgCategory sectorCategory = SECTOR_CLASSIFICATIONS.get(sectorKey);
 
       // For Environmental sectors, context-dependent entries are Environmental
-      if (sectorCategory == ESG_Category.ENVIRONMENTAL &&
+      if (sectorCategory == EsgCategory.ENVIRONMENTAL &&
           isContextDependentEntry(entryKey)) {
-        return ESG_Category.ENVIRONMENTAL;
+        return EsgCategory.ENVIRONMENTAL;
       }
 
       // For Governance sectors, context-dependent entries are Governance
-      if (sectorCategory == ESG_Category.GOVERNANCE &&
+      if (sectorCategory == EsgCategory.GOVERNANCE &&
           isContextDependentEntry(entryKey)) {
-        return ESG_Category.GOVERNANCE;
+        return EsgCategory.GOVERNANCE;
       }
 
       return sectorCategory;
@@ -92,7 +92,7 @@ public class ESG_Classifier {
     }
 
     // Default: Neutral
-    return ESG_Category.NEUTRAL;
+    return EsgCategory.NEUTRAL;
   }
 
   /**
@@ -118,20 +118,20 @@ public class ESG_Classifier {
    * 
    * @return ESG category for this energy entry
    */
-  private ESG_Category classifyEnergyEntry(String entryKey) {
+  private EsgCategory classifyEnergyEntry(String entryKey) {
     // Credits and transfers for renewable energy are Environmental
     if (entryKey.equals("credits_under_allocation") ||
         entryKey.equals("transfers")) {
-      return ESG_Category.ENVIRONMENTAL;
+      return EsgCategory.ENVIRONMENTAL;
     }
 
     // Permanent assets for green infrastructure are Environmental
     if (entryKey.equals("permanent_assets")) {
-      return ESG_Category.ENVIRONMENTAL;
+      return EsgCategory.ENVIRONMENTAL;
     }
 
     // Other entries are Governance
-    return ESG_Category.GOVERNANCE;
+    return EsgCategory.GOVERNANCE;
   }
 
   /**

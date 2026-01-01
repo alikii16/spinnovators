@@ -1,6 +1,6 @@
 package gr.det.spinnovators.printer;
 
-import gr.det.spinnovators.envdatamodel.ESG_Report;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 
 import java.util.Locale;
 
@@ -24,7 +24,7 @@ public class ESG_Printer {
    *
    * @param report The ESG report to print
    */
-  public void printReport(ESG_Report report) {
+  public void printReport(EsgReport report) {
     printHeader();
     printBasicInfo(report);
     printCategoryBreakdown(report);
@@ -40,7 +40,7 @@ public class ESG_Printer {
    * 
    * @param after ESG report after changes
    */
-  public void printComparison(ESG_Report before, ESG_Report after) {
+  public void printComparison(EsgReport before, EsgReport after) {
     double scoreDiff = after.getOverallScore() - before.getOverallScore();
 
     System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -109,7 +109,7 @@ public class ESG_Printer {
    *
    * @param report The ESG report object
    */
-  private void printBasicInfo(ESG_Report report) {
+  private void printBasicInfo(EsgReport report) {
     System.out.println("Έτος: " + report.getYear());
     System.out.printf(HELLENIC_LOCALE, "Συνολικός Προϋπολογισμός: %,.2f €\n\n",
         report.getTotalBudget());
@@ -120,7 +120,7 @@ public class ESG_Printer {
    *
    * @param report The ESG report object
    */
-  private void printCategoryBreakdown(ESG_Report report) {
+  private void printCategoryBreakdown(EsgReport report) {
     System.out.println("┌────────────────────────────────────────────────┐");
 
     printCategoryLine("Environmental (E)",
@@ -189,7 +189,7 @@ public class ESG_Printer {
    *
    * @param report The ESG report object
    */
-  private void printOverallScore(ESG_Report report) {
+  private void printOverallScore(EsgReport report) {
     System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     System.out.printf(HELLENIC_LOCALE,
         "  ΣΥΝΟΛΙΚΟ ESG SCORE: %.2f / 100\n", report.getOverallScore());
@@ -204,7 +204,7 @@ public class ESG_Printer {
    *
    * @param report The ESG report object
    */
-  private void printImprovementSuggestions(ESG_Report report) {
+  private void printImprovementSuggestions(EsgReport report) {
     System.out.println("Συμβουλές Βελτίωσης:");
 
     if (report.getEnvironmentalScore() < 50) {
@@ -256,7 +256,7 @@ public class ESG_Printer {
    *
    * @param report The ESG report object
    */
-  public void printCompactSummary(ESG_Report report) {
+  public void printCompactSummary(EsgReport report) {
     System.out.printf(HELLENIC_LOCALE,
         "[ESG] Score: %.1f/100 | E: %.1f%% | S: %.1f%% | G: %.1f%% \n",
         report.getOverallScore(),

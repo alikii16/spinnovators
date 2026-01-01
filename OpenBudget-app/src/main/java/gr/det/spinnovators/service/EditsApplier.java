@@ -3,7 +3,7 @@ package gr.det.spinnovators.service;
 import java.util.List;
 import java.util.Scanner;
 
-import gr.det.spinnovators.envdatamodel.ESG_Report;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
@@ -32,8 +32,8 @@ public class EditsApplier {
   private double totalBudget = 0;
 
   // ESG tracking
-  private ESG_Report initialEsgReport;
-  private ESG_Report currentEsgReport;
+  private EsgReport initialEsgReport;
+  private EsgReport currentEsgReport;
 
   // Deep copy for final comparison
   private EnvYear originalYearSnapshot;
@@ -361,7 +361,7 @@ public class EditsApplier {
     System.out.println("\n Ανανέωση ESG Score...");
 
     try {
-      ESG_Report previousReport = this.currentEsgReport;
+      EsgReport previousReport = this.currentEsgReport;
       this.currentEsgReport = esgCalculator.calculateReport(year, totalBudget);
 
       // Show comparison

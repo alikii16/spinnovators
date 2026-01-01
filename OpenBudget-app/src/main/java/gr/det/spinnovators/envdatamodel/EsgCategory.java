@@ -11,7 +11,7 @@ package gr.det.spinnovators.envdatamodel;
  * 
  * @version 1.0
  */
-public enum ESG_Category {
+public enum EsgCategory {
   /**
    * Environmental category - expenses related to environmental protection,
    * renewable energy, climate action, and natural resource management.
@@ -48,7 +48,7 @@ public enum ESG_Category {
    * 
    * @param nameEl Greek name of the category
    */
-  ESG_Category(String nameEn, String nameEl) {
+  EsgCategory(String nameEn, String nameEl) {
     this.nameEn = nameEn;
     this.nameEl = nameEl;
   }

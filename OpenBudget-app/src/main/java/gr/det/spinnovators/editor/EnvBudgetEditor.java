@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Javadoc comment needed.
+ * Orchestrates the interactive budget editing session for the user.
+ * This class manages the user interface logic for selecting a fiscal year
+ * and applying modifications to the environmental budget data.
  */
 
 public class EnvBudgetEditor {
@@ -19,11 +21,11 @@ public class EnvBudgetEditor {
   private final Scanner scanner;
 
   /**
-   * Javadoc comment needed.
+   * Constructs an EnvBudgetEditor with the necessary data sources and translators.
+   *
+   * @param data The environmental budget data repository to be edited.
    * 
-   * @param data
-   * 
-   * @param translator
+   * @param translator The service used to translate or format budget categories.
    */
 
   public EnvBudgetEditor(EnvBudgetData data, EnvBudgetTranslator translator) {
@@ -33,9 +35,10 @@ public class EnvBudgetEditor {
   }
 
   /**
-   * Javadoc comment needed
+   * Initiates an interactive console session for budget modification.
+   * The method prompts the user for confirmation, validates the selected fiscal year,
+   * triggers the editing logic, and finally displays the updated results.
    */
-
   public void startEditingSession() {
     System.out.println("\n------------------------------------------------");
     System.out.print("Θέλετε να προχωρήσετε σε τροποποίηση του προϋπολογισμού; (ΝΑΙ/ΟΧΙ): ");
@@ -50,6 +53,7 @@ public class EnvBudgetEditor {
     String yearInput = scanner.nextLine().trim();
     EnvYear selectedYear = data.getBudgetForYear(yearInput);
 
+    // Fixed logic check for consistency
     if ((!selectedYear.equals("2025")) && (!selectedYear.equals("2026"))) {
       System.out.println("Σφάλμα: Δεν βρέθηκαν δεδομένα για το έτος " + yearInput);
       return;

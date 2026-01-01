@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import gr.det.spinnovators.envdatamodel.ESG_Report;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
@@ -326,8 +326,8 @@ public class InitialBudgetComparison {
     System.out.println("└─────────────────────────────────────────────────────────────────────┘");
     System.out.println();
 
-    ESG_Report originalReport = esgCalculator.calculateReport(original, totalBudget);
-    ESG_Report modifiedReport = esgCalculator.calculateReport(modified, totalBudget);
+    EsgReport originalReport = esgCalculator.calculateReport(original, totalBudget);
+    EsgReport modifiedReport = esgCalculator.calculateReport(modified, totalBudget);
 
     esgPrinter.printComparison(originalReport, modifiedReport);
   }
@@ -375,7 +375,7 @@ public class InitialBudgetComparison {
 
     // ESG recommendations
     System.out.println(" Συστάσεις ESG:");
-    ESG_Report modReport = esgCalculator.calculateReport(modifiedYear, totalBudget);
+    EsgReport modReport = esgCalculator.calculateReport(modifiedYear, totalBudget);
 
     if (modReport.getEnvironmentalScore() >= 60) {
       System.out.println("    Καλή έμφαση σε περιβαλλοντικές δαπάνες");

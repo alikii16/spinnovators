@@ -1,6 +1,6 @@
 package gr.det.spinnovators.web;
 
-import gr.det.spinnovators.envdatamodel.ESG_Report;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.service.ESG_Score_Calculator;
 
@@ -29,14 +29,14 @@ public class ESGWebDisplay {
   public String generateEsgComparisonContent(EnvYear originalYear, 
                                              EnvYear modifiedYear,
                                              double totalBudget) {
-    ESG_Report originalReport = calculator.calculateReport(originalYear, totalBudget);
-    ESG_Report modifiedReport = calculator.calculateReport(modifiedYear, totalBudget);
+    EsgReport originalReport = calculator.calculateReport(originalYear, totalBudget);
+    EsgReport modifiedReport = calculator.calculateReport(modifiedYear, totalBudget);
 
     return buildComparisonContent(originalReport, modifiedReport, originalYear.getYear());
   }
 
-  private String buildComparisonContent(ESG_Report original, 
-                                       ESG_Report modified,
+  private String buildComparisonContent(EsgReport original, 
+                                       EsgReport modified,
                                        String year) {
     double scoreDiff = modified.getOverallScore() - original.getOverallScore();
     String message = scoreDiff > 0 ? "ΒΕΛΤΙΩΣΗ" :

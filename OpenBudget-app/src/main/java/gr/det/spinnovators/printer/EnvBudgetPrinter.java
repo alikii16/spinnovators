@@ -7,11 +7,12 @@ import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
-
 import java.util.Locale;
 
 /**
- * javadoccomment.
+ * Responsible for formatting and printing the detailed environmental budget to the console.
+ * This class processes the hierarchical structure of the budget (Sector > Unit > Entry)
+ * and displays localized financial data for a specific year.
  */
 public class EnvBudgetPrinter {
 
@@ -19,13 +20,23 @@ public class EnvBudgetPrinter {
   private final EnvBudgetTranslator translator;
   private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
 
+  /**
+   * Constructs an EnvBudgetPrinter with the required data source and translator.
+   *
+   * @param data The budget data repository containing the environmental records.
+   * @param translator The service used to translate internal keys into readable labels.
+   */
   public EnvBudgetPrinter(EnvBudgetData data, EnvBudgetTranslator translator) {
     this.data = data;
     this.translator = translator;
   }
 
   /**
-   * javadoccomment.
+   * Generates and prints a structured report of the budget for the specified year.
+   * The report includes breakdown by policy sectors, administrative units, 
+   * and individual expense entries, including totals for each level.
+   *
+   * @param year The fiscal year to be printed.
    */
   public void printYearlyBudget(String year) {
     EnvYear yearlyBudget = data.getBudgetForYear(year);
