@@ -21,10 +21,10 @@ import com.google.gson.stream.JsonReader;
  * 
  * @version 2.0
  */
-public class ESG_Loader {
+public class EsgLoader {
 
   private static final String CONFIG_FILE = "esg_config.json";
-  private static final Logger LOGGER = Logger.getLogger(ESG_Loader.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(EsgLoader.class.getName());
 
   private JsonObject config;
   private final Gson gson;
@@ -32,7 +32,7 @@ public class ESG_Loader {
   /**
    * Constructs an ESG config loader and loads the configuration file.
    */
-  public ESG_Loader() {
+  public EsgLoader() {
     this.gson = new Gson();
     this.config = loadConfigFile();
   }
