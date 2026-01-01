@@ -1,14 +1,13 @@
 package gr.det.spinnovators.service;
 
-import java.util.List;
-import java.util.Scanner;
-
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
-import gr.det.spinnovators.printer.ESG_Printer;
+import gr.det.spinnovators.printer.EsgPrinter;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Applies edits to budget entries and tracks ESG sustainability impact.
@@ -23,8 +22,8 @@ public class EditsApplier {
 
   private final EnvBudgetTranslator translator;
   private final Scanner scanner;
-  private final ESG_Score_Calculator esgCalculator;
-  private final ESG_Printer esgPrinter;
+  private final EsgScoreCalculator esgCalculator;
+  private final EsgPrinter esgPrinter;
   private final InitialBudgetComparison comparisonAnalyzer;
 
   // Budget tracking - preserve data during changes
@@ -39,22 +38,24 @@ public class EditsApplier {
   private EnvYear originalYearSnapshot;
 
   /**
-   * Constructs an EditsApplier with the specified translator.
+   * Constructs an EditsApplier with necessary services for translation and ESG analysis.
    *
-   * @param translator The translator for converting JSON keys to Greek text
+   * @param translator The service used for converting internal keys to readable text.
    */
   public EditsApplier(EnvBudgetTranslator translator) {
     this.translator = translator;
     this.scanner = new Scanner(System.in);
-    this.esgCalculator = new ESG_Score_Calculator();
-    this.esgPrinter = new ESG_Printer();
+    this.esgCalculator = new EsgScoreCalculator();
+    this.esgPrinter = new EsgPrinter();
     this.comparisonAnalyzer = new InitialBudgetComparison(translator);
   }
 
   /**
-   * Starts the interactive editing session for a specific budget year.
+   * Initiates the interactive editing session for a specific fiscal year.
+   * <p>The session continues until the user balances the budget 
+   * (difference between original and new total must be zero).</p>
    *
-   * @param year The budget year to edit
+   * @param year The EnvYear object representing the budget to be modified.
    */
   public void applyEditsToYear(EnvYear year) {
     boolean keepEditing = true;
@@ -137,8 +138,9 @@ public class EditsApplier {
   /**
    * Creates a deep copy of EnvYear for comparison purposes.
    *
-   * @param year The year to copy
-   * @return A deep copy of the year
+   * @param year The year to copy.
+   * 
+   * @return A deep copy of the year.
    */
   private EnvYear createDeepCopy(EnvYear year) {
     List<EnvSector> copiedSectors = new java.util.ArrayList<>();
@@ -166,7 +168,7 @@ public class EditsApplier {
   /**
    * Calculates and displays the initial ESG report.
    *
-   * @param year The budget year
+   * @param year The budget year.
    */
   private void calculateAndDisplayInitialEsg(EnvYear year) {
     System.out.println("\n Υπολογισμός αρχικού ESG Score...\n");
@@ -190,10 +192,10 @@ public class EditsApplier {
   }
 
   /**
-   * Allows user to select a sector.
+   * Presents a list of sectors to the user for selection.
    *
-   * @param year The budget year
-   * @return Selected sector or null to exit
+   * @param year The budget year containing the sectors.
+   * @return The chosen EnvSector or null if the user chooses to exit.
    */
   private EnvSector selectSector(EnvYear year) {
     List<EnvSector> sectors = year.getSectors();
@@ -217,10 +219,10 @@ public class EditsApplier {
   }
 
   /**
-   * Allows user to select a unit from a sector.
+   * Presents a list of units within a sector for user selection.
    *
-   * @param sector The selected sector
-   * @return Selected unit or null to go back
+   * @param sector The parent sector.
+   * @return The chosen EnvUnit or null to return to sector selection.
    */
   private EnvUnit selectUnit(EnvSector sector) {
     List<EnvUnit> units = sector.getUnits();

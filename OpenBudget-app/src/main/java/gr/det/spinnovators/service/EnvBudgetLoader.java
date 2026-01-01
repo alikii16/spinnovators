@@ -1,11 +1,14 @@
 package gr.det.spinnovators.service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,10 +20,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
+
 
 /**
  * EnvBudgetLoader is responsible for reading the JSON file and creating
@@ -56,7 +56,7 @@ public class EnvBudgetLoader {
    * transformation errors), this method logs the error and returns an empty
    * {@link EnvBudgetData} object to ensure the application can continue running.</p>
    *
-   * @return The fully constructed EnvBudgetData object, or an empty object on error
+   * @return The fully constructed EnvBudgetData object, or an empty object on error.
    */
   public EnvBudgetData loadBudget() {
     EnvBudgetData emptyModel = createEmptyModel();
@@ -93,7 +93,7 @@ public class EnvBudgetLoader {
   /**
    * Creates an empty EnvBudgetData model to be used as fallback.
    *
-   * @return An empty EnvBudgetData instance with no data
+   * @return An empty EnvBudgetData instance with no data.
    */
   private EnvBudgetData createEmptyModel() {
     return new EnvBudgetData(new HashMap<>(), new HashMap<>());
@@ -102,7 +102,7 @@ public class EnvBudgetLoader {
   /**
    * Locates the JSON resource file in the classpath.
    *
-   * @return InputStream for the resource file, or null if not found
+   * @return InputStream for the resource file, or null if not found.
    */
   private InputStream locateResourceFile() {
     return getClass().getClassLoader().getResourceAsStream(JSON_FILE_NAME);
@@ -111,10 +111,10 @@ public class EnvBudgetLoader {
   /**
    * Parses the JSON file from the input stream into a raw Map structure.
    *
-   * @param inputStream The input stream containing JSON data
-   * @return A Map representing the parsed JSON structure
-   * @throws IOException If an I/O error occurs while reading
-   * @throws JsonSyntaxException If the JSON is malformed
+   * @param inputStream The input stream containing JSON data.
+   * @return A Map representing the parsed JSON structure.
+   * @throws IOException If an I/O error occurs while reading.
+   * @throws JsonSyntaxException If the JSON is malformed.
    */
   private Map<String, Object> parseJsonFile(InputStream inputStream)
       throws IOException, JsonSyntaxException {
@@ -131,8 +131,8 @@ public class EnvBudgetLoader {
   /**
    * Validates that the root JSON structure contains required fields.
    *
-   * @param rootMap The parsed root JSON map
-   * @return true if the structure is valid, false otherwise
+   * @param rootMap The parsed root JSON map.
+   * @return true if the structure is valid, false otherwise.
    */
   private boolean validateRootStructure(Map<String, Object> rootMap) {
     return rootMap != null && rootMap.containsKey(FIELD_DATA_BY_YEAR);
@@ -141,8 +141,8 @@ public class EnvBudgetLoader {
   /**
    * Builds the complete EnvBudgetData model from the parsed JSON structure.
    *
-   * @param rootMap The validated root JSON map
-   * @return A fully constructed EnvBudgetData object
+   * @param rootMap The validated root JSON map.
+   * @return A fully constructed EnvBudgetData object.
    */
   private EnvBudgetData buildBudgetDataModel(Map<String, Object> rootMap) {
     // Extract and transform the two main components
@@ -157,9 +157,9 @@ public class EnvBudgetLoader {
   /**
    * Safely extracts a map from the root structure.
    *
-   * @param rootMap The root JSON map
-   * @param key The key to extract
-   * @return The extracted map, or an empty map if not found
+   * @param rootMap The root JSON map.
+   * @param key The key to extract.
+   * @return The extracted map, or an empty map if not found.
    */
   @SuppressWarnings("unchecked")
   private Map<String, Object> getMapFromRoot(Map<String, Object> rootMap, String key) {
@@ -176,8 +176,8 @@ public class EnvBudgetLoader {
    * <p>Extracts year-to-budget mappings from the JSON structure, ensuring
    * that all values are properly converted to Double type.</p>
    *
-   * @param budgetMap The raw map containing total budget data
-   * @return A typed map of year (String) to budget amount (Double)
+   * @param budgetMap The raw map containing total budget data.
+   * @return A typed map of year (String) to budget amount (Double).
    */
   private Map<String, Double> transformTotalBudget(Map<String, Object> budgetMap) {
     Map<String, Double> totalBudget = new HashMap<>();
@@ -206,8 +206,8 @@ public class EnvBudgetLoader {
    * <p>Iterates through each year in the data and constructs a complete
    * hierarchy of sectors, units, and entries for that year.</p>
    *
-   * @param yearsMap The raw map containing data organized by year
-   * @return A map of year (String) to EnvYear objects
+   * @param yearsMap The raw map containing data organized by year.
+   * @return A map of year (String) to EnvYear objects.
    */
   @SuppressWarnings("unchecked")
   private Map<String, EnvYear> transformYears(Map<String, Object> yearsMap) {
@@ -238,8 +238,8 @@ public class EnvBudgetLoader {
    * <p>Each sector contains multiple units, which are processed by
    * the {@link #transformUnits(Map)} method.</p>
    *
-   * @param sectorsMap The raw map containing sector data
-   * @return A list of EnvSector objects
+   * @param sectorsMap The raw map containing sector data.
+   * @return A list of EnvSector objects.
    */
   @SuppressWarnings("unchecked")
   private List<EnvSector> transformSectors(Map<String, Object> sectorsMap) {
@@ -270,8 +270,8 @@ public class EnvBudgetLoader {
    * <p>Each unit contains multiple budget entries, which are processed by
    * the {@link #transformEntries(Map)} method.</p>
    *
-   * @param unitsMap The raw map containing unit data
-   * @return A list of EnvUnit objects
+   * @param unitsMap The raw map containing unit data.
+   * @return A list of EnvUnit objects.
    */
   @SuppressWarnings("unchecked")
   private List<EnvUnit> transformUnits(Map<String, Object> unitsMap) {
@@ -302,8 +302,8 @@ public class EnvBudgetLoader {
    * <p>Each entry represents a specific budget line item with a category key
    * and a monetary amount.</p>
    *
-   * @param entriesMap The raw map containing entry data
-   * @return A list of EnvEntry objects
+   * @param entriesMap The raw map containing entry data.
+   * @return A list of EnvEntry objects.
    */
   private List<EnvEntry> transformEntries(Map<String, Object> entriesMap) {
     List<EnvEntry> entries = new ArrayList<>();

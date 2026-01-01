@@ -1390,7 +1390,7 @@ public final class LoginWebServer {
     }
     
     String template = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
-    ESGWebDisplay esgDisplay = new ESGWebDisplay();
+    EsgWebDisplay esgDisplay = new EsgWebDisplay();
     String content = esgDisplay.generateEsgComparisonContent(
         changeSession.originalYearSnapshot,
         changeSession.envYear,

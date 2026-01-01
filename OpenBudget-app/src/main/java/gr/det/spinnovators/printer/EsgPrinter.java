@@ -14,7 +14,7 @@ import java.util.Locale;
  * 
  * @version 1.0
  */
-public class ESG_Printer {
+public class EsgPrinter {
 
   private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
   private static final int BAR_WIDTH = 20;

@@ -4,7 +4,7 @@ package gr.det.spinnovators.envdatamodel;
  * Enumeration representing ESG (Environmental, Social, Governance) categories
  * for budget classification and sustainability scoring.
  * 
- * <p> Each budget entry is classified into one of these categories to calculate
+ * <p>Each budget entry is classified into one of these categories to calculate
  * the overall ESG sustainability score of the ministry budget.
  *
  * @author Spinnovators Team
@@ -42,11 +42,11 @@ public enum EsgCategory {
   /**
    * Constructor for EsgCategory enum.
    *
-   * @param icon Unicode emoji representing the category
+   * @param icon Unicode emoji representing the category.
    * 
-   * @param nameEn English name of the category
+   * @param nameEn English name of the category.
    * 
-   * @param nameEl Greek name of the category
+   * @param nameEl Greek name of the category.
    */
   EsgCategory(String nameEn, String nameEl) {
     this.nameEn = nameEn;
@@ -55,8 +55,8 @@ public enum EsgCategory {
 
   /**
    * Gets the English name of this category.
-   * 
-   * @return English name
+   *
+   * @return English name.
    * 
    */
   public String getNameEn() {
@@ -65,8 +65,8 @@ public enum EsgCategory {
 
   /**
    * Gets the Greek name of this category.
-   * 
-   * @return Greek name
+   *
+   * @return Greek name.
    * 
    */
   public String getNameEl() {

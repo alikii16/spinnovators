@@ -3,7 +3,7 @@ package gr.det.spinnovators.envdatamodel;
 /**
  * Represents a complete ESG sustainability report for a ministry budget.
  *
- * Contains breakdown of expenses by ESG category and calculates
+ * <p>Contains breakdown of expenses by ESG category and calculates
  * an overall sustainability score from 0 to 100.
  *
  * @author Spinnovators Team
@@ -27,25 +27,25 @@ public class EsgReport {
   /**
    * Constructs an ESG report with all calculated values.
    *
-   * @param year The budget year
+   * @param year The budget year.
    * 
-   * @param totalBudget Total budget amount
+   * @param totalBudget Total budget amount.
    * 
-   * @param environmentalAmount Amount allocated to environmental expenses
+   * @param environmentalAmount Amount allocated to environmental expenses.
    * 
-   * @param socialAmount Amount allocated to social expenses
+   * @param socialAmount Amount allocated to social expenses.
    * 
-   * @param governanceAmount Amount allocated to governance expenses
+   * @param governanceAmount Amount allocated to governance expenses.
    * 
-   * @param neutralAmount Amount allocated to neutral expenses
+   * @param neutralAmount Amount allocated to neutral expenses.
    * 
-   * @param environmentalScore Environmental score (0-100)
+   * @param environmentalScore Environmental score (0-100).
    * 
-   * @param socialScore Social score (0-100)
+   * @param socialScore Social score (0-100).
    * 
-   * @param governanceScore Governance score (0-100)
+   * @param governanceScore Governance score (0-100).
    * 
-   * @param overallScore Overall weighted ESG score (0-100)
+   * @param overallScore Overall weighted ESG score (0-100).
    */
   public EsgReport(String year, double totalBudget,
                      double environmentalAmount, double socialAmount,
@@ -66,70 +66,90 @@ public class EsgReport {
 
   // Getters
   /** 
-   * @return The fiscal year of the report. 
+   * Returns the fiscal year of the report.
+   * 
+   * @return the year as a String.
    */
   public String getYear() {
     return year;
   }
 
   /** 
-   * @return The total budget amount.
+   * Returns the total budget amount.
+   * 
+   * @return The total budget value.
    */
   public double getTotalBudget() {
     return totalBudget;
   }
 
   /** 
-   * @return The total amount for environmental initiatives.
+   * Returns the total amount for environmental initiatives.
+   * 
+   * @return The environmental allocation amount.
    */
   public double getEnvironmentalAmount() {
     return environmentalAmount;
   }
 
   /**
-   * @return The total amount for social responsibility.
+   * Returns the total amount for social responsibility.
+   *
+   * @return The social allocation amount.
    */
   public double getSocialAmount() {
     return socialAmount;
   }
 
-  /** 
-   * @return The total amount for governance and administration.
+  /**
+   * Returns the total amount for governance and administration.
+   *
+   * @return The governance allocation amount.
    */
   public double getGovernanceAmount() {
     return governanceAmount;
   }
 
-  /** 
-   * @return The total amount of neutral expenses.
+  /**
+   * Returns the total amount of neutral expenses.
+   *
+   * @return The neutral allocation amount.
    */
   public double getNeutralAmount() {
     return neutralAmount;
   }
 
-  /** 
-   * @return The calculated environmental sustainability score.
+  /**
+   * Returns the calculated environmental sustainability score.
+   *
+   * @return The environmental score (0-100).
    */
   public double getEnvironmentalScore() {
     return environmentalScore;
   }
 
-  /** 
-   * @return The calculated social responsibility score.
+  /**
+   * Returns the calculated social responsibility score.
+   *
+   * @return The social score (0-100).
    */
   public double getSocialScore() {
     return socialScore;
   }
 
-  /** 
-   * @return The calculated governance and transparency score.
+  /**
+   * Returns the calculated governance and transparency score.
+   *
+   * @return The governance score (0-100).
    */
   public double getGovernanceScore() {
     return governanceScore;
   }
 
-  /** 
-   * @return The final weighted ESG sustainability score.
+  /**
+   * Returns the final weighted ESG sustainability score.
+   *
+   * @return The overall ESG score (0-100).
    */
   public double getOverallScore() {
     return overallScore;

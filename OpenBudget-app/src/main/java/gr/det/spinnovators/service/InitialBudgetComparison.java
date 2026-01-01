@@ -10,7 +10,7 @@ import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
-import gr.det.spinnovators.printer.ESG_Printer;
+import gr.det.spinnovators.printer.EsgPrinter;
 
 /**
  * Analyzes and compares budget data before and after changes.
@@ -28,8 +28,8 @@ import gr.det.spinnovators.printer.ESG_Printer;
 public class InitialBudgetComparison {
 
   private final EnvBudgetTranslator translator;
-  private final ESG_Score_Calculator esgCalculator;
-  private final ESG_Printer esgPrinter;
+  private final EsgScoreCalculator esgCalculator;
+  private final EsgPrinter esgPrinter;
 
   /**
    * Constructs a budget comparison analyzer.
@@ -38,8 +38,8 @@ public class InitialBudgetComparison {
    */
   public InitialBudgetComparison(EnvBudgetTranslator translator) {
     this.translator = translator;
-    this.esgCalculator = new ESG_Score_Calculator();
-    this.esgPrinter = new ESG_Printer();
+    this.esgCalculator = new EsgScoreCalculator();
+    this.esgPrinter = new EsgPrinter();
   }
 
   /**

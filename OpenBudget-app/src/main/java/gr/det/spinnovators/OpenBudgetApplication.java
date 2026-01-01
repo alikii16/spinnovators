@@ -8,19 +8,19 @@ import gr.det.spinnovators.printer.FullBudgetPrinter;
 import gr.det.spinnovators.service.EnvBudgetLoader;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.web.LoginWebServer;
-
-
 import java.io.File;
-
 import java.util.Scanner;
 
 /**
- * Javadoc comment needed
+ * The main entry point for the OpenBudget application.
+ * This class initializes the core services, launches the optional web-based 
+ * login interface, and manages the primary terminal-based user interaction flow.
  */
 public class OpenBudgetApplication {
   /**
-   * Javadoc comment needed
-   * @param args
+   * Starts the application and manages the main execution loop.
+   *
+   * @param args Command-line arguments passed to the application at startup.
    */
   public static void main(String[] args) {
 
@@ -45,7 +45,6 @@ public class OpenBudgetApplication {
       }
 
       // Fallback: try common paths if resource not found
-      // Prefer src/main/resources/frontend first (for development) before target/classes/frontend
       if (frontendPath == null || !new File(frontendPath).exists()) {
         String currentDir = System.getProperty("user.dir");
         String[] possiblePaths = {
@@ -71,7 +70,7 @@ public class OpenBudgetApplication {
         LoginWebServer.startServer(frontendPath);
         System.out.println("Web interface available at http://localhost:8080/login.html");
 
-        // Try to open browser automatically
+        // Attempt to launch the default system browser
         try {
           String url = "http://localhost:8080/login.html";
           java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
@@ -96,7 +95,7 @@ public class OpenBudgetApplication {
       System.out.println("Continuing with terminal mode only...");
     }
 
-    // Terminal interface (original functionality)
+    // Terminal interface execution (original functionality)
     FirstLogin.login();
 
     MinistryDataInput allData = new MinistryDataInput();

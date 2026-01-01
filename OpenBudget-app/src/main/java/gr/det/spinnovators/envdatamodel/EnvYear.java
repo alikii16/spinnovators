@@ -4,7 +4,8 @@ import java.util.List;
 
 /**
  * Represents the complete environmental budget data for a specific fiscal year.
- * It serves as the top-level container in the data hierarchy, holding a list 
+ * 
+ * <p>It serves as the top-level container in the data hierarchy, holding a list 
  * of policy sectors.
  */
 
@@ -43,11 +44,10 @@ public class EnvYear {
   }
 
   /**
-   * Traverses sectors --> units --> entries and returns the EnvEntry object.
-   *
    * Searches for a specific budget entry by traversing the data hierarchy,
    * starting from the sector level down to the unit and finally to the entry.
-   * This method returns the matching EnvEntry object if found, or null if any part
+   * 
+   * <p>This method returns the matching EnvEntry object if found, or null if any part
    * of the path is invalid.
    *
    * @param sectorKey The unique key of the sector.
