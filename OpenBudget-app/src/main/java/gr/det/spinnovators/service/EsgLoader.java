@@ -39,7 +39,7 @@ public class EsgLoader {
   /**
    * Loads the ESG configuration JSON file.
    *
-   * @return JsonObject containing configuration, or null on failure
+   * @return JsonObject containing configuration, or null on failure.
    */
   private JsonObject loadConfigFile() {
     InputStream inputStream = getClass().getClassLoader()
@@ -67,7 +67,7 @@ public class EsgLoader {
   /**
    * Creates a default configuration object if file loading fails.
    *
-   * @return JsonObject with default values
+   * @return JsonObject with default values.
    */
   private JsonObject createDefaultConfig() {
     String defaultJson = """
@@ -88,7 +88,7 @@ public class EsgLoader {
   /**
    * Gets the weight for Environmental score.
    *
-   * @return Weight value (default: 0.40)
+   * @return Weight value (default: 0.40).
    */
   public double getEnvironmentalWeight() {
     return getDoubleFromPath("weights.environmental", 0.40);
@@ -97,7 +97,7 @@ public class EsgLoader {
   /**
    * Gets the weight for Social score.
    *
-   * @return Weight value (default: 0.30)
+   * @return Weight value (default: 0.30).
    */
   public double getSocialWeight() {
     return getDoubleFromPath("weights.social", 0.30);
@@ -106,7 +106,7 @@ public class EsgLoader {
   /**
    * Gets the weight for Governance score.
    *
-   * @return Weight value (default: 0.30)
+   * @return Weight value (default: 0.30).
    */
   public double getGovernanceWeight() {
     return getDoubleFromPath("weights.governance", 0.30);
@@ -117,7 +117,7 @@ public class EsgLoader {
   /**
    * Gets the threshold for "Excellent" rating.
    *
-   * @return Threshold value (default: 80)
+   * @return Threshold value (default: 80).
    */
   public int getExcellentThreshold() {
     return getIntFromPath("thresholds.excellent", 80);
@@ -126,7 +126,7 @@ public class EsgLoader {
   /**
    * Gets the threshold for "Good" rating.
    *
-   * @return Threshold value (default: 60)
+   * @return Threshold value (default: 60).
    */
   public int getGoodThreshold() {
     return getIntFromPath("thresholds.good", 60);
@@ -135,7 +135,7 @@ public class EsgLoader {
   /**
    * Gets the threshold for "Moderate" rating.
    *
-   * @return Threshold value (default: 40)
+   * @return Threshold value (default: 40).
    */
   public int getModerateThreshold() {
     return getIntFromPath("thresholds.moderate", 40);
@@ -155,9 +155,9 @@ public class EsgLoader {
   /**
    * Gets the ESG classification for a sector.
    *
-   * @param sectorKey The JSON key of the sector
+   * @param sectorKey The JSON key of the sector.
    *
-   * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE, MIXED, NEUTRAL)
+   * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE, MIXED, NEUTRAL).
    */
   public String getSectorClassification(String sectorKey) {
     if (config == null || !config.has("sectors")) {
@@ -175,10 +175,9 @@ public class EsgLoader {
   /**
    * Gets the ESG classification for an entry type.
    *
-   * @param entryKey The JSON key of the entry
-   *
+   * @param entryKey The JSON key of the entry.
    * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE,
-   *CONTEXT_DEPENDENT, NEUTRAL)
+   * CONTEXT_DEPENDENT, NEUTRAL).
    */
   public String getEntryClassification(String entryKey) {
     if (config == null || !config.has("entries")) {
@@ -197,11 +196,11 @@ public class EsgLoader {
    * Determines the effective ESG category for an entry.
    * If entry is CONTEXT_DEPENDENT, inherits from sector.
    *
-   * @param entryKey The entry JSON key
+   * @param entryKey The entry JSON key.
    * 
-   * @param sectorKey The parent sector JSON key
+   * @param sectorKey The parent sector JSON key.
    *
-   * @return The effective ESG category
+   * @return The effective ESG category.
    */
   public String getEffectiveCategory(String entryKey, String sectorKey) {
     String entryClass = getEntryClassification(entryKey);

@@ -1,18 +1,18 @@
 package gr.det.spinnovators.service;
 
-import gr.det.spinnovators.envdatamodel.EsgCategory;
-import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.envdatamodel.EsgCategory;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Calculates ESG sustainability scores for ministry budgets.
  *
- * Analyzes budget data, classifies expenses into ESG categories,
+ * <p>Analyzes budget data, classifies expenses into ESG categories,
  * and computes a weighted overall sustainability score from 0 to 100.
  *
  * @author Spinnovators Team
@@ -35,10 +35,9 @@ public class EsgScoreCalculator {
   /**
    * Calculates a complete ESG report for a given year's budget.
    *
-   * @param year The budget year to analyze
-   * @param totalBudget The total ministry budget for that year
-   *
-   * @return Complete ESG report with scores and breakdowns
+   * @param year The budget year to analyze.
+   * @param totalBudget The total ministry budget for that year.
+   * @return Complete ESG report with scores and breakdowns.
    */
   public EsgReport calculateReport(EnvYear year, double totalBudget) {
     // Aggregate amounts by ESG category
@@ -54,10 +53,10 @@ public class EsgScoreCalculator {
     double socScore = (socAmount / totalBudget) * 100.0;
     double govScore = (govAmount / totalBudget) * 100.0;
 
-    // Calculate weighted overall score
-    double overallScore = (envScore * WEIGHT_ENVIRONMENTAL) +
-                          (socScore * WEIGHT_SOCIAL) +
-                          (govScore * WEIGHT_GOVERNANCE);
+    // Fixed OperatorWrap: '+' moved to new lines
+    double overallScore = (envScore * WEIGHT_ENVIRONMENTAL)
+        + (socScore * WEIGHT_SOCIAL)
+        + (govScore * WEIGHT_GOVERNANCE);
 
     return new EsgReport(
       year.getYear(),
@@ -77,7 +76,6 @@ public class EsgScoreCalculator {
    * Aggregates all budget entries by their ESG category.
    *
    * @param year The budget year to analyze.
-   *
    * @return Map of ESG category to total amount.
    */
   private Map<EsgCategory, Double> aggregateByCategory(EnvYear year) {
@@ -90,12 +88,13 @@ public class EsgScoreCalculator {
 
     // Iterate through all sectors, units, and entries
     for (EnvSector sector : year.getSectors()) {
+      // Fixed Indentation: expected 14 (inside 3 levels of nested loops)
       String sectorKey = sector.getJsonKey();
 
       for (EnvUnit unit : sector.getUnits()) {
         for (EnvEntry entry : unit.getEntries()) {
           EsgCategory category = classifier.classifyEntry(
-            sectorKey, entry.getJsonKey()
+              sectorKey, entry.getJsonKey()
           );
 
           double currentTotal = totals.get(category);
@@ -105,15 +104,15 @@ public class EsgScoreCalculator {
     }
     return totals;
   }
-    
+
   /**
    * Calculates the difference between two ESG reports.
    *
-   * Used to show users how their budget changes affect sustainability.
+   * <p>Used to show users how their budget changes affect sustainability.
+   * A positive result indicates an improvement.</p>
    *
    * @param before ESG report before changes.
    * @param after ESG report after changes.
-   *
    * @return Difference in overall score (positive = improvement).
    */
   public double calculateScoreDifference(EsgReport before, EsgReport after) {

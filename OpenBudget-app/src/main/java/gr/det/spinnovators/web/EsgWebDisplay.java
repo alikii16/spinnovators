@@ -1,13 +1,15 @@
 package gr.det.spinnovators.web;
 
-import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.service.EsgScoreCalculator;
-
 import java.util.Locale;
 
 /**
- * Handles ESG report display in web interface.
+ * Handles the generation of ESG report components for the web interface.
+ *
+ * <p>This class calculates ESG metrics and formats them into HTML fragments
+ * to be displayed in the web application's comparison dashboard.
  */
 public class EsgWebDisplay {
 

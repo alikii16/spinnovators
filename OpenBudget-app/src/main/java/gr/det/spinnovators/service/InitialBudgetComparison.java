@@ -1,16 +1,15 @@
 package gr.det.spinnovators.service;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.printer.EsgPrinter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Analyzes and compares budget data before and after changes.
@@ -231,7 +230,7 @@ public class InitialBudgetComparison {
     abbreviations.put("spatial_planning_and_urban_environment", "[Γ]");
     abbreviations.put("energy_and_mineral_resources_management", "[Δ]");
 
-    return abbreviations.getOrDefault(sectorKey, "[" + (char)('Α' + index) + "]");
+    return abbreviations.getOrDefault(sectorKey, "[" + (char) ('Α' + index) + "]");
   }
 
   /**
