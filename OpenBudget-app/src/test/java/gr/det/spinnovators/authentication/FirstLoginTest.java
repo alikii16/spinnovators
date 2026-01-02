@@ -1,6 +1,5 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.authentication;
 
-import gr.det.spinnovators.authentication.*;
 import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

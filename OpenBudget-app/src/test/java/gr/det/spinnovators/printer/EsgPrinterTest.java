@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.printer;
 
 import gr.det.spinnovators.printer.EsgPrinter;
 import gr.det.spinnovators.envdatamodel.EsgReport;

@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.service;
 
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvUnit;

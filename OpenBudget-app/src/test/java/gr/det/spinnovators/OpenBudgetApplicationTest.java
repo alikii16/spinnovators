@@ -14,3 +14,18 @@ public class OpenBudgetApplicationTest {
         String[] args = {}; // no command line arguments
     }
 }
+
+
+
+
+
+/**APP TEST
+ * package gr.det.spinnovators;
+
+import org.junit.jupiter.api.Test;
+
+public class AppTest {
+  @Test
+  public void testAppRuns() {}    
+}
+  */

@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.web;
 import gr.det.spinnovators.web.EsgWebDisplay;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
