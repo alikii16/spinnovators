@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.data;
 
 import gr.det.spinnovators.data.MinistryDataInput;
 import org.junit.jupiter.api.Test;

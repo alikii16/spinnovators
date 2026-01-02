@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.envdatamodel;
 
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 

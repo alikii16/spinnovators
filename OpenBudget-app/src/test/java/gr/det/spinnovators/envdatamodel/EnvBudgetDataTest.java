@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.envdatamodel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

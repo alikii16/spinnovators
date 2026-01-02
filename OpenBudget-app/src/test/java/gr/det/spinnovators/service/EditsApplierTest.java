@@ -1,7 +1,7 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.service;
 
 import gr.det.spinnovators.envdatamodel.*;
-import gr.det.spinnovators.service.*;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;

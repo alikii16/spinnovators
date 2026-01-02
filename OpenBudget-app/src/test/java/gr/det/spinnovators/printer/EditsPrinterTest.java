@@ -1,6 +1,5 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.printer;
 
-import gr.det.spinnovators.printer.*;
 import gr.det.spinnovators.envdatamodel.*;
 import org.junit.jupiter.api.Test;
 import gr.det.spinnovators.service.*;

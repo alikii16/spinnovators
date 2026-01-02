@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.export;
 
 import gr.det.spinnovators.export.TextReportExporter;
 import org.junit.jupiter.api.Test;

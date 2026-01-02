@@ -1,4 +1,4 @@
-package gr.det.spinnovators;
+package gr.det.spinnovators.printer;
 
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
@@ -8,7 +8,7 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import gr.det.spinnovators.printer.*;
+
 import gr.det.spinnovators.service.*;
 
 import java.io.ByteArrayOutputStream;
