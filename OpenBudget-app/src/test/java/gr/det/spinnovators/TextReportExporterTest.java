@@ -1,93 +1,76 @@
 package gr.det.spinnovators;
 
+import gr.det.spinnovators.export.TextReportExporter;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
-import gr.det.spinnovators.export.TextReportExporter;
-import gr.det.spinnovators.export.EditedBudgetExporter;
+import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for TextReportExporter class.
- */
-public class TextReportExporterTest {
+class TextReportExporterTest {
 
     @Test
-    public void testExportWithChangeLog() throws Exception {
-        EditedBudgetExporter exporter = new TextReportExporter();
+    void testExportWithValidData() throws UnsupportedEncodingException {
+    
+        TextReportExporter exporter = new TextReportExporter();
+        
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        
+        List<String> changeLog = new ArrayList<>();
+        changeLog.add("2025;Clean Energy;Renewables;Wind Turbines;1000.00;1500.50");
+        changeLog.add("2025;Water;Rivers;Cleaning;500.00;400.00");
 
-        List<String> changeLog = List.of(
-            "2025;Energy;Unit1;Personnel Costs;1000;1200",
-            "2025;Water;Unit2;Infrastructure;500;400"
-        );
+    
+        exporter.export(changeLog, outputStream);
+        
+        String result = outputStream.toString(StandardCharsets.UTF_8.name());
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+    
+        assertTrue(result.contains("ΥΠΟΥΡΓΕΙΟ ΠΕΡΙΒΑΛΛΟΝΤΟΣ"), "Λείπει ο τίτλος");
+        assertTrue(result.contains("2025"), "Λείπει το έτος");
+  
+        assertTrue(result.contains("Clean Energy > Renewables"));
+        assertTrue(result.contains("Wind Turbines"));
+        
+    
+        assertTrue(result.contains("1,000.00 €"), "Λάθος παλιό ποσό");
+        assertTrue(result.contains("1,500.50 €"), "Λάθος νέο ποσό");
+        assertTrue(result.contains("+500.50 €"), "Λάθος διαφορά (+)");
 
-        exporter.export(changeLog, out);
 
-        String output = out.toString(StandardCharsets.UTF_8);
-
-        // Header checks
-        assertTrue(output.contains("ΥΠΟΥΡΓΕΙΟ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ"),
-            "Output should contain the official header");
-        assertTrue(output.contains("ΑΝΑΦΟΡΑ ΤΡΟΠΟΠΟΙΗΣΗΣ ΠΡΟΥΠΟΛΟΓΙΣΜΟΥ"),
-            "Output should contain the report title");
-
-        // Year from first entry
-        assertTrue(output.contains("Οικονομικό Έτος:    2025"),
-            "Output should display the correct budget year");
-
-        // Check first change
-        assertTrue(output.contains("Energy > Unit1"),
-            "Output should contain first sector > unit line");
-        assertTrue(output.contains("Personnel Costs"),
-            "Output should contain first category name");
-        assertTrue(output.contains("1,000.00 €"),
-            "Output should contain old value of first change");
-        assertTrue(output.contains("1,200.00 €"),
-            "Output should contain new value of first change");
-
-        // Check second change
-        assertTrue(output.contains("Water > Unit2"),
-            "Output should contain second sector > unit line");
-        assertTrue(output.contains("Infrastructure"),
-            "Output should contain second category name");
-        assertTrue(output.contains("500.00 €"),
-            "Output should contain old value of second change");
-        assertTrue(output.contains("400.00 €"),
-            "Output should contain new value of second change");
+        assertTrue(result.contains("Water > Rivers"));
+        assertTrue(result.contains("-100.00 €"), "Λάθος αρνητική διαφορά");
     }
 
     @Test
-    public void testExportWithEmptyList() throws Exception {
-        EditedBudgetExporter exporter = new TextReportExporter();
+    void testExportEmptyLog() throws UnsupportedEncodingException {
+        TextReportExporter exporter = new TextReportExporter();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        
+        exporter.export(new ArrayList<>(), outputStream);
+        String result = outputStream.toString(StandardCharsets.UTF_8.name());
 
-        List<String> changeLog = List.of();
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        exporter.export(changeLog, out);
-
-        String output = out.toString(StandardCharsets.UTF_8);
-
-        assertTrue(output.contains("(Δεν πραγματοποιήθηκαν αλλαγές"),
-            "Output should display fallback message for empty change log");
+        assertTrue(result.contains("Δεν πραγματοποιήθηκαν αλλαγές"), 
+            "Πρέπει να εμφανίζει ενημερωτικό μήνυμα όταν η λίστα είναι κενή");
     }
 
+
     @Test
-    public void testExportWithNullList() throws Exception {
-        EditedBudgetExporter exporter = new TextReportExporter();
+    void testExportLongCategoryTruncation() throws UnsupportedEncodingException {
+        TextReportExporter exporter = new TextReportExporter();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        
+        String longCategory = "Αυτό είναι ένα πάρα πολύ μεγάλο όνομα κατηγορίας που πρέπει να κοπεί";
+        List<String> changeLog = new ArrayList<>();
+        changeLog.add("2025;Sec;Unit;" + longCategory + ";100;200");
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        exporter.export(changeLog, outputStream);
+        String result = outputStream.toString(StandardCharsets.UTF_8.name());
 
-        exporter.export(null, out);
-
-        String output = out.toString(StandardCharsets.UTF_8);
-
-        assertTrue(output.contains("(Δεν πραγματοποιήθηκαν αλλαγές"),
-            "Output should display fallback message for null change log");
+        assertTrue(result.contains("..."), "Δεν προστέθηκαν τα αποσιωπητικά (...)");
+        assertFalse(result.contains(longCategory), "Το μεγάλο κείμενο έπρεπε να έχει κοπεί");
     }
 }
