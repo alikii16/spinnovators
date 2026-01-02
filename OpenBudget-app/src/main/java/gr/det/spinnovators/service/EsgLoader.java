@@ -177,7 +177,7 @@ public class EsgLoader {
    *
    * @param entryKey The JSON key of the entry.
    * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE,
-   * CONTEXT_DEPENDENT, NEUTRAL).
+   *  CONTEXT_DEPENDENT, NEUTRAL).
    */
   public String getEntryClassification(String entryKey) {
     if (config == null || !config.has("entries")) {
