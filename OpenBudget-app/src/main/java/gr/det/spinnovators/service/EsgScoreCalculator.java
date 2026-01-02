@@ -6,7 +6,6 @@ import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,18 +18,18 @@ import java.util.Map;
  * @author Spinnovators Team
  * @version 1.0
  */
-public class ESG_Score_Calculator {
+public class EsgScoreCalculator {
 
   private static final double WEIGHT_ENVIRONMENTAL = 0.40;
   private static final double WEIGHT_SOCIAL = 0.30;
   private static final double WEIGHT_GOVERNANCE = 0.30;
-  private final ESG_Classifier classifier;
+  private final EsgClassifier classifier;
 
   /**
    * Constructs an ESG score calculator with default classifier.
    */
-  public ESG_Score_Calculator() {
-    this.classifier = new ESG_Classifier();
+  public EsgScoreCalculator() {
+    this.classifier = new EsgClassifier();
   }
 
   /**
@@ -38,6 +37,7 @@ public class ESG_Score_Calculator {
    *
    * @param year The budget year to analyze
    * @param totalBudget The total ministry budget for that year
+   *
    * @return Complete ESG report with scores and breakdowns
    */
   public EsgReport calculateReport(EnvYear year, double totalBudget) {
@@ -76,8 +76,9 @@ public class ESG_Score_Calculator {
   /**
    * Aggregates all budget entries by their ESG category.
    *
-   * @param year The budget year to analyze
-   * @return Map of ESG category to total amount
+   * @param year The budget year to analyze.
+   *
+   * @return Map of ESG category to total amount.
    */
   private Map<EsgCategory, Double> aggregateByCategory(EnvYear year) {
     Map<EsgCategory, Double> totals = new HashMap<>();
@@ -110,9 +111,10 @@ public class ESG_Score_Calculator {
    *
    * Used to show users how their budget changes affect sustainability.
    *
-   * @param before ESG report before changes
-   * @param after ESG report after changes
-   * @return Difference in overall score (positive = improvement)
+   * @param before ESG report before changes.
+   * @param after ESG report after changes.
+   *
+   * @return Difference in overall score (positive = improvement).
    */
   public double calculateScoreDifference(EsgReport before, EsgReport after) {
     return after.getOverallScore() - before.getOverallScore();

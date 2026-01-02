@@ -1,7 +1,6 @@
 package gr.det.spinnovators.service;
 
 import gr.det.spinnovators.envdatamodel.EsgCategory;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,14 +8,14 @@ import java.util.Map;
 /**
  * Classifies budget sectors, units, and entries into ESG categories.
  *
- * Uses predefined mappings to determine whether a budget item should be
+ * <p>Uses predefined mappings to determine whether a budget item should be
  * counted as Environmental, Social, Governance, or Neutral for ESG scoring.
  *
  * @author Spinnovators Team
  * 
  * @version 1.0
  */
-public class ESG_Classifier {
+public class EsgClassifier {
 
   // Sector-level classifications
   private static final Map<String, EsgCategory> SECTOR_CLASSIFICATIONS = new HashMap<>();
@@ -47,9 +46,9 @@ public class ESG_Classifier {
   /**
    * Classifies a budget entry based on its sector and entry type.
    *
-   * Classification logic:
+   * <p>Classification logic:
    *
-   * Check if entry type has specific classification (e.g., personnel_costs → SOCIAL)
+   * <p>Check if entry type has specific classification (e.g., personnel_costs → SOCIAL)
    * If not, inherit classification from sector
    * Handle special cases for energy sector (context-dependent)
    * Default to NEUTRAL if no clear classification
@@ -58,7 +57,7 @@ public class ESG_Classifier {
    * @param sectorKey The JSON key of the sector (e.g., "natural_environment_and_water_protection")
    * 
    * @param entryKey The JSON key of the entry (e.g., "personnel_costs")
-   * 
+   *
    * @return The ESG category for this entry
    */
   public EsgCategory classifyEntry(String sectorKey, String entryKey) {
@@ -72,14 +71,14 @@ public class ESG_Classifier {
       EsgCategory sectorCategory = SECTOR_CLASSIFICATIONS.get(sectorKey);
 
       // For Environmental sectors, context-dependent entries are Environmental
-      if (sectorCategory == EsgCategory.ENVIRONMENTAL &&
-          isContextDependentEntry(entryKey)) {
+      if (sectorCategory == EsgCategory.ENVIRONMENTAL
+          && isContextDependentEntry(entryKey)) {
         return EsgCategory.ENVIRONMENTAL;
       }
 
       // For Governance sectors, context-dependent entries are Governance
-      if (sectorCategory == EsgCategory.GOVERNANCE &&
-          isContextDependentEntry(entryKey)) {
+      if (sectorCategory == EsgCategory.GOVERNANCE
+          && isContextDependentEntry(entryKey)) {
         return EsgCategory.GOVERNANCE;
       }
 
@@ -99,29 +98,29 @@ public class ESG_Classifier {
    * Checks if an entry is context-dependent (classification depends on sector).
    *
    * @param entryKey The entry JSON key
-   * 
+   *
    * @return true if context-dependent, false otherwise
    */
   private boolean isContextDependentEntry(String entryKey) {
-    return entryKey.equals("credits_under_allocation") ||
-        entryKey.equals("transfers") ||
-        entryKey.equals("permanent_assets");
+    return entryKey.equals("credits_under_allocation")
+      || entryKey.equals("transfers") 
+      || entryKey.equals("permanent_assets");
   }
 
   /**
    * Classifies entries in the energy sector.
    *
-   * Energy sector is mixed - some expenses are environmental (renewable energy),
+   * <p>Energy sector is mixed - some expenses are environmental (renewable energy),
    * others are governance (coordination).\
    *
    * @param entryKey The entry JSON key
-   * 
+   *
    * @return ESG category for this energy entry
    */
   private EsgCategory classifyEnergyEntry(String entryKey) {
     // Credits and transfers for renewable energy are Environmental
-    if (entryKey.equals("credits_under_allocation") ||
-        entryKey.equals("transfers")) {
+    if (entryKey.equals("credits_under_allocation")
+        || entryKey.equals("transfers")) {
       return EsgCategory.ENVIRONMENTAL;
     }
 
@@ -138,7 +137,7 @@ public class ESG_Classifier {
    * Gets the full name of a sector's ESG classification.
    *
    * @param sectorKey The sector JSON key
-   * 
+   *
    * @return Greek name of the ESG category
    */
   public String getSectorClassificationName(String sectorKey) {

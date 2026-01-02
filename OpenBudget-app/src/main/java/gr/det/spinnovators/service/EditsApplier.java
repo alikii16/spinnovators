@@ -1,10 +1,10 @@
 package gr.det.spinnovators.service;
 
-import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.printer.EsgPrinter;
 import java.util.List;
 import java.util.Scanner;
@@ -58,8 +58,6 @@ public class EditsApplier {
    * @param year The EnvYear object representing the budget to be modified.
    */
   public void applyEditsToYear(EnvYear year) {
-    boolean keepEditing = true;
-
     System.out.println("\n--- ΕΝΑΡΞΗ ΕΠΕΞΕΡΓΑΣΙΑΣ ΓΙΑ ΤΟ ΕΤΟΣ " + year.getYear() + " ---");
 
     String temp = year.getYear();
@@ -77,6 +75,8 @@ public class EditsApplier {
 
     // Calculate and display initial ESG report
     calculateAndDisplayInitialEsg(year);
+
+    boolean keepEditing = true;
 
     while (keepEditing) {
       // Display balance status
@@ -198,7 +198,7 @@ public class EditsApplier {
    * @return The chosen EnvSector or null if the user chooses to exit.
    */
   private EnvSector selectSector(EnvYear year) {
-    List<EnvSector> sectors = year.getSectors();
+    final List<EnvSector> sectors = year.getSectors();
     System.out.println("\n==========================================");
     System.out.println(" ΕΠΙΛΟΓΗ ΤΟΜΕΑ");
     System.out.println("==========================================");

@@ -67,7 +67,7 @@ public class EsgReport {
   // Getters
   /** 
    * Returns the fiscal year of the report.
-   * 
+   *
    * @return the year as a String.
    */
   public String getYear() {
@@ -76,7 +76,7 @@ public class EsgReport {
 
   /** 
    * Returns the total budget amount.
-   * 
+   *
    * @return The total budget value.
    */
   public double getTotalBudget() {
@@ -85,7 +85,7 @@ public class EsgReport {
 
   /** 
    * Returns the total amount for environmental initiatives.
-   * 
+   *
    * @return The environmental allocation amount.
    */
   public double getEnvironmentalAmount() {

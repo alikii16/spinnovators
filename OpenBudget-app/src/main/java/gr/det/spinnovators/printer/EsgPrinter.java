@@ -1,7 +1,6 @@
 package gr.det.spinnovators.printer;
 
 import gr.det.spinnovators.envdatamodel.EsgReport;
-
 import java.util.Locale;
 
 /**
