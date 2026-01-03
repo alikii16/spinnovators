@@ -10,6 +10,7 @@ import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.printer.EnvBudgetPrinter;
 import gr.det.spinnovators.printer.FullBudgetPrinter;
+import gr.det.spinnovators.service.BudgetValidator;
 import gr.det.spinnovators.service.EnvBudgetLoader;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 import java.io.IOException;
@@ -1162,9 +1163,37 @@ public final class LoginWebServer {
       return;
     }
 
-    double deviation = Math.abs((newValue - changeSession.oldValue) / changeSession.oldValue)
-        * 100.0;
-    if (deviation > 30.0) {
+    // 1. Retrieve keys from Session
+    String sectorKey = changeSession.selectedSector.getJsonKey();
+    String entryKey = changeSession.selectedEntry.getJsonKey();
+    
+    BudgetValidator validator = new BudgetValidator();
+
+    // 2. Call Validator with 5 parameters
+    BudgetValidator.ValidationResult result = 
+        validator.validate(changeSession.totalBudget, 
+            changeSession.oldValue, newValue, sectorKey, entryKey);
+
+    // 3. Handle ESG & Error Messages
+    if (result == BudgetValidator.ValidationResult.ESG_ENV_PROTECTION) {
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν επιτρέπεται "
+          + "μείωση >5% σε Περιβαλλοντικές Δαπάνες.");
+      return;
+    }
+    if (result == BudgetValidator.ValidationResult.ESG_GOV_RESTRICTION) {
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν "
+          + "επιτρέπεται αύξηση >10% σε Διοικητικά Έξοδα.");
+      return;
+    }
+    if (result == BudgetValidator.ValidationResult.ESG_SOCIAL_PROTECTION) {
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: "
+          + "Δεν επιτρέπεται μείωση >10% σε Κοινωνικές Παροχές.");
+      return;
+    }
+    
+    // Check for extreme deviation
+    if (result == BudgetValidator.ValidationResult.EXTREME_DEVIATION) {
+      double deviation = validator.calculateDeviationPercentage(changeSession.oldValue, newValue);
       changeSession.pendingValue = newValue;
       changeSession.state = ChangeState.CONFIRM_EXTREME;
       serveExtremeWarning(exchange, deviation);

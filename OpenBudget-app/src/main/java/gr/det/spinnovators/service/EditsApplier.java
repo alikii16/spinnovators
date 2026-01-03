@@ -266,7 +266,7 @@ public class EditsApplier {
 
         // Loop for validation until we get a valid or confirmed value
         while (true) {
-          System.out.print("Δώσε το νέο ποσό: ");
+          System.out.print("Εισάγετε το νέο ποσό: ");
           String amountInput = scanner.nextLine().trim();
 
           if (amountInput.isEmpty()) {
@@ -279,42 +279,75 @@ public class EditsApplier {
             amountInput = amountInput.replace(",", ".");
             double inputAmount = Double.parseDouble(amountInput);
 
-            // Using the new validation logic
+            // 1. Retrieve Sector Key (required for ESG classification)
+            String sectorKey = year.getSectors().stream()
+                .filter(s -> s.getUnits().contains(unit))
+                .findFirst()
+                .map(EnvSector::getJsonKey)
+                .orElse("unknown");
+            
+            // 2. Call Validator with ESG context
             BudgetValidator.ValidationResult result = 
-                validator.validate(this.totalBudget, oldAmount, inputAmount);
+                validator.validate(this.totalBudget, oldAmount, inputAmount, 
+                  sectorKey, entry.getJsonKey());
 
+            // 3. Handle Validation Results
             if (result == BudgetValidator.ValidationResult.OK) {
               finalValidatedAmount = inputAmount;
               break;
+
             } else if (result == BudgetValidator.ValidationResult.NEGATIVE_VALUE) {
-              System.out.println(" [!] ΣΦΑΛΜΑ: Η τιμή δεν μπορεί να είναι αρνητική.");
+              System.out.println(" ΣΦΑΛΜΑ: Μη έγκυρη τιμή (αρνητικό ποσό).");
+
             } else if (result == BudgetValidator.ValidationResult.EXCEEDS_TOTAL_BUDGET) {
-              System.out.printf(" [!] ΣΦΑΛΜΑ: Υπέρβαση προϋπολογισμού (Όριο: %,.2f €).\n", 
+              System.out.printf(" ΣΦΑΛΜΑ: Υπέρβαση Ορίου Προϋπολογισμού (Όριο: %,.2f €).\n",
                   this.totalBudget);
+
+            // --- SMART ESG BLOCKS ---
+            } else if (result == BudgetValidator.ValidationResult.ESG_ENV_PROTECTION) {
+              System.out.println(" ΠΡΟΣΤΑΣΙΑ ΠΕΡΙΒΑΛΛΟΝΤΟΣ: Η μείωση δαπανών άνω του "
+                  + "5% απαγορεύεται.");
+              System.out.println(" Στόχος: Διατήρηση υψηλού δείκτη βιωσιμότητας "
+                  + "(Environmental Score).");
+
+            } else if (result == BudgetValidator.ValidationResult.ESG_GOV_RESTRICTION) {
+              System.out.println(" ΔΗΜΟΣΙΟΝΟΜΙΚΗ ΠΕΙΘΑΡΧΙΑ: Η αύξηση διοικητικών δαπανών "
+                  + "άνω του 10% απαγορεύεται.");
+              System.out.println(" Στόχος: Περιορισμός της γραφειοκρατίας και εξοικονόμηση "
+                  + "πόρων (Governance Score).");
+
+            } else if (result == BudgetValidator.ValidationResult.ESG_SOCIAL_PROTECTION) {
+              System.out.println(" ΚΟΙΝΩΝΙΚΗ ΠΟΛΙΤΙΚΗ: Η μείωση μισθών/παροχών άνω του "
+                  + "10% απαγορεύεται.");
+              System.out.println(" Στόχος: Προστασία του βιοτικού επιπέδου των εργαζομένων "
+                  + "(Social Score).");
+
+            // --- WARNING (Yellow Card) ---
             } else if (result == BudgetValidator.ValidationResult.EXTREME_DEVIATION) {
               double dev = validator.calculateDeviationPercentage(oldAmount, inputAmount);
-              System.out.printf(" [!] ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Ακραία μεταβολή (%.2f%%).\n", dev);
-              System.out.print("     Είστε βέβαιος για αυτή την αλλαγή; (ΝΑΙ/ΟΧΙ): ");
+              System.out.printf(" ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Παρατηρείται μεγάλη απόκλιση (%.2f%%).\n", dev);
+              System.out.print(" Επιθυμείτε να προχωρήσετε παρόλα αυτά; (ΝΑΙ/ΟΧΙ): ");
               
               String confirm = scanner.nextLine().trim();
               if (confirm.equalsIgnoreCase("ΝΑΙ")) {
                 finalValidatedAmount = inputAmount;
                 break;
               } else {
-                System.out.println(" Η τιμή απορρίφθηκε. Παρακαλώ εισάγετε νέα τιμή.");
+                System.out.println(" Η αλλαγή ακυρώθηκε. Παρακαλώ εισάγετε νέα τιμή.");
               }
             }
+
           } catch (NumberFormatException e) {
-            System.out.println(" [!] ΣΦΑΛΜΑ: Παρακαλώ δώστε έγκυρο αριθμό.");
+            System.out.println(" ΣΦΑΛΜΑ: Μη έγκυρη μορφή αριθμού.");
           }
         }
 
-        // Apply changes
+        // Apply changes & Recalculate
         entry.setAmount(finalValidatedAmount);
-        double offsetAmount = oldAmount - finalValidatedAmount;
-        this.currentBalance += offsetAmount;
-        System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Διαφορά: %,.2f €\n", offsetAmount);
-        // Recalculate ESG score after the change
+        this.currentBalance += (oldAmount - finalValidatedAmount);
+        System.out.printf(" Το ποσό ενημερώθηκε σε %,.2f €\n", finalValidatedAmount);
+        
+        // Important: Recalculate to show the impact
         recalculateEsgScore(year);
         return;
       }
