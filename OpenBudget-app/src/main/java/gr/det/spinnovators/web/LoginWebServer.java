@@ -1,5 +1,7 @@
 package gr.det.spinnovators.web;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 import gr.det.spinnovators.data.MinistryDataInput;
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
@@ -8,10 +10,9 @@ import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.printer.EnvBudgetPrinter;
 import gr.det.spinnovators.printer.FullBudgetPrinter;
+import gr.det.spinnovators.service.BudgetValidator;
 import gr.det.spinnovators.service.EnvBudgetLoader;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -106,6 +107,12 @@ public final class LoginWebServer {
     }
   }
 
+  /**
+   * Starts the HTTP web server for login and budget management.
+   *
+   * @param frontendPath The path to the frontend HTML files.
+   * @throws IOException If the server fails to start.
+   */
   public static void startServer(final String frontendPath) throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
@@ -182,11 +189,11 @@ public final class LoginWebServer {
       ChangeSession session = getChangeSession();
        
       gr.det.spinnovators.export.EditedBudgetExporter exporter = 
-        new gr.det.spinnovators.export.TextReportExporter();
+          new gr.det.spinnovators.export.TextReportExporter();
 
       exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
       exchange.getResponseHeaders().set("Content-Disposition",
-        "attachment; filename=\"Budget_Report.txt\"");
+          "attachment; filename=\"Budget_Report.txt\"");
       exchange.sendResponseHeaders(200, 0);
 
       try {
@@ -626,7 +633,8 @@ public final class LoginWebServer {
   private static String parseEnvBudgetFormatToHtml(String budgetOutput) {
     String[] lines = budgetOutput.split("\n");
     StringBuilder budgetHtml = new StringBuilder();
-    budgetHtml.append("<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>");
+    budgetHtml
+      .append("<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>");
     String currentSector = null;
     String currentUnit = null;
     boolean inUnit = false;
@@ -641,9 +649,11 @@ public final class LoginWebServer {
           budgetHtml.append("</div></div>"); // Close previous sector
         }
         currentSector = line.replace("ΤΟΜΕΑΣ:", "").trim();
-        budgetHtml.append("<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; "
+        budgetHtml
+            .append("<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; "
             + "border-radius: 8px; overflow: hidden;'>");
-        budgetHtml.append("<div style='background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 100%); "
+        budgetHtml
+            .append("<div style='background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 100%); "
             + "padding: 16px; color: #ffffff; font-weight: 600; font-size: 18px;'>");
         budgetHtml.append(currentSector);
         budgetHtml.append("</div><div style='padding: 16px;'>");
@@ -927,7 +937,7 @@ public final class LoginWebServer {
 
   private static void serveSectorQuestion(HttpExchange exchange,
                                           String infoMessage) throws IOException {
-    ChangeSession changeSession = getChangeSession();
+    final ChangeSession changeSession = getChangeSession();
 
     StringBuilder buttons = new StringBuilder();
     buttons.append("<h2 class='section-title'>Επιλέξτε Τομέα</h2>");
@@ -994,8 +1004,8 @@ public final class LoginWebServer {
     String buttonHtml;
     
     String downloadBtn = "<a class='secondary-btn' href='/download_report' "
-      +  "target='_blank' style='margin-top:10px; display:block; "
-      +  "text-decoration:none;'> Λήψη Αναφοράς Αλλαγών </a>";
+        +  "target='_blank' style='margin-top:10px; display:block; "
+        +  "text-decoration:none;'> Λήψη Αναφοράς Αλλαγών </a>";
 
     if (success) {
       buttonHtml = downloadBtn + "<a class='primary-btn' href='/esg.html' "
@@ -1003,7 +1013,8 @@ public final class LoginWebServer {
     } else {
       buttonHtml = downloadBtn + """
         <form method='POST' style='margin-top:18px;'>
-        <button class='primary-btn' type='submit' name='continue' value='yes'>Συνέχεια Αλλαγών</button>
+        <button class='primary-btn' type='submit' name='continue' value='yes'>
+        Συνέχεια Αλλαγών</button>
         </form>
         """;
     }
@@ -1011,7 +1022,7 @@ public final class LoginWebServer {
       <h2 class='section-title'>Έλεγχος Ισοσκελισμού</h2>
       <div class='description' style='color:%s; font-weight:700;'>%s</div>
       %s
-      """.formatted(color, message, buttonHtml);
+        """.formatted(color, message, buttonHtml);
     String html = buildStyledChangePage(inner, "");
     sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
   }
@@ -1100,14 +1111,14 @@ public final class LoginWebServer {
     String inner = """
       <h2 class='section-title'>Αλλαγή ποσού</h2>
       <div class='description'>Κατηγορία: <b>""" + entryName + "</b></div>"
-      + "<div class='description' style='color:#0d4f1c; font-weight:700;'>Τρέχον ποσό: "
-      + String.format("%,.2f €", changeSession.oldValue) + "</div>"
-      + "<form method='POST' style='margin-top:18px; display:flex; flex-direction:column; "
-      + "gap:12px;'>"
-      + "<input class='input-box' type='text' name='newValue' "
-      + "placeholder='π.χ. 2.000.000 ή 2000000,50' required>"
-      + "<button class='primary-btn' type='submit'>Αποθήκευση</button>"
-      + "</form>";
+        + "<div class='description' style='color:#0d4f1c; font-weight:700;'>Τρέχον ποσό: "
+        + String.format("%,.2f €", changeSession.oldValue) + "</div>"
+        + "<form method='POST' style='margin-top:18px; display:flex; flex-direction:column; "
+        + "gap:12px;'>"
+        + "<input class='input-box' type='text' name='newValue' "
+        + "placeholder='π.χ. 2.000.000 ή 2000000,50' required>"
+        + "<button class='primary-btn' type='submit'>Αποθήκευση</button>"
+        + "</form>";
 
     if (validationMessage != null && !validationMessage.isBlank()) {
       inner += "<div class='error-box' style='margin-top:14px;'>" + validationMessage + "</div>";
@@ -1118,7 +1129,7 @@ public final class LoginWebServer {
   }
 
   private static void handleValueChange(HttpExchange exchange, String formData) throws IOException {
-    ChangeSession changeSession = getChangeSession();
+    final ChangeSession changeSession = getChangeSession();
 
     String raw = extractFormValue(formData, "newValue");
 
@@ -1128,9 +1139,9 @@ public final class LoginWebServer {
     }
 
     String cleaned = raw.replace(" ", "")
-      .replace(".", "")
-      .replace(",", ".")
-      .trim();
+        .replace(".", "")
+        .replace(",", ".")
+        .trim();
 
     double newValue;
     try {
@@ -1147,14 +1158,42 @@ public final class LoginWebServer {
 
     if (newValue > changeSession.totalBudget) {
       String msg = String.format("ΣΦΑΛΜΑ: Η τιμή (%,.2f €) υπερβαίνει τον συνολικό προϋπολογισμό "
-        + "του Υπουργείου (%,.2f €).", newValue, changeSession.totalBudget);
+          + "του Υπουργείου (%,.2f €).", newValue, changeSession.totalBudget);
       serveValueEditor(exchange, msg);
       return;
     }
 
-    double deviation = Math.abs((newValue - changeSession.oldValue) / changeSession.oldValue)
-      * 100.0;
-    if (deviation > 30.0) {
+    // 1. Retrieve keys from Session
+    String sectorKey = changeSession.selectedSector.getJsonKey();
+    String entryKey = changeSession.selectedEntry.getJsonKey();
+    
+    BudgetValidator validator = new BudgetValidator();
+
+    // 2. Call Validator with 5 parameters
+    BudgetValidator.ValidationResult result = 
+        validator.validate(changeSession.totalBudget, 
+            changeSession.oldValue, newValue, sectorKey, entryKey);
+
+    // 3. Handle ESG & Error Messages
+    if (result == BudgetValidator.ValidationResult.ESG_ENV_PROTECTION) {
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν επιτρέπεται "
+          + "μείωση >5% σε Περιβαλλοντικές Δαπάνες.");
+      return;
+    }
+    if (result == BudgetValidator.ValidationResult.ESG_GOV_RESTRICTION) {
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν "
+          + "επιτρέπεται αύξηση >10% σε Διοικητικά Έξοδα.");
+      return;
+    }
+    if (result == BudgetValidator.ValidationResult.ESG_SOCIAL_PROTECTION) {
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: "
+          + "Δεν επιτρέπεται μείωση >10% σε Κοινωνικές Παροχές.");
+      return;
+    }
+    
+    // Check for extreme deviation
+    if (result == BudgetValidator.ValidationResult.EXTREME_DEVIATION) {
+      double deviation = validator.calculateDeviationPercentage(changeSession.oldValue, newValue);
       changeSession.pendingValue = newValue;
       changeSession.state = ChangeState.CONFIRM_EXTREME;
       serveExtremeWarning(exchange, deviation);
@@ -1172,7 +1211,7 @@ public final class LoginWebServer {
     String unitName = translator.translateCategory(changeSession.selectedUnit.getJsonKey());
     String entryName = translator.translateCategory(changeSession.selectedEntry.getJsonKey());
     String logLine = String.format(java.util.Locale.US, "%s;%s;%s;%s;%.2f;%.2f", 
-      year, sectorName, unitName, entryName, changeSession.oldValue, newValue);
+        year, sectorName, unitName, entryName, changeSession.oldValue, newValue);
     changeSession.changeLog.add(logLine);
 
     changeSession.selectedEntry.setAmount(newValue);
@@ -1182,7 +1221,7 @@ public final class LoginWebServer {
     changeSession.currentBalance += offset;
     StringBuilder banner = new StringBuilder();
     banner.append("[OK] Η τιμή άλλαξε επιτυχώς. Δημιουργήθηκε διαφορά: ")
-      .append(String.format("%,.2f €", offset));
+        .append(String.format("%,.2f €", offset));
 
     String balanceInfo;
     if (Math.abs(changeSession.currentBalance) < 0.01) {
@@ -1202,8 +1241,8 @@ public final class LoginWebServer {
     String inner = """
       <h2 class='section-title'>Σφάλμα</h2>
       <div class='error-box'>""" + message + "</div>"
-      + "<a class='secondary-btn' href='/change-budget' "
-      + "style='text-decoration:none; margin-top:18px;'>Ξανά προσπάθεια</a>";
+        + "<a class='secondary-btn' href='/change-budget' "
+        + "style='text-decoration:none; margin-top:18px;'>Ξανά προσπάθεια</a>";
 
     String html = buildStyledChangePage(inner, "");
     sendResponse(exchange, html, 200, "text/html; charset=UTF-8");

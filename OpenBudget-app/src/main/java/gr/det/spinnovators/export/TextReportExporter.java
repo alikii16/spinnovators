@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Exports a formatted text report resembling an official government document.
@@ -70,10 +71,10 @@ public class TextReportExporter implements EditedBudgetExporter {
             String sign = diff > 0 ? "+" : "";
 
             // Line 1: Hierarchy (Sector > Unit)
-            writer.printf(" %d. %s > %s%n", (i + 1), sector, unit);
+            writer.printf(Locale.US, " %d. %s > %s%n", (i + 1), sector, unit);
              
             // Line 2: Specific Category change with arrows
-            writer.printf("     └── %-30s :  %,14.2f €  --->  %,14.2f €  (%s%,.2f €)%n", 
+            writer.printf(Locale.US, "     └── %-30s :  %,14.2f €  --->  %,14.2f €  (%s%,.2f €)%n",
                 shorten(category, 30), oldVal, newVal, sign, diff);
          
             writer.println("----------------------------------------------------------------"
