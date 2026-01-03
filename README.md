@@ -18,19 +18,20 @@ The system supports:
 ---
 
 ## Table of Contents
-- [Main Features](#-main-features)
-- [Purpose](#-purpose)
-- [Technical Architecture](#️-technical-architecture-and-components)
-- [Repository Structure](#-repository-structure)
-- [Data Files](#-data-files)
-- [Installation & Compilation](#-installation-and-compilation)
-- [Running the Application](#️-running-the-application)
-- [Usage Guide](#-usage-guide)
-- [UML Diagram](#-uml-diagram)
-- [Data Structures & Algorithms](#️-data-structures-and-algorithms)
-- [Testing & Code Coverage](#-testing-and-code-coverage)
-- [System Capabilities & Constraints](#️-system-capabilities-and-constraints)
-- [License](#-license)
+- [Main Features](#main-features)
+- [Purpose](#purpose)
+- [Technical Architecture](#technical-architecture-and-components)
+- [Repository Structure](#repository-structure)
+- [Data Files](#data-files)
+- [Installation](#installation-and-compilation)
+- [Running the Application](#running-the-application)
+- [Usage Guide](#usage-guide)
+- [UML Diagram](#uml-diagram)
+- [Data Structures & Algorithms](#data-structures--algorithms)
+- [Testing](#testing-and-code-coverage)
+- [System Capabilities](#system-capabilities-and-constraints)
+- [License](#license)
+- [Team](#team---spinnovators)[License](#-license)
 
 ---
 
@@ -262,7 +263,7 @@ OpenBudget-app/
 │   │   └── resources/
 │   │       ├── env_budget_data.json                # Budget data
 │   │       ├── env_budget_translations.properties  # Greek translations
-│   │       ├── esg_config.json                     # ESG configuration
+│   │       ├── esg_mappings.json                     # ESG configuration
 │   │       └── frontend/                           # HTML interface
 │   │           ├── login.html
 │   │           ├── minister_statebudget.html
