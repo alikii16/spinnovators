@@ -1171,29 +1171,33 @@ public final class LoginWebServer {
 
     // 2. Call Validator with 5 parameters
     BudgetValidator.ValidationResult result = 
-        validator.validate(changeSession.totalBudget, changeSession.oldValue, newValue, sectorKey, entryKey);
+        validator.validate(changeSession.totalBudget, 
+            changeSession.oldValue, newValue, sectorKey, entryKey);
 
     // 3. Handle ESG & Error Messages
     if (result == BudgetValidator.ValidationResult.ESG_ENV_PROTECTION) {
-        serveValueEditor(exchange, "⛔ ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν επιτρέπεται μείωση >5% σε Περιβαλλοντικές Δαπάνες.");
-        return;
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν επιτρέπεται "
+          + "μείωση >5% σε Περιβαλλοντικές Δαπάνες.");
+      return;
     }
     if (result == BudgetValidator.ValidationResult.ESG_GOV_RESTRICTION) {
-        serveValueEditor(exchange, "⛔ ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν επιτρέπεται αύξηση >10% σε Διοικητικά Έξοδα.");
-        return;
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν "
+          + "επιτρέπεται αύξηση >10% σε Διοικητικά Έξοδα.");
+      return;
     }
     if (result == BudgetValidator.ValidationResult.ESG_SOCIAL_PROTECTION) {
-        serveValueEditor(exchange, "⛔ ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν επιτρέπεται μείωση >10% σε Κοινωνικές Παροχές.");
-        return;
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: "
+          + "Δεν επιτρέπεται μείωση >10% σε Κοινωνικές Παροχές.");
+      return;
     }
     
     // Check for extreme deviation
     if (result == BudgetValidator.ValidationResult.EXTREME_DEVIATION) {
-        double deviation = validator.calculateDeviationPercentage(changeSession.oldValue, newValue);
-        changeSession.pendingValue = newValue;
-        changeSession.state = ChangeState.CONFIRM_EXTREME;
-        serveExtremeWarning(exchange, deviation);
-        return;
+      double deviation = validator.calculateDeviationPercentage(changeSession.oldValue, newValue);
+      changeSession.pendingValue = newValue;
+      changeSession.state = ChangeState.CONFIRM_EXTREME;
+      serveExtremeWarning(exchange, deviation);
+      return;
     }
 
     applyNewValueAndFinish(exchange, newValue);
