@@ -735,7 +735,14 @@ EnvBudgetData (Root)
 
 ## Testing and Code Coverage
 
-### Running Tests
+### JUnit 5 - Running Tests
+**Tests cover:**
+- Budget data loading (JSON & ESG configuration)
+- Budget modification and validation logic
+- ESG classification and score calculation
+- Export functionality (CSV and text reports)
+- Budget Comparison across years/versions
+- Web interface components
 
 #### **Run All Tests**
 ```bash
@@ -747,11 +754,16 @@ mvn test
 mvn test -Dtest=EnvBudgetLoaderTest
 ```
 
-#### **Run with Code Coverage** (JaCoCo)
+#### **JaCoCo – Code Coverage**
+- **Measures**:
+  - Class coverage
+  - Method coverage
+  - Branch coverage
+- **Generate** coverage report:
 ```bash
 mvn clean test jacoco:report
 ```
-Coverage report generated at: `target/site/jacoco/index.html`
+Coverage report located at: `target/site/jacoco/index.html`
 
 ---
 
@@ -769,20 +781,40 @@ Coverage report generated at: `target/site/jacoco/index.html`
 
 ---
 
-### Code Quality Tools
+### Additional Technical Documentation 
+> *Code Quality Tools*
 
 #### **Checkstyle**
 ```bash
 mvn checkstyle:check
 ```
-- **Configuration:** `google_checks.xml`
-- **Enforces:** Google Java Style Guide
+- **Enforces** the Google Java Style Guide
+- **Validates**:
+  - Class, method, and variable naming conventions
+  - Proper indentation and formatting
+  - Presence and correctness of JavaDoc comments for public APIs
 
 #### **SpotBugs**
 ```bash
 mvn spotbugs:check
 ```
-- **Detects:** Potential bugs, performance issues, bad practices
+- **Detects**:
+  - Potential runtime errors
+  - Null pointer dereference risks
+  - Incorrect use of collections and object comparisons
+  - Performance and maintainability issues
+
+#### **JavaDoc Code Documentation**
+The codebase is **fully documented using JavaDoc**, enabling easier understanding, maintenance, and extension of the system.
+JavaDoc documentation includes:
+- Clear descriptions of each class’s responsibility
+- Detailed explanations of method parameters and return values
+- Business rule clarifications for complex logic
+- Generate JavaDoc documentation:
+```bash
+mvn javadoc:javadoc
+```
+Generated documentation is available at: `target/site/apidocs/`
 
 ---
 
