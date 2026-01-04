@@ -348,7 +348,8 @@ public class EditsApplier {
         double offsetAmount = oldAmount - finalValidatedAmount;
         this.currentBalance += offsetAmount;
         System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Διαφορά: %,.2f €\n", offsetAmount);
-
+        
+        // Important: Recalculate to show the impact
         recalculateEsgScore(year);
         return;
       }
