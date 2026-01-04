@@ -2,7 +2,6 @@ package gr.det.spinnovators.editor;
 
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvYear;
-import gr.det.spinnovators.printer.EditsPrinter;
 import gr.det.spinnovators.service.EditsApplier;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 import java.util.Scanner;
@@ -60,8 +59,5 @@ public class EnvBudgetEditor {
 
     EditsApplier applier = new EditsApplier(translator);
     applier.applyEditsToYear(selectedYear);
-
-    EditsPrinter printer = new EditsPrinter(translator);
-    printer.printEditYear(selectedYear);
   }
 }

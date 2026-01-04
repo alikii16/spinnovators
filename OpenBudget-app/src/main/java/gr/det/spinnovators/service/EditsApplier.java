@@ -5,6 +5,7 @@ import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
+import gr.det.spinnovators.printer.EditsPrinter;
 import gr.det.spinnovators.printer.EsgPrinter;
 import java.util.List;
 import java.util.Scanner;
@@ -123,6 +124,9 @@ public class EditsApplier {
         findAndEditEntryInUnit(selectedUnit, searchInput, year);
       }
     }
+
+    EditsPrinter printer = new EditsPrinter(translator);
+    printer.printEditYear(year);
 
     System.out.println("%n Προετοιμασία αναλυτικής σύγκρισης...%n");
 
