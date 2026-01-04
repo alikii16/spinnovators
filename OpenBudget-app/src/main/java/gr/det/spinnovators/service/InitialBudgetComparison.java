@@ -1,15 +1,16 @@
 package gr.det.spinnovators.service;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.printer.EsgPrinter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Analyzes and compares budget data before and after changes.
@@ -288,7 +289,7 @@ public class InitialBudgetComparison {
       }
     }
     if (increases == 0) {
-      System.out.println("   (Δεν υπάρχουν αυξήσεις)");
+      System.out.println(" (Δεν υπάρχουν αυξήσεις)");
     }
 
     System.out.println();
@@ -356,11 +357,11 @@ public class InitialBudgetComparison {
     double totalChange = totalModified - totalOriginal;
 
     // Budget balance check
-    System.out.println("📊 Ισοσκέλιση Προϋπολογισμού:");
+    System.out.println(" Ισοσκέλιση Προϋπολογισμού:");
     if (Math.abs(totalChange) < 0.01) {
       System.out.println("    Ο προϋπολογισμός είναι πλήρως ισοσκελισμένος!");
     } else {
-      System.out.printf("     Διαφορά: %,.2f € (χρειάζεται περαιτέρω προσαρμογές)%n",
+      System.out.printf(" Διαφορά: %,.2f € (χρειάζεται περαιτέρω προσαρμογές)%n",
           totalChange);
     }
 
@@ -377,17 +378,17 @@ public class InitialBudgetComparison {
     EsgReport modReport = esgCalculator.calculateReport(modifiedYear, totalBudget);
 
     if (modReport.getEnvironmentalScore() >= 60) {
-      System.out.println("    Καλή έμφαση σε περιβαλλοντικές δαπάνες");
+      System.out.println(" Καλή έμφαση σε περιβαλλοντικές δαπάνες");
     } else {
-      System.out.println("    Εξετάστε αύξηση περιβαλλοντικών επενδύσεων");
+      System.out.println(" Εξετάστε αύξηση περιβαλλοντικών επενδύσεων");
     }
 
     if (modReport.getSocialScore() < 20) {
-      System.out.println("    Οι κοινωνικές δαπάνες είναι χαμηλές - εξετάστε αύξηση");
+      System.out.println(" Οι κοινωνικές δαπάνες είναι χαμηλές - εξετάστε αύξηση");
     }
 
     if (modReport.getGovernanceScore() > 20) {
-      System.out.println("    Υψηλές διοικητικές δαπάνες - εξετάστε βελτιστοποίηση");
+      System.out.println(" Υψηλές διοικητικές δαπάνες - εξετάστε βελτιστοποίηση");
     }
 
     System.out.println();
@@ -396,14 +397,14 @@ public class InitialBudgetComparison {
     System.out.println(" Συνολική Αξιολόγηση:");
     double overallScore = modReport.getOverallScore();
     if (overallScore >= 60) {
-      System.out.println("    Εξαιρετική κατανομή προϋπολογισμού!");
-      System.out.println("   Οι αλλαγές ενισχύουν τη βιωσιμότητα του Υπουργείου.");
+      System.out.println(" Εξαιρετική κατανομή προϋπολογισμού!");
+      System.out.println(" Οι αλλαγές ενισχύουν τη βιωσιμότητα του Υπουργείου.");
     } else if (overallScore >= 40) {
-      System.out.println("    Καλή κατανομή με περιθώρια βελτίωσης");
-      System.out.println("   Συνεχίστε να επενδύετε σε πράσινες τεχνολογίες.");
+      System.out.println(" Καλή κατανομή με περιθώρια βελτίωσης");
+      System.out.println(" Συνεχίστε να επενδύετε σε πράσινες τεχνολογίες.");
     } else {
-      System.out.println("    Χρειάζεται περισσότερη έμφαση στη βιωσιμότητα");
-      System.out.println("   Προτεραιότητα: Αύξηση περιβαλλοντικών δαπανών.");
+      System.out.println(" Χρειάζεται περισσότερη έμφαση στη βιωσιμότητα");
+      System.out.println(" Προτεραιότητα: Αύξηση περιβαλλοντικών δαπανών.");
     }
 
     System.out.println();
