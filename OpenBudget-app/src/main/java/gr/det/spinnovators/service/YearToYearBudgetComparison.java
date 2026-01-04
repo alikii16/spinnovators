@@ -23,19 +23,20 @@ public class YearToYearBudgetComparison {
   private final EnvBudgetTranslator translator;
   private final EsgScoreCalculator esgCalculator;
   private final EsgPrinter esgPrinter;
+  private final Map<String, Double> totalBudgets;
 
-  public YearToYearBudgetComparison(EnvBudgetTranslator translator) {
+  public YearToYearBudgetComparison(EnvBudgetTranslator translator, Map<String, Double> totalBudgets) {
     this.translator = translator;
     this.esgCalculator = new EsgScoreCalculator();
     this.esgPrinter = new EsgPrinter();
+    this.totalBudgets = totalBudgets;
   }
 
   /** Main entry point for comparing two years */
-  public void compareYears(
-      EnvYear baseYear,
-      EnvYear compareYear,
-      double baseTotal,
-      double compareTotal) {
+  public void compareYears(EnvYear baseYear, EnvYear compareYear) {
+
+    double baseTotal = totalBudgets.getOrDefault(baseYear.getYear(), 0.0);
+    double compareTotal = totalBudgets.getOrDefault(compareYear.getYear(), 0.0);
 
     printHeader(baseYear.getYear(), compareYear.getYear());
 
