@@ -71,10 +71,10 @@ public class YearToYearBudgetComparison {
       double baseTotal,
       double compareTotal) {
 
-    System.out.println("┌─────────────────────────────────────────────────────────────────────┐");
+    System.out.println("┌────────────────────────────────────────────────────────────────────┐");
     System.out.println("│                 ΣΥΓΚΡΙΣΗ ΑΝΑ ΤΟΜΕΑ                                 │");
     System.out.println("├─────────────────────────────────────┬────────┬────────┬────────────┤");
-    System.out.println("│ Τομέας                              │ Πριν   │ Μετά    │ Αλλαγή     │");
+    System.out.println("│ Τομέας                              │ Πριν   │ Μετά   │ Αλλαγή     │");
     System.out.println("├─────────────────────────────────────┼────────┼────────┼────────────┤");
 
     Set<String> allKeys = new LinkedHashSet<>();
