@@ -7,6 +7,7 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.printer.EnvBudgetPrinter;
 import gr.det.spinnovators.printer.FullBudgetPrinter;
+import gr.det.spinnovators.service.BudgetPercentageService;
 import gr.det.spinnovators.service.EnvBudgetLoader;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.service.EsgScoreCalculator;
@@ -85,6 +86,7 @@ public class OpenBudgetApplication {
     MinistryDataInput allData = new MinistryDataInput();
     FullBudgetPrinter fullPrinter = new FullBudgetPrinter(allData);
     EsgScoreCalculator esgCalculator = new EsgScoreCalculator();
+    BudgetPercentageService percentageService = new BudgetPercentageService();
 
     Scanner scanner = new Scanner(System.in);
 
@@ -134,6 +136,8 @@ public class OpenBudgetApplication {
             if (subChoice.equals("1")) {
               System.out.print("Δώστε έτος για το Υπ. Περιβάλλοντος: ");
               String yr = scanner.nextLine();
+              int selectedYearInt = Integer.parseInt(yr);
+              percentageService.displayEnvironmentPercentage(selectedYearInt);
               envPrinter.printYearlyBudget(yr);
 
             } else if (subChoice.equals("2")) {
@@ -241,6 +245,8 @@ public class OpenBudgetApplication {
             if (subChoice.equals("1")) {
               System.out.print("Δώστε έτος για το Υπουργείο Περιβάλλοντος: ");
               String yr = scanner.nextLine();
+              int selectedYearInt = Integer.parseInt(yr);
+              percentageService.displayEnvironmentPercentage(selectedYearInt);
               envPrinter.printYearlyBudget(yr);
 
             } else if (subChoice.equals("2")) {
