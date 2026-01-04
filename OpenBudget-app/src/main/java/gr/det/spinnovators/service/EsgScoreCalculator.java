@@ -1,13 +1,14 @@
 package gr.det.spinnovators.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgCategory;
 import gr.det.spinnovators.envdatamodel.EsgReport;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Calculates ESG sustainability scores for ministry budgets.
@@ -16,7 +17,7 @@ import java.util.Map;
  * and computes a weighted overall sustainability score from 0 to 100.
  *
  * @author Spinnovators Team
- * @version 1.0
+ * @version 2.0
  */
 public class EsgScoreCalculator {
 
@@ -53,22 +54,22 @@ public class EsgScoreCalculator {
     double socScore = (socAmount / totalBudget) * 100.0;
     double govScore = (govAmount / totalBudget) * 100.0;
 
-    // Fixed OperatorWrap: '+' moved to new lines
+    // Calculate weighted overall score
     double overallScore = (envScore * WEIGHT_ENVIRONMENTAL)
         + (socScore * WEIGHT_SOCIAL)
         + (govScore * WEIGHT_GOVERNANCE);
 
     return new EsgReport(
-      year.getYear(),
-      totalBudget,
-      envAmount,
-      socAmount,
-      govAmount,
-      neutAmount,
-      envScore,
-      socScore,
-      govScore,
-      overallScore
+        year.getYear(),
+        totalBudget,
+        envAmount,
+        socAmount,
+        govAmount,
+        neutAmount,
+        envScore,
+        socScore,
+        govScore,
+        overallScore
     );
   }
 
@@ -88,13 +89,16 @@ public class EsgScoreCalculator {
 
     // Iterate through all sectors, units, and entries
     for (EnvSector sector : year.getSectors()) {
-      // Fixed Indentation: expected 14 (inside 3 levels of nested loops)
       String sectorKey = sector.getJsonKey();
 
       for (EnvUnit unit : sector.getUnits()) {
+        String unitKey = unit.getJsonKey();
+
         for (EnvEntry entry : unit.getEntries()) {
           EsgCategory category = classifier.classifyEntry(
-              sectorKey, entry.getJsonKey()
+              sectorKey,
+              unitKey,
+              entry.getJsonKey()
           );
 
           double currentTotal = totals.get(category);
@@ -102,6 +106,7 @@ public class EsgScoreCalculator {
         }
       }
     }
+
     return totals;
   }
 
