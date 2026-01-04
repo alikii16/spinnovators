@@ -247,6 +247,7 @@ OpenBudget-app/
 │   │   │       │   ├── EsgClassifier.java
 │   │   │       │   ├── EsgScoreCalculator.java
 │   │   │       │   ├── EsgLoader.java
+│   │   │       │   ├── YeartoYearBudgetComparison.java
 │   │   │       │   └── InitialBudgetComparison.java
 │   │   │       ├── printer/                        # Console output
 │   │   │       │   ├── FullBudgetPrinter.java
@@ -882,7 +883,7 @@ void testCalculateReport() {
 
 ##  License
 
-This project is developed for **educational purposes** as part of the **Java Programming course** at the Department of Electrical and Computer Engineering.
+This project is developed for **educational purposes** as part of the **Java Programming course** at the Department of Management Science and Technology.
 
 **Academic Use Only** - Not for commercial distribution.
 
