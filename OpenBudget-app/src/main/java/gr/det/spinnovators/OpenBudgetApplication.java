@@ -139,6 +139,7 @@ public class OpenBudgetApplication {
       } else if (mainChoice.equals("3")) {
         System.out.println("Έξοδος...");
         exitApp = true;
+        boolean backToMain = true;
       } else {
         System.out.println("Μη έγκυρη επιλογή. Παρακαλώ επιλέξτε μεταξύ 1, 2 ή 3.");
       }
@@ -146,5 +147,3 @@ public class OpenBudgetApplication {
     scanner.close();
   }
 }
-
-
