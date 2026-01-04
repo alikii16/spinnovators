@@ -34,8 +34,8 @@ public class OpenBudgetApplication {
     try {
       // Define explicit path (Fixes Windows issues)
       String[] possiblePaths = {
-          "src/main/resources/frontend",              // Αν τρέχεις μέσα από τον φάκελο του project
-          "OpenBudget-app/src/main/resources/frontend" // Αν τρέχεις από τον εξωτερικό φάκελο
+          "src/main/resources/frontend",
+          "OpenBudget-app/src/main/resources/frontend"
       };
 
       String foundPath = null;
@@ -85,7 +85,7 @@ public class OpenBudgetApplication {
     boolean exitApp = false;
 
     while (!exitApp) {
-      System.out.println("\n=== ΜΕΝΟΥ ΕΠΙΛΟΓΗΣ ===");
+      System.out.println("%n=== ΜΕΝΟΥ ΕΠΙΛΟΓΗΣ ===");
       System.out.println("1. Κρατικός Προϋπολογισμός");
       System.out.println("2. Προϋπολογισμός Υπουργείου Περιβάλλοντος & Ενέργειας");
       System.out.println("3. Έξοδος");
@@ -96,10 +96,9 @@ public class OpenBudgetApplication {
         // General Budget Menu
         boolean backToMain = false;
         while (!backToMain) {
-          System.out.println("\n--- Κρατικός Προϋπολογισμός ---");
+          System.out.println("%n--- Κρατικός Προϋπολογισμός ---");
           System.out.println("1. Προβολή Προϋπολογισμού (ανά έτος)");
-          System.out.println("2. Σύγκριση Προϋπολογισμών");
-          System.out.println("3. Επιστροφή στο Αρχικό Μενού");
+          System.out.println("2. Επιστροφή στο Αρχικό Μενού");
           System.out.print("Επιλογή: ");
           String subChoice = scanner.nextLine();
 
@@ -107,10 +106,7 @@ public class OpenBudgetApplication {
             System.out.print("Δώστε έτος (2023, 2024, 2025, 2026): ");
             String yr = scanner.nextLine();
             fullPrinter.showBudget(yr);
-          } else if (subChoice.equals("2")) {
-            System.out.println("Εκκίνηση λειτουργίας σύγκρισης...");
-            // Εδώ θα μπει η λογική σύγκρισης
-          } else if (subChoice.equalsIgnoreCase("3")) {
+          } else if (subChoice.equalsIgnoreCase("2")) {
             backToMain = true;
           }
         } 
@@ -118,10 +114,11 @@ public class OpenBudgetApplication {
         // Ministry Budget Menu
         boolean backToMain = false;
         while (!backToMain) {
-          System.out.println("\n--- Υπουργείο Περιβάλλοντος & Ενέργειας ---");
+          System.out.println("%n--- Υπουργείο Περιβάλλοντος & Ενέργειας ---");
           System.out.println("1. Προβολή (ανά έτος)");
           System.out.println("2. Επεξεργασία (Editor)");
-          System.out.println("3. Επιστροφή στο Αρχικό Μενού");
+          System.out.println("3. Σύγκριση Προϋπολογισμών");
+          System.out.println("4. Επιστροφή στο Αρχικό Μενού");
           System.out.print("Επιλογή: ");
           String subChoice = scanner.nextLine();
 
@@ -132,7 +129,10 @@ public class OpenBudgetApplication {
           } else if (subChoice.equals("2")) {
             EnvBudgetEditor editor = new EnvBudgetEditor(envBudgetData, translator);
             editor.startEditingSession();
-          } else if (subChoice.equalsIgnoreCase("3")) {
+          } else if (subChoice.equals("3")) {
+            System.out.println("Εκκίνηση λειτουργίας σύγκρισης...");
+            // Εδώ θα μπει η λογική σύγκρισης
+          } else if (subChoice.equalsIgnoreCase("4")) {
             backToMain = true;
           }
         }
