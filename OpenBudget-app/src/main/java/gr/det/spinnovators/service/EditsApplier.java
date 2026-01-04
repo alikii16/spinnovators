@@ -345,17 +345,12 @@ public class EditsApplier {
 
         // Apply changes & Recalculate
         entry.setAmount(finalValidatedAmount);
-<<<<<<< HEAD
         double offsetAmount = oldAmount - finalValidatedAmount;
         this.currentBalance += offsetAmount;
 
         System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Διαφορά: %,.2f €\n", offsetAmount);
-=======
-        this.currentBalance += (oldAmount - finalValidatedAmount);
-        System.out.printf(" Το ποσό ενημερώθηκε σε %,.2f €%n", finalValidatedAmount);
         
         // Important: Recalculate to show the impact
->>>>>>> 9641ec031ef4db2cb4c0089dfb769661ff052425
         recalculateEsgScore(year);
         return;
       }
