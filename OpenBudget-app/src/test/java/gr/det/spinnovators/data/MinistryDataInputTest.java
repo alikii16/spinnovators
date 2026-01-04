@@ -1,6 +1,6 @@
 package gr.det.spinnovators.data;
 
-import gr.det.spinnovators.data.MinistryDataInput;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

@@ -1,5 +1,5 @@
 package gr.det.spinnovators.web;
-import gr.det.spinnovators.web.EsgWebDisplay;
+
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;

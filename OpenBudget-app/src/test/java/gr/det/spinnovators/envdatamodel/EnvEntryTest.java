@@ -1,6 +1,6 @@
 package gr.det.spinnovators.envdatamodel;
 
-import gr.det.spinnovators.envdatamodel.EnvEntry;
+
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
