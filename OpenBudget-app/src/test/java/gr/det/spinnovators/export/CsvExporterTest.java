@@ -47,7 +47,7 @@ public class CsvExporterTest {
         "Output should contain the second change log entry");
 
     // Optional: check number of lines
-    String[] lines = output.split("%n");
+    String[] lines = output.toString().split("\\R");
     assertEquals(3, lines.length, "Output should have 3 lines: BOM+header+2 entries");
   }
 }

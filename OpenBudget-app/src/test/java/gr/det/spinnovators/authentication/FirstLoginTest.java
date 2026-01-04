@@ -1,5 +1,7 @@
 package gr.det.spinnovators.authentication;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,7 +17,8 @@ public class FirstLoginTest {
         
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
-        
+        System.setIn(new ByteArrayInputStream("Minister\nm1n1st3r\n".getBytes(StandardCharsets.UTF_8)));
+
         FirstLogin.login();
         String output = outputStream.toString();
         assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."),"Expected successful login message for Minister");
@@ -28,7 +31,8 @@ public class FirstLoginTest {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
-        
+        System.setIn(new ByteArrayInputStream("User\n3mpl0y33\n".getBytes(StandardCharsets.UTF_8)));
+
         FirstLogin.login();
         String output = outputStream.toString();
         assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε Employee."),"Expected successful login message");
@@ -41,6 +45,9 @@ public class FirstLoginTest {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
+        
+        String input = "\n\nMinister\nm1n1st3r\n"; 
+        System.setIn(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
 
         FirstLogin.login();
         String output = outputStream.toString();
