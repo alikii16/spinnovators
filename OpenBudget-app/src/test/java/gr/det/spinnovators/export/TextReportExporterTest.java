@@ -1,6 +1,6 @@
 package gr.det.spinnovators.export;
 
-import gr.det.spinnovators.export.TextReportExporter;
+
 import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;

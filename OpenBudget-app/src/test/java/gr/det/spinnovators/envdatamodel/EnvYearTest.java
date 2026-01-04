@@ -7,10 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.util.Collections;
 import java.util.List;
 
-import gr.det.spinnovators.envdatamodel.EnvYear;
-import gr.det.spinnovators.envdatamodel.EnvSector;
-import gr.det.spinnovators.envdatamodel.EnvUnit;
-import gr.det.spinnovators.envdatamodel.EnvEntry;
+
 
 /**
  * Unit tests for EnvYear class.

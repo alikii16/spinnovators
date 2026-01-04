@@ -1,6 +1,6 @@
 package gr.det.spinnovators.service;
 
-import gr.det.spinnovators.service.EsgClassifier;
+
 import gr.det.spinnovators.envdatamodel.EsgCategory;
 
 import org.junit.jupiter.api.BeforeEach;

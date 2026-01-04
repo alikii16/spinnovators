@@ -8,8 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import gr.det.spinnovators.envdatamodel.EnvSector;
-import gr.det.spinnovators.envdatamodel.EnvUnit;
+
 
 /**
  * Unit tests for EnvSector class.

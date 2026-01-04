@@ -10,7 +10,7 @@ public class BudgetValidatorTest {
   @Test
   public void testValidationLogicConceptually() {
     // Create validator instance (interactive parts ignored)
-    BudgetValidator validator = new BudgetValidator();
+    
 
     double totalBudget = 1_000_000.0;
     double oldValue = 100.0;

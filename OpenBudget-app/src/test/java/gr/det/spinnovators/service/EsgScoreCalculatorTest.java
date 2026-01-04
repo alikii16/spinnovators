@@ -4,9 +4,9 @@ import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvYear;
-import gr.det.spinnovators.envdatamodel.EsgCategory;
+
 import gr.det.spinnovators.envdatamodel.EsgReport;
-import gr.det.spinnovators.service.EsgScoreCalculator;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

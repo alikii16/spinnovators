@@ -1,6 +1,6 @@
 package gr.det.spinnovators.printer;
 
-import gr.det.spinnovators.printer.EsgPrinter;
+
 import gr.det.spinnovators.envdatamodel.EsgReport;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Locale;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,15 +17,15 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class EsgPrinterTest {
 
-    private final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
+    
     private EsgPrinter printer;
     private ByteArrayOutputStream outputStream;
-    private PrintStream originalOut;
+    
 
     @BeforeEach
     void setUp() {
         printer = new EsgPrinter();
-        originalOut = System.out;
+        
         outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
     }
