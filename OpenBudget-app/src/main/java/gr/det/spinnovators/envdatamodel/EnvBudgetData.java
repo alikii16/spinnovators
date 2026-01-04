@@ -1,7 +1,6 @@
 package gr.det.spinnovators.envdatamodel;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,8 +26,13 @@ public class EnvBudgetData {
   
   public EnvBudgetData(Map<String, EnvYear> dataByYear,
                        Map<String, Double> envMinistryTotalBudget) {
-    this.dataByYear = dataByYear;
-    this.envMinistryTotalBudget = envMinistryTotalBudget != null ? new HashMap<>(envMinistryTotalBudget) : new HashMap<>();
+    this.dataByYear = (dataByYear != null) 
+        ? new java.util.HashMap<>(dataByYear) 
+        : new java.util.HashMap<>();
+    
+    this.envMinistryTotalBudget = (envMinistryTotalBudget != null) 
+        ? new java.util.HashMap<>(envMinistryTotalBudget) 
+        : new java.util.HashMap<>();
   }
   
   /**
