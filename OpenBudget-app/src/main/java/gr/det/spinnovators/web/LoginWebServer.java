@@ -13,6 +13,8 @@ import gr.det.spinnovators.printer.FullBudgetPrinter;
 import gr.det.spinnovators.service.BudgetValidator;
 import gr.det.spinnovators.service.EnvBudgetLoader;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
+import gr.det.spinnovators.service.EsgScoreCalculator;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -590,8 +592,20 @@ public final class LoginWebServer {
       }
       String htmlContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
       htmlContent = replaceUsernamePlaceholders(htmlContent, username, filename);
+      
       String budgetHtml = parseBudgetOutputToHtml(budgetOutput, year);
       htmlContent = insertBudgetHtmlIntoContent(htmlContent, budgetHtml);
+      
+      // Προσθήκη ESG αν είναι budget page (minister_budget.html ή employee_budget.html)
+      // Μετά τον προϋπολογισμό, μέσα στο ίδιο card container
+      boolean isBudgetPage = filename.contains("budget.html") && !filename.contains("statebudget");
+      if (isBudgetPage) {
+        String esgHtml = generateEsgHtmlForYear(year);
+        if (!esgHtml.isEmpty()) {
+          htmlContent = insertEsgHtmlIntoCard(htmlContent, esgHtml);
+        }
+      }
+      
       sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
     } catch (IOException e) {
       sendErrorResponse(exchange, 500, "Error loading page", e);
@@ -772,6 +786,166 @@ public final class LoginWebServer {
         return htmlContent.substring(0, lastDivIndex) + budgetHtml + "\n"
             + htmlContent.substring(lastDivIndex);
       }
+    }
+    return htmlContent;
+  }
+
+  private static String generateEsgHtmlForYear(String year) {
+    try {
+      initializeBudgetData();
+      EnvYear envYear = envBudgetData.getBudgetForYear(year);
+      if (envYear == null) {
+        return "";
+      }
+      
+      double totalBudget = getBudgetAmountForYear(year);
+      if (totalBudget == 0.0) {
+        // Αν δεν είναι 2025 ή 2026, δοκιμάζουμε να πάρουμε από envMinistryTotalBudget
+        java.util.Map<String, Double> totalBudgets = envBudgetData.getEnvMinistryTotalBudget();
+        if (totalBudgets != null && totalBudgets.containsKey(year)) {
+          totalBudget = totalBudgets.get(year);
+        } else {
+          // Αν δεν υπάρχει, υπολογίζουμε το συνολικό από τα δεδομένα
+          totalBudget = calculateTotalBudgetFromYear(envYear);
+        }
+      }
+      
+      EsgScoreCalculator calculator = new EsgScoreCalculator();
+      EsgReport report = calculator.calculateReport(envYear, totalBudget);
+      
+      String esgHtml = buildEsgHtml(report, year);
+      String sectorBreakdownHtml = generateSectorBreakdownHtml(envYear, totalBudget, year);
+      
+      return esgHtml + "\n" + sectorBreakdownHtml;
+    } catch (Exception e) {
+      return "";
+    }
+  }
+
+  private static double calculateTotalBudgetFromYear(EnvYear year) {
+    double total = 0.0;
+    for (EnvSector sector : year.getSectors()) {
+      for (EnvUnit unit : sector.getUnits()) {
+        for (EnvEntry entry : unit.getEntries()) {
+          total += entry.getAmount();
+        }
+      }
+    }
+    return total;
+  }
+
+  private static String generateSectorBreakdownHtml(EnvYear year, double totalBudget, String yearStr) {
+    java.util.List<String> names = new java.util.ArrayList<>();
+    java.util.List<Double> amounts = new java.util.ArrayList<>();
+    java.util.List<Double> percentages = new java.util.ArrayList<>();
+    
+    for (EnvSector sector : year.getSectors()) {
+      double sectorTotal = 0.0;
+      for (EnvUnit unit : sector.getUnits()) {
+        for (EnvEntry entry : unit.getEntries()) {
+          sectorTotal += entry.getAmount();
+        }
+      }
+      names.add(translator.translateCategory(sector.getJsonKey()));
+      amounts.add(sectorTotal);
+      percentages.add((sectorTotal / totalBudget) * 100.0);
+    }
+    
+    double sumPercentages = 0.0;
+    for (int i = 0; i < percentages.size(); i++) {
+      double rounded = Math.round(percentages.get(i) * 10.0) / 10.0;
+      percentages.set(i, rounded);
+      sumPercentages += rounded;
+    }
+    
+    if (Math.abs(sumPercentages - 100.0) > 0.001 && percentages.size() > 0) {
+      int largestIndex = 0;
+      for (int i = 1; i < amounts.size(); i++) {
+        if (amounts.get(i) > amounts.get(largestIndex)) {
+          largestIndex = i;
+        }
+      }
+      percentages.set(largestIndex, percentages.get(largestIndex) + (100.0 - sumPercentages));
+    }
+    
+    StringBuilder html = new StringBuilder();
+    html.append("<div style='margin-top: 24px; padding: 16px; background: #ffffff; border-radius: 8px; border: 1px solid #a5d6a7;'>");
+    html.append("<div style='text-align: center; margin-bottom: 20px; padding: 8px 12px; background: #f1f8e9; border-radius: 6px; border: 1px solid #c8e6c9;'>");
+    html.append("<div style='font-size: 13px; font-weight: 600; color: #2e7d32; margin-bottom: 4px;'>Συνολικό Ποσό Υπουργείου ").append(yearStr).append("</div>");
+    html.append("<div style='font-size: 18px; font-weight: 700; color: #1b5e20;'>").append(String.format(java.util.Locale.US, "%,.2f €", totalBudget)).append("</div></div>");
+    html.append("<h4 style='text-align: center; font-size: 16px; font-weight: 600; color: #1b5e20; margin-bottom: 16px;'>Κατανομή ανά Τομέα</h4>");
+    html.append("<div style='display: flex; flex-direction: column; gap: 12px;'>");
+    
+    for (int i = 0; i < names.size(); i++) {
+      double pct = percentages.get(i);
+      html.append("<div style='margin-bottom: 8px;'><div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;'>");
+      html.append("<span style='font-size: 14px; font-weight: 600; color: #0d4f1c;'>").append(names.get(i)).append("</span>");
+      html.append("<span style='font-size: 14px; font-weight: 700; color: #1b5e20;'>").append(String.format(java.util.Locale.US, "%,.2f €", amounts.get(i)));
+      html.append(" <span style='color: #2e7d32;'>(").append(Math.abs(pct - Math.round(pct)) < 0.01 ? String.format(java.util.Locale.US, "%.0f", pct) : String.format(java.util.Locale.US, "%.1f", pct)).append("%)</span></span></div>");
+      html.append("<div style='background: #e8e8e8; border-radius: 4px; height: 24px; overflow: hidden;'>");
+      html.append("<div style='background: #2e7d32; height: 100%; width: ").append(pct).append("%; border-radius: 4px;'></div></div></div>");
+    }
+    html.append("</div></div>");
+    return html.toString();
+  }
+
+  private static String buildEsgHtml(EsgReport report, String year) {
+    return String.format(java.util.Locale.US, """
+        <div style='margin-top: 24px; padding: 16px; background: linear-gradient(135deg, #ffffff 0%%, #f9f9f9 100%%); 
+        border-radius: 8px; border: 1px solid #a5d6a7;'>
+        <h3 style='text-align: center; font-size: 18px; font-weight: 700; color: #0d4f1c; margin-bottom: 12px;'>
+        ΣΥΝΟΛΙΚΟ ESG SCORE
+        </h3>
+        <div style='text-align: center; margin-bottom: 16px;'>
+        <div style='font-size: 28px; font-weight: 700; color: #1b5e20; margin-bottom: 4px;'>
+        %.2f / 100
+        </div>
+        <div style='font-size: 14px; color: #2e7d32; font-weight: 600;'>
+        Αξιολόγηση: %s
+        </div>
+        </div>
+        <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;'>
+        <div style='background: #e8f5e9; padding: 12px; border-radius: 6px; border: 1px solid #a5d6a7; text-align: center;'>
+        <div style='font-size: 12px; color: #2e7d32; font-weight: 600; margin-bottom: 6px;'>Environmental (E)</div>
+        <div style='font-size: 18px; font-weight: 700; color: #1b5e20;'>%.1f%%</div>
+        </div>
+        <div style='background: #e3f2fd; padding: 12px; border-radius: 6px; border: 1px solid #90caf9; text-align: center;'>
+        <div style='font-size: 12px; color: #1565c0; font-weight: 600; margin-bottom: 6px;'>Social (S)</div>
+        <div style='font-size: 18px; font-weight: 700; color: #0d47a1;'>%.1f%%</div>
+        </div>
+        <div style='background: #fff3e0; padding: 12px; border-radius: 6px; border: 1px solid #ffcc02; text-align: center;'>
+        <div style='font-size: 12px; color: #e65100; font-weight: 600; margin-bottom: 6px;'>Governance (G)</div>
+        <div style='font-size: 18px; font-weight: 700; color: #bf360c;'>%.1f%%</div>
+        </div>
+        </div>
+        </div>
+        """,
+        report.getOverallScore(),
+        report.getRatingGreek(),
+        report.getEnvironmentalScore(),
+        report.getSocialScore(),
+        report.getGovernanceScore()
+    );
+  }
+
+  private static String insertEsgHtmlIntoCard(String htmlContent, String esgHtml) {
+    // Προσθήκη ESG μέσα στο card, μετά τον προϋπολογισμό, πριν το κλείσιμο του card
+    // Το budgetHtml τελειώνει με </div></div> (κλείνει τον προϋπολογισμό)
+    // Μετά έρχεται το </div> που κλείνει το card
+    // Πρέπει να βρούμε το pattern "</div></div>\n        </div>" και να προσθέσουμε το ESG ανάμεσα
+    if (htmlContent.contains("</div></div>\n        </div>\n    </div>")) {
+      // Αν υπάρχει το pattern, προσθέτουμε το ESG μετά τον προϋπολογισμό, πριν το κλείσιμο του card
+      return htmlContent.replace("</div></div>\n        </div>\n    </div>",
+          "</div></div>\n" + esgHtml + "\n        </div>\n    </div>");
+    } else if (htmlContent.contains("</div></div>\n    </div>\n\n    <div class=\"container\"")) {
+      // Fallback: αν ο προϋπολογισμός τελειώνει και μετά έρχεται container
+      return htmlContent.replace("</div></div>\n    </div>\n\n    <div class=\"container\"",
+          "</div></div>\n" + esgHtml + "\n    </div>\n\n    <div class=\"container\"");
+    }
+    // Fallback: προσθήκη πριν το πρώτο container
+    if (htmlContent.contains("    <div class=\"container\" style=\"margin-top: 30px;\">")) {
+      return htmlContent.replace("    <div class=\"container\" style=\"margin-top: 30px;\">",
+          esgHtml + "\n    <div class=\"container\" style=\"margin-top: 30px;\">");
     }
     return htmlContent;
   }
@@ -998,8 +1172,86 @@ public final class LoginWebServer {
     }
   }
 
+  private static String generateBudgetHtmlFromEnvYear(EnvYear envYear, String year) {
+    initializeBudgetData();
+    StringBuilder budgetHtml = new StringBuilder();
+    
+    // Header
+    budgetHtml.append(buildBudgetHtmlHeader(year));
+    budgetHtml.append("<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>");
+    
+    for (EnvSector sector : envYear.getSectors()) {
+      String translatedSector = translator.translateCategory(sector.getJsonKey());
+      
+      budgetHtml.append("<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; ")
+          .append("border-radius: 8px; overflow: hidden;'>");
+      budgetHtml.append("<div style='background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 100%); ")
+          .append("padding: 16px; color: #ffffff; font-weight: 600; font-size: 18px;'>");
+      budgetHtml.append(translatedSector);
+      budgetHtml.append("</div><div style='padding: 16px;'>");
+      
+      double sectorTotal = 0.0;
+      
+      for (EnvUnit unit : sector.getUnits()) {
+        String translatedUnit = translator.translateCategory(unit.getJsonKey());
+        
+        budgetHtml.append("<div style='margin-top: 16px; margin-bottom: 12px;'>");
+        budgetHtml.append("<h4 style='color: #0d4f1c; font-size: 16px; font-weight: 600; ")
+            .append("margin-bottom: 8px;'>").append(translatedUnit).append("</h4>");
+        budgetHtml.append("<table style='width: 100%; border-collapse: collapse;'>");
+        
+        double unitTotal = 0.0;
+        
+        for (EnvEntry entry : unit.getEntries()) {
+          String translatedEntry = translator.translateCategory(entry.getJsonKey());
+          double amount = entry.getAmount();
+          unitTotal += amount;
+          
+          budgetHtml.append("<tr style='border-bottom: 1px solid #e8e8e8;'>");
+          budgetHtml.append("<td style='padding: 10px 12px; color: #2e7d32; font-size: 14px;'>")
+              .append(translatedEntry).append("</td>");
+          budgetHtml.append("<td style='padding: 10px 12px; text-align: right; color: #1b5e20; ")
+              .append("font-weight: 600; font-size: 14px;'>")
+              .append(String.format(java.util.Locale.US, "%,.2f €", amount)).append("</td>");
+          budgetHtml.append("</tr>");
+        }
+        
+        budgetHtml.append("<tr style='background-color: #f1f8e9; border-top: 2px solid #0d4f1c;'>");
+        budgetHtml.append("<td style='padding: 12px; font-weight: 700; color: #0d4f1c; ")
+            .append("font-size: 15px;'>Σύνολο Μονάδας</td>");
+        budgetHtml.append("<td style='padding: 12px; text-align: right; font-weight: 700; ")
+            .append("color: #1b5e20; font-size: 15px;'>")
+            .append(String.format(java.util.Locale.US, "%,.2f €", unitTotal)).append("</td>");
+        budgetHtml.append("</tr></table></div>");
+        
+        sectorTotal += unitTotal;
+      }
+      
+      budgetHtml.append("<div style='margin-top: 16px; padding: 12px 16px; ")
+          .append("background-color: #f1f8e9; border: 2px solid #0d4f1c; border-radius: 8px; ")
+          .append("font-weight: 700; color: #0d4f1c; font-size: 15px;'>");
+      budgetHtml.append("Συνολικό ποσό τομέα: <span style='float:right; color:#1b5e20;'>")
+          .append(String.format(java.util.Locale.US, "%,.2f €", sectorTotal)).append("</span>");
+      budgetHtml.append("</div>");
+      
+      budgetHtml.append("</div></div>");
+    }
+    
+    budgetHtml.append("</div></div></div>");
+    return budgetHtml.toString();
+  }
+
   private static void serveEndMessage(HttpExchange exchange,
                                       String message, boolean success) throws IOException {
+    ChangeSession changeSession = getChangeSession();
+    String budgetHtml = "";
+    
+    // Εμφάνιση του τροποποιημένου προϋπολογισμού αν υπάρχει
+    if (changeSession.envYear != null) {
+      String year = changeSession.envYear.getYear();
+      budgetHtml = generateBudgetHtmlFromEnvYear(changeSession.envYear, year);
+    }
+    
     String color = success ? "#1b5e20" : "#b71c1c";
     String buttonHtml;
     
@@ -1008,7 +1260,7 @@ public final class LoginWebServer {
         +  "text-decoration:none;'> Λήψη Αναφοράς Αλλαγών </a>";
 
     if (success) {
-      buttonHtml = downloadBtn + "<a class='primary-btn' href='/esg.html' "
+      buttonHtml = downloadBtn + "<a class='secondary-btn' href='/esg.html' "
         + "style='text-decoration:none; margin-top:18px;'>ESG Αξιολόγηση</a>";
     } else {
       buttonHtml = downloadBtn + """
@@ -1021,8 +1273,8 @@ public final class LoginWebServer {
     String inner = """
       <h2 class='section-title'>Έλεγχος Ισοσκελισμού</h2>
       <div class='description' style='color:%s; font-weight:700;'>%s</div>
-      %s
-        """.formatted(color, message, buttonHtml);
+      %s%s
+        """.formatted(color, message, budgetHtml, buttonHtml);
     String html = buildStyledChangePage(inner, "");
     sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
   }
