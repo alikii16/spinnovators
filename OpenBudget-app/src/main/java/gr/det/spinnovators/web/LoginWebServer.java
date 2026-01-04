@@ -8,13 +8,13 @@ import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.printer.EnvBudgetPrinter;
 import gr.det.spinnovators.printer.FullBudgetPrinter;
 import gr.det.spinnovators.service.BudgetValidator;
 import gr.det.spinnovators.service.EnvBudgetLoader;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.service.EsgScoreCalculator;
-import gr.det.spinnovators.envdatamodel.EsgReport;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -32,8 +32,6 @@ import java.nio.file.Paths;
 public final class LoginWebServer {
   // CONFIGURATION CONSTANTS
   private static final int PORT = 8080;
-  // Note: Hardcoded credentials for demo/educational use only.
-  // For production, use secure authentication.
   private static final String MINISTER = "Minister";
   private static final String PASSWORD_MINISTER = "m1n1st3r";
   private static final String PASSWORD_EMPLOYEE = "3mpl0y33";
@@ -521,14 +519,9 @@ public final class LoginWebServer {
         return;
       }
 
-      String budgetOutput;
-      if (isBudgetPage) {
-        budgetOutput = captureEnvBudgetOutput(year);
-      } else {
-        MinistryDataInput allData = new MinistryDataInput();
-        FullBudgetPrinter printer = new FullBudgetPrinter(allData);
-        budgetOutput = printer.getBudgetOutput(year);
-      }
+      // MERGED LOGIC: Use cleaner ternary operator from Frontend but correct capturing methods
+      String budgetOutput = isBudgetPage
+          ? captureEnvBudgetOutput(year) : captureFullBudgetOutput(year);
 
       serveYearPageWithBudget(exchange, frontendPath, filename, formUsername, year, budgetOutput);
     } catch (IOException e) {
@@ -571,6 +564,20 @@ public final class LoginWebServer {
   }
 
   // NOTE: System.out redirection is not thread-safe. Ideally, printers should return String.
+  private static String captureFullBudgetOutput(String year) {
+    MinistryDataInput allData = new MinistryDataInput();
+    FullBudgetPrinter printer = new FullBudgetPrinter(allData);
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    java.io.PrintStream originalOut = System.out;
+    java.io.PrintStream capturedOut = new java.io.PrintStream(baos, true, StandardCharsets.UTF_8);
+    System.setOut(capturedOut);
+    try {
+      printer.showBudget(year);
+    } finally {
+      System.setOut(originalOut);
+    }
+    return baos.toString(StandardCharsets.UTF_8);
+  }
 
   private static void serveYearPageWithBudget(final HttpExchange exchange,
                                               final String frontendPath,
@@ -599,7 +606,7 @@ public final class LoginWebServer {
           htmlContent = insertEsgHtmlIntoCard(htmlContent, esgHtml);
         }
       }
-      
+
       sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
     } catch (IOException e) {
       sendErrorResponse(exchange, 500, "Error loading page", e);
@@ -794,12 +801,11 @@ public final class LoginWebServer {
       
       double totalBudget = getBudgetAmountForYear(year);
       if (totalBudget == 0.0) {
-        // Αν δεν είναι 2025 ή 2026, δοκιμάζουμε να πάρουμε από envMinistryTotalBudget
+        // Fallback: If not 2025/2026, try to get from map or calculate
         java.util.Map<String, Double> totalBudgets = envBudgetData.getEnvMinistryTotalBudget();
         if (totalBudgets != null && totalBudgets.containsKey(year)) {
           totalBudget = totalBudgets.get(year);
         } else {
-          // Αν δεν υπάρχει, υπολογίζουμε το συνολικό από τα δεδομένα
           totalBudget = calculateTotalBudgetFromYear(envYear);
         }
       }
@@ -885,7 +891,7 @@ public final class LoginWebServer {
 
   private static String buildEsgHtml(EsgReport report, String year) {
     return String.format(java.util.Locale.US, """
-        <div style='margin-top: 24px; padding: 16px; background: linear-gradient(135deg, #ffffff 0%%, #f9f9f9 100%%); 
+        <div style='margin-top: 24px; padding: 16px; background: linear-gradient(135deg, #ffffff 0%%, #f9f9f9 100%%);
         border-radius: 8px; border: 1px solid #a5d6a7;'>
         <h3 style='text-align: center; font-size: 18px; font-weight: 700; color: #0d4f1c; margin-bottom: 12px;'>
         ΣΥΝΟΛΙΚΟ ESG SCORE
@@ -923,20 +929,13 @@ public final class LoginWebServer {
   }
 
   private static String insertEsgHtmlIntoCard(String htmlContent, String esgHtml) {
-    // Προσθήκη ESG μέσα στο card, μετά τον προϋπολογισμό, πριν το κλείσιμο του card
-    // Το budgetHtml τελειώνει με </div></div> (κλείνει τον προϋπολογισμό)
-    // Μετά έρχεται το </div> που κλείνει το card
-    // Πρέπει να βρούμε το pattern "</div></div>\n        </div>" και να προσθέσουμε το ESG ανάμεσα
     if (htmlContent.contains("</div></div>\n        </div>\n    </div>")) {
-      // Αν υπάρχει το pattern, προσθέτουμε το ESG μετά τον προϋπολογισμό, πριν το κλείσιμο του card
       return htmlContent.replace("</div></div>\n        </div>\n    </div>",
           "</div></div>\n" + esgHtml + "\n        </div>\n    </div>");
     } else if (htmlContent.contains("</div></div>\n    </div>\n\n    <div class=\"container\"")) {
-      // Fallback: αν ο προϋπολογισμός τελειώνει και μετά έρχεται container
       return htmlContent.replace("</div></div>\n    </div>\n\n    <div class=\"container\"",
           "</div></div>\n" + esgHtml + "\n    </div>\n\n    <div class=\"container\"");
     }
-    // Fallback: προσθήκη πριν το πρώτο container
     if (htmlContent.contains("    <div class=\"container\" style=\"margin-top: 30px;\">")) {
       return htmlContent.replace("    <div class=\"container\" style=\"margin-top: 30px;\">",
           esgHtml + "\n    <div class=\"container\" style=\"margin-top: 30px;\">");
@@ -1240,7 +1239,6 @@ public final class LoginWebServer {
     ChangeSession changeSession = getChangeSession();
     String budgetHtml = "";
     
-    // Εμφάνιση του τροποποιημένου προϋπολογισμού αν υπάρχει
     if (changeSession.envYear != null) {
       String year = changeSession.envYear.getYear();
       budgetHtml = generateBudgetHtmlFromEnvYear(changeSession.envYear, year);
@@ -1680,7 +1678,7 @@ public final class LoginWebServer {
     }
     
     String template = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
-    EsgWebDisplay esgDisplay = new EsgWebDisplay();
+    gr.det.spinnovators.web.EsgWebDisplay esgDisplay = new gr.det.spinnovators.web.EsgWebDisplay();
     String content = esgDisplay.generateEsgComparisonContent(
         changeSession.originalYearSnapshot,
         changeSession.envYear,
