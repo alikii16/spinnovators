@@ -8,6 +8,7 @@ import gr.det.spinnovators.printer.FullBudgetPrinter;
 import gr.det.spinnovators.service.EnvBudgetLoader;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.web.LoginWebServer;
+import gr.det.spinnovators.editor.EnvBudgetEditor;
 import java.io.File;
 import java.util.Scanner;
 
@@ -78,36 +79,72 @@ public class OpenBudgetApplication {
     FirstLogin.login();
 
     MinistryDataInput allData = new MinistryDataInput();
-    FullBudgetPrinter printer = new FullBudgetPrinter(allData);
+    FullBudgetPrinter fullPrinter = new FullBudgetPrinter(allData);
 
     Scanner scanner = new Scanner(System.in);
-    String chosenYear;
-    String tempChosenYear = "0000";
+    boolean exitApp = false;
 
-    do {
-      System.out.println("=================================");
-      System.out.print("Ποιού έτους τον προϋπολογισμό θα θέλατε να δείτε; (2023, 2024 ή 2025): ");
-      chosenYear = scanner.nextLine();
+    while (!exitApp) {
+      System.out.println("\n=== ΜΕΝΟΥ ΕΠΙΛΟΓΗΣ ===");
+      System.out.println("1. Κρατικός Προϋπολογισμός");
+      System.out.println("2. Προϋπολογισμός Υπουργείου Περιβάλλοντος & Ενέργειας");
+      System.out.println("3. Έξοδος");
+      System.out.print("Επιλογή: ");
+      String mainChoice = scanner.nextLine();
 
-      if (!chosenYear.equals("0000")) {
-        printer.showBudget(chosenYear);
-        tempChosenYear = chosenYear;
-      } else if (!chosenYear.equals("2023") && !chosenYear.equals("2024")
-          && !chosenYear.equals("2025") && !chosenYear.equals("0000")) {
-        System.out.println("Μη έγκυρη επιλογή. Δοκιμάστε ξανά.");
+      if (mainChoice.equals("1")) {
+        // General Budget Menu
+        boolean backToMain = false;
+        while (!backToMain) {
+          System.out.println("\n--- Κρατικός Προϋπολογισμός ---");
+          System.out.println("1. Προβολή Προϋπολογισμού (ανά έτος)");
+          System.out.println("2. Σύγκριση Προϋπολογισμών");
+          System.out.println("3. Επιστροφή στο Αρχικό Μενού");
+          System.out.print("Επιλογή: ");
+          String subChoice = scanner.nextLine();
+
+          if (subChoice.equals("1")) {
+            System.out.print("Δώστε έτος (2023, 2024, 2025, 2026): ");
+            String yr = scanner.nextLine();
+            fullPrinter.showBudget(yr);
+          } else if (subChoice.equals("2")) {
+            System.out.println("Εκκίνηση λειτουργίας σύγκρισης...");
+            // Εδώ θα μπει η λογική σύγκρισης
+          } else if (subChoice.equalsIgnoreCase("3")) {
+            backToMain = true;
+          }
+        } 
+      } else if (mainChoice.equals("2")) {
+        // Ministry Budget Menu
+        boolean backToMain = false;
+        while (!backToMain) {
+          System.out.println("\n--- Υπουργείο Περιβάλλοντος & Ενέργειας ---");
+          System.out.println("1. Προβολή (ανά έτος)");
+          System.out.println("2. Επεξεργασία (Editor)");
+          System.out.println("3. Επιστροφή στο Αρχικό Μενού");
+          System.out.print("Επιλογή: ");
+          String subChoice = scanner.nextLine();
+
+          if (subChoice.equals("1")) {
+            System.out.print("Δώστε έτος για το Υπ. Περιβάλλοντος: ");
+            String yr = scanner.nextLine();
+            envPrinter.printYearlyBudget(yr);
+          } else if (subChoice.equals("2")) {
+            EnvBudgetEditor editor = new EnvBudgetEditor(envBudgetData, translator);
+            editor.startEditingSession();
+          } else if (subChoice.equalsIgnoreCase("3")) {
+            backToMain = true;
+          }
+        }
+      } else if (mainChoice.equals("3")) {
+        System.out.println("Έξοδος...");
+        exitApp = true;
       } else {
-        System.out.println("Θα εμφανιστεί ο προϋπολογισμός του Υπουργείου "
-            + "Περιβάλλοντος και Ενέργειας.");
-        envPrinter.printYearlyBudget(tempChosenYear);
+        System.out.println("Μη έγκυρη επιλογή. Παρακαλώ επιλέξτε μεταξύ 1, 2 ή 3.");
       }
-
-    } while (!chosenYear.equals("0000"));
-
-    // Start Editor
-    gr.det.spinnovators.editor.EnvBudgetEditor editor = 
-        new gr.det.spinnovators.editor.EnvBudgetEditor(envBudgetData, translator);
-    editor.startEditingSession();
-
+    }
     scanner.close();
   }
 }
+
+
