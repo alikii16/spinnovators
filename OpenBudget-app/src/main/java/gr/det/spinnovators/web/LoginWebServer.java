@@ -595,7 +595,6 @@ public final class LoginWebServer {
       htmlContent = replaceUsernamePlaceholders(htmlContent, username, filename);
       
       String budgetHtml = parseBudgetOutputToHtml(budgetOutput, year);
-      htmlContent = insertBudgetHtmlIntoContent(htmlContent, budgetHtml);
       
       // Προσθήκη ESG αν είναι budget page (minister_budget.html ή employee_budget.html)
       // Μετά τον προϋπολογισμό, μέσα στο ίδιο card container
@@ -603,10 +602,11 @@ public final class LoginWebServer {
       if (isBudgetPage) {
         String esgHtml = generateEsgHtmlForYear(year);
         if (!esgHtml.isEmpty()) {
-          htmlContent = insertEsgHtmlIntoCard(htmlContent, esgHtml);
+            budgetHtml = budgetHtml + esgHtml; // Direct concatenation avoids "lost" visual blocks
         }
       }
 
+      htmlContent = insertBudgetHtmlIntoContent(htmlContent, budgetHtml);
       sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
     } catch (IOException e) {
       sendErrorResponse(exchange, 500, "Error loading page", e);
@@ -926,21 +926,6 @@ public final class LoginWebServer {
         report.getSocialScore(),
         report.getGovernanceScore()
     );
-  }
-
-  private static String insertEsgHtmlIntoCard(String htmlContent, String esgHtml) {
-    if (htmlContent.contains("</div></div>\n        </div>\n    </div>")) {
-      return htmlContent.replace("</div></div>\n        </div>\n    </div>",
-          "</div></div>\n" + esgHtml + "\n        </div>\n    </div>");
-    } else if (htmlContent.contains("</div></div>\n    </div>\n\n    <div class=\"container\"")) {
-      return htmlContent.replace("</div></div>\n    </div>\n\n    <div class=\"container\"",
-          "</div></div>\n" + esgHtml + "\n    </div>\n\n    <div class=\"container\"");
-    }
-    if (htmlContent.contains("    <div class=\"container\" style=\"margin-top: 30px;\">")) {
-      return htmlContent.replace("    <div class=\"container\" style=\"margin-top: 30px;\">",
-          esgHtml + "\n    <div class=\"container\" style=\"margin-top: 30px;\">");
-    }
-    return htmlContent;
   }
 
   private static void serveYearPageWithError(final HttpExchange exchange,
