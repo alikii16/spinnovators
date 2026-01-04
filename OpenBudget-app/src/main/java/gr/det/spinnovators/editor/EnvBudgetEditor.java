@@ -5,11 +5,12 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.printer.EditsPrinter;
 import gr.det.spinnovators.service.EditsApplier;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Javadoc comment needed.
+ * Orchestrates the interactive budget editing session for the user.
+ * This class manages the user interface logic for selecting a fiscal year
+ * and applying modifications to the environmental budget data.
  */
 
 public class EnvBudgetEditor {
@@ -19,25 +20,26 @@ public class EnvBudgetEditor {
   private final Scanner scanner;
 
   /**
-   * Javadoc comment needed.
+   * Constructs an EnvBudgetEditor with the necessary data sources and translators.
+   *
+   * @param data The environmental budget data repository to be edited.
    * 
-   * @param data
-   * 
-   * @param translator
+   * @param translator The service used to translate or format budget categories.
    */
 
   public EnvBudgetEditor(EnvBudgetData data, EnvBudgetTranslator translator) {
     this.data = data;
     this.translator = translator;
-    this.scanner = new Scanner(System.in);
+    this.scanner = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
   }
 
   /**
-   * Javadoc comment needed
+   * Initiates an interactive console session for budget modification.
+   * The method prompts the user for confirmation, validates the selected fiscal year,
+   * triggers the editing logic, and finally displays the updated results.
    */
-
   public void startEditingSession() {
-    System.out.println("\n------------------------------------------------");
+    System.out.println("%n------------------------------------------------");
     System.out.print("Θέλετε να προχωρήσετε σε τροποποίηση του προϋπολογισμού; (ΝΑΙ/ΟΧΙ): ");
     String answer = scanner.nextLine().trim();
 
@@ -50,7 +52,8 @@ public class EnvBudgetEditor {
     String yearInput = scanner.nextLine().trim();
     EnvYear selectedYear = data.getBudgetForYear(yearInput);
 
-    if ((!selectedYear.equals("2025")) && (!selectedYear.equals("2026"))) {
+    // Fixed logic check for consistency
+    if ((!selectedYear.getYear().equals("2025")) && (!selectedYear.getYear().equals("2026"))) {
       System.out.println("Σφάλμα: Δεν βρέθηκαν δεδομένα για το έτος " + yearInput);
       return;
     }
@@ -58,7 +61,7 @@ public class EnvBudgetEditor {
     EditsApplier applier = new EditsApplier(translator);
     applier.applyEditsToYear(selectedYear);
 
-    EditsPrinter printer = new EditsPrinter(translator, yearInput);
+    EditsPrinter printer = new EditsPrinter(translator);
     printer.printEditYear(selectedYear);
   }
 }

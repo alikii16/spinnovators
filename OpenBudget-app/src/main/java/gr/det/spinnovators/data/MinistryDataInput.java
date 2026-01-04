@@ -3,11 +3,16 @@ package gr.det.spinnovators.data;
 import java.util.ArrayList;
 import java.util.List;
 
-/** * Class that has to do with inserting the amounts of every ministry.
+/** 
+ * Handles the storage and retrieval of national budget data for various ministries.
+ * This class serves as a data repository for budget allocations spanning 
+ * from the year 2023 to 2026.
  */
 public final class MinistryDataInput {
 
-  /** * Inner class that associates the name of the ministry with the amount.
+  /** 
+   * Represents a single ministry budget record.
+   * Associates a ministry's name with its corresponding budget amount.
    */
   public static class MinistryEntry {
     public String name;
@@ -32,12 +37,19 @@ public final class MinistryDataInput {
   private List<MinistryEntry> data23 = new ArrayList<>();
 
   /**
-   * Initializes the MinistryDataInput with data for years 2023-2026.
+   * Initializes the MinistryDataInput object.
+   * Automatically populates the data lists for the years 2023-2026 
+   * by calling the internal initialization method.
    */
   public MinistryDataInput() {
     initializeData();
   }
 
+  /**
+   * Populates the internal data structures with hardcoded budget values.
+   * This method organizes data for each year using parallel arrays for names 
+   * and amounts before converting them into MinistryEntry objects.
+   */
   private void initializeData() {
     String[] namesCommon = {
         "Προεδρία της Δημοκρατίας", "Βουλή των Ελλήνων", "Προεδρία της Κυβέρνησης",
@@ -122,71 +134,116 @@ public final class MinistryDataInput {
 
   // --- 2026 getters ---
 
-  /** @return Array of ministry names for 2026. */
+  /**
+   * Retrieves the names of all ministries for the 2026 budget.
+   *
+   * @return An array of strings containing ministry names.
+   */
   public String[] getNames26() {
     return data26.stream().map(e -> e.name).toArray(String[]::new);
   }
 
-  /** @return Array of budget amounts for 2026. */
+  /**
+   * Retrieves the budget amounts for all ministries in 2026.
+   *
+   * @return An array of doubles representing the budget allocations.
+   */
   public double[] getBudgetAmount26() {
     return data26.stream().mapToDouble(e -> e.amount).toArray();
   }
 
-  /** @return Number of records for 2026. */
+  /**
+   * Returns the total number of ministry records stored for 2026.
+   *
+   * @return The size of the 2026 data list.
+   */
   public int getSize26() {
     return data26.size();
   }
 
-
   // --- 2025 getters ---
 
-  /** @return Array of ministry names for 2025. */
+  /**
+   * Retrieves the names of all ministries for the 2025 budget.
+   *
+   * @return An array of strings containing ministry names.
+   */
   public String[] getNames25() {
     return data25.stream().map(e -> e.name).toArray(String[]::new);
   }
 
-  /** @return Array of budget amounts for 2025. */
+  /**
+   * Retrieves the budget amounts for all ministries in 2025.
+   *
+   * @return An array of doubles representing the budget allocations.
+   */
   public double[] getBudgetAmount25() {
     return data25.stream().mapToDouble(e -> e.amount).toArray();
   }
 
-  /** @return Number of records for 2025. */
+  /**
+   * Returns the total number of ministry records stored for 2025.
+   *
+   * @return The size of the 2025 data list.
+   */
   public int getSize25() {
     return data25.size();
   }
 
-
   // --- 2024 getters ---
 
-  /** @return Array of ministry names for 2024. */
+  /**
+   * Retrieves the names of all ministries for the 2024 budget.
+   *
+   * @return An array of strings containing ministry names.
+   */
   public String[] getNames24() {
     return data24.stream().map(e -> e.name).toArray(String[]::new);
   }
 
-  /** @return Array of budget amounts for 2024. */
+  /**
+   * Retrieves the budget amounts for all ministries in 2024.
+   *
+   * @return An array of doubles representing the budget allocations.
+   */
   public double[] getBudgetAmount24() {
     return data24.stream().mapToDouble(e -> e.amount).toArray();
   }
 
-  /** @return Number of records for 2024. */
+  /**
+   * Returns the total number of ministry records stored for 2024.
+   *
+   * @return The size of the 2024 data list.
+   */
   public int getSize24() {
     return data24.size();
   }
 
-
   // --- 2023 getters ---
 
-  /** @return Array of ministry names for 2023. */
+  /**
+   * Retrieves the names of all ministries for the 2023 budget.
+   *
+   * @return An array of strings containing ministry names.
+   */
   public String[] getNames23() {
     return data23.stream().map(e -> e.name).toArray(String[]::new);
   }
 
-  /** @return Array of budget amounts for 2023. */
+  /**
+   * Retrieves the budget amounts for all ministries in 2023.
+   *
+   * @return An array of doubles representing the budget allocations.
+   */
   public double[] getBudgetAmount23() {
     return data23.stream().mapToDouble(e -> e.amount).toArray();
   }
 
-  /** @return Number of records for 2023. */
+  /**
+   * Returns the total number of ministry records stored for 2023.
+   *
+   * @return The size of the 2023 data list.
+   */
   public int getSize23() {
     return data23.size();
   }

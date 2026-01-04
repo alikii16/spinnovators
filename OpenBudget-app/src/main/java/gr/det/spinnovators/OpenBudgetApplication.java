@@ -8,19 +8,19 @@ import gr.det.spinnovators.printer.FullBudgetPrinter;
 import gr.det.spinnovators.service.EnvBudgetLoader;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.web.LoginWebServer;
-
-
 import java.io.File;
-
 import java.util.Scanner;
 
 /**
- * Javadoc comment needed
+ * The main entry point for the OpenBudget application.
+ * This class initializes the core services, launches the optional web-based 
+ * login interface, and manages the primary terminal-based user interaction flow.
  */
 public class OpenBudgetApplication {
   /**
-   * Javadoc comment needed
-   * @param args
+   * Starts the application and manages the main execution loop.
+   *
+   * @param args Command-line arguments passed to the application at startup.
    */
   public static void main(String[] args) {
 
@@ -31,72 +31,50 @@ public class OpenBudgetApplication {
 
     // Start web server for HTML interface
     try {
-      String frontendPath = null;
+      // Define explicit path (Fixes Windows issues)
+      String[] possiblePaths = {
+          "src/main/resources/frontend",              // Αν τρέχεις μέσα από τον φάκελο του project
+          "OpenBudget-app/src/main/resources/frontend" // Αν τρέχεις από τον εξωτερικό φάκελο
+      };
 
-      // Try to find frontend directory from classpath resources
-      java.net.URL resourceUrl = OpenBudgetApplication.class.getClassLoader()
-          .getResource("frontend/login.html");
-      if (resourceUrl != null && resourceUrl.getProtocol().equals("file")) {
-        try {
-          frontendPath = java.nio.file.Paths.get(resourceUrl.toURI()).getParent().toString();
-        } catch (Exception e) {
-          // Continue to fallback paths
+      String foundPath = null;
+      for (String path : possiblePaths) {
+        File f = new File(path);
+        if (f.exists() && f.isDirectory()) {
+          foundPath = path;
+          break;
         }
       }
 
-      // Fallback: try common paths if resource not found
-      // Prefer src/main/resources/frontend first (for development) before target/classes/frontend
-      if (frontendPath == null || !new File(frontendPath).exists()) {
-        String currentDir = System.getProperty("user.dir");
-        String[] possiblePaths = {
-            currentDir + File.separator + "src" + File.separator + "main" + File.separator
-                + "resources" + File.separator + "frontend",
-            currentDir + File.separator + "OpenBudget-app" + File.separator + "src"
-                + File.separator + "main" + File.separator + "resources"
-                + File.separator + "frontend",
-            currentDir + File.separator + "target" + File.separator + "classes"
-                + File.separator + "frontend"
-        };
-
-        for (String path : possiblePaths) {
-          File dir = new File(path);
-          if (dir.exists() && dir.isDirectory()) {
-            frontendPath = path;
-            break;
-          }
-        }
-      }
-
-      if (frontendPath != null && new File(frontendPath).exists()) {
-        LoginWebServer.startServer(frontendPath);
-        System.out.println("Web interface available at http://localhost:8080/login.html");
-
-        // Try to open browser automatically
+      if (foundPath != null) {
+        LoginWebServer.startServer(foundPath);
+        
+        String url = "http://localhost:8080/login.html";
+        System.out.println("==========================================");
+        System.out.println("Web interface available at: " + url);
+        System.out.println("==========================================");
+      
+        // (Optional) Open Browser automatically
         try {
-          String url = "http://localhost:8080/login.html";
-          java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
-          if (desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
-            desktop.browse(new java.net.URI(url));
-          } else {
-            // Fallback for Windows
-            new ProcessBuilder("cmd", "/c", "start", url).start();
+          if (java.awt.Desktop.isDesktopSupported()) {
+            java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
           }
-        } catch (Exception browserEx) {
-          System.out.println("Please open http://localhost:8080/login.html "
-              + "manually in your browser");
+        } catch (Exception ignored) {
+          System.out.println("Please open " + url + " manually in your browser");
         }
-
         System.out.println("You can also use the terminal interface below:");
         System.out.println("==========================================");
+
       } else {
-        System.out.println("Warning: Frontend directory not found. Using terminal mode only.");
+        System.out.println("Warning: Frontend directory not found at " + foundPath);
+        System.out.println("Using terminal mode only.");
       }
     } catch (Exception e) {
       System.out.println("Warning: Could not start web server: " + e.getMessage());
       System.out.println("Continuing with terminal mode only...");
     }
 
-    // Terminal interface (original functionality)
+    // Terminal interface execution (original functionality)
     FirstLogin.login();
 
     MinistryDataInput allData = new MinistryDataInput();
@@ -124,6 +102,12 @@ public class OpenBudgetApplication {
       }
 
     } while (!chosenYear.equals("0000"));
+
+    // Start Editor
+    gr.det.spinnovators.editor.EnvBudgetEditor editor = 
+        new gr.det.spinnovators.editor.EnvBudgetEditor(envBudgetData, translator);
+    editor.startEditingSession();
+
     scanner.close();
   }
 }

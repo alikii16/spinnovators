@@ -1,21 +1,23 @@
 package gr.det.spinnovators.web;
 
-import gr.det.spinnovators.envdatamodel.ESG_Report;
 import gr.det.spinnovators.envdatamodel.EnvYear;
-import gr.det.spinnovators.service.ESG_Score_Calculator;
-
+import gr.det.spinnovators.envdatamodel.EsgReport;
+import gr.det.spinnovators.service.EsgScoreCalculator;
 import java.util.Locale;
 
 /**
- * Handles ESG report display in web interface.
+ * Handles the generation of ESG report components for the web interface.
+ *
+ * <p>This class calculates ESG metrics and formats them into HTML fragments
+ * to be displayed in the web application's comparison dashboard.
  */
-public class ESGWebDisplay {
+public class EsgWebDisplay {
 
   private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
-  private final ESG_Score_Calculator calculator;
+  private final EsgScoreCalculator calculator;
 
-  public ESGWebDisplay() {
-    this.calculator = new ESG_Score_Calculator();
+  public EsgWebDisplay() {
+    this.calculator = new EsgScoreCalculator();
   }
 
   /**
@@ -29,14 +31,14 @@ public class ESGWebDisplay {
   public String generateEsgComparisonContent(EnvYear originalYear, 
                                              EnvYear modifiedYear,
                                              double totalBudget) {
-    ESG_Report originalReport = calculator.calculateReport(originalYear, totalBudget);
-    ESG_Report modifiedReport = calculator.calculateReport(modifiedYear, totalBudget);
+    EsgReport originalReport = calculator.calculateReport(originalYear, totalBudget);
+    EsgReport modifiedReport = calculator.calculateReport(modifiedYear, totalBudget);
 
     return buildComparisonContent(originalReport, modifiedReport, originalYear.getYear());
   }
 
-  private String buildComparisonContent(ESG_Report original, 
-                                       ESG_Report modified,
+  private String buildComparisonContent(EsgReport original, 
+                                       EsgReport modified,
                                        String year) {
     double scoreDiff = modified.getOverallScore() - original.getOverallScore();
     String message = scoreDiff > 0 ? "ΒΕΛΤΙΩΣΗ" :

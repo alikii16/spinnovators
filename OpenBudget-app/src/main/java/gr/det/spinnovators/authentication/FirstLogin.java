@@ -5,8 +5,10 @@ import java.util.Scanner;
 // This file will be used for users login.
 
 /**
- * Utility class to handle user login process.
- * It prompts the user for credentials and validates them,
+ * Provides authentication functionalities for the application's users.
+ * This utility class validates user credentials (username and password)
+ * and grants system access based on predefined roles, such as Minister 
+ * or Employee.
  */
 public final class FirstLogin {
 
@@ -17,26 +19,26 @@ public final class FirstLogin {
   }
 
   /**
-   * It has to do with the login of the user,
-   * repeating it until connection.
+   * Manages the user login process via the console interface.
+   * It prompts the user for credentials in a loop until valid information 
+   * is provided. The method distinguishes between the "Minister" role 
+   * and standard "Employees" based on the provided password.
    */
   public static void login() {
     @SuppressWarnings("resource")
-    Scanner input = new Scanner(System.in);
+    Scanner input = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
 
-    String minister = "Minister";
-    String passwordMinister = "m1n1st3r";
-    String passwordEmployee = "3mpl0y33";
+    final String minister = "Minister";
+    final String passwordMinister = "m1n1st3r";
+    final String passwordEmployee = "3mpl0y33";
     boolean isValid;
 
     do {
-      String username;
-      String password;
-
       System.out.print("Εισάγετε όνομα χρήστη: ");
-      username = input.nextLine();
+      String username = input.nextLine();
+      
       System.out.print("Εισάγετε κωδικό: ");
-      password = input.nextLine();
+      String password = input.nextLine();
 
       if (username.equals(minister) && password.equals(passwordMinister)) {
         isValid = true;

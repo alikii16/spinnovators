@@ -1,30 +1,29 @@
 package gr.det.spinnovators.service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
-
 /**
  * Loads ESG configuration from JSON file.
  *
- * Provides centralized access to ESG weights, thresholds, classifications,
+ * <p>Provides centralized access to ESG weights, thresholds, classifications,
  * and display settings defined in esg_config.json.
  *
  * @author Spinnovators Team
  * 
  * @version 2.0
  */
-public class ESG_Loader {
+public class EsgLoader {
 
   private static final String CONFIG_FILE = "esg_config.json";
-  private static final Logger LOGGER = Logger.getLogger(ESG_Loader.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(EsgLoader.class.getName());
 
   private JsonObject config;
   private final Gson gson;
@@ -32,7 +31,7 @@ public class ESG_Loader {
   /**
    * Constructs an ESG config loader and loads the configuration file.
    */
-  public ESG_Loader() {
+  public EsgLoader() {
     this.gson = new Gson();
     this.config = loadConfigFile();
   }
@@ -40,7 +39,7 @@ public class ESG_Loader {
   /**
    * Loads the ESG configuration JSON file.
    *
-   * @return JsonObject containing configuration, or null on failure
+   * @return JsonObject containing configuration, or null on failure.
    */
   private JsonObject loadConfigFile() {
     InputStream inputStream = getClass().getClassLoader()
@@ -52,7 +51,8 @@ public class ESG_Loader {
       return createDefaultConfig();
     }
 
-    try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream))) {
+    try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream,
+        java.nio.charset.StandardCharsets.UTF_8))) {
       return gson.fromJson(reader, JsonObject.class);
     } catch (JsonSyntaxException e) {
       LOGGER.log(Level.SEVERE,
@@ -68,7 +68,7 @@ public class ESG_Loader {
   /**
    * Creates a default configuration object if file loading fails.
    *
-   * @return JsonObject with default values
+   * @return JsonObject with default values.
    */
   private JsonObject createDefaultConfig() {
     String defaultJson = """
@@ -88,8 +88,8 @@ public class ESG_Loader {
 
   /**
    * Gets the weight for Environmental score.
-   * 
-   * @return Weight value (default: 0.40)
+   *
+   * @return Weight value (default: 0.40).
    */
   public double getEnvironmentalWeight() {
     return getDoubleFromPath("weights.environmental", 0.40);
@@ -97,8 +97,8 @@ public class ESG_Loader {
 
   /**
    * Gets the weight for Social score.
-   * 
-   * @return Weight value (default: 0.30)
+   *
+   * @return Weight value (default: 0.30).
    */
   public double getSocialWeight() {
     return getDoubleFromPath("weights.social", 0.30);
@@ -106,8 +106,8 @@ public class ESG_Loader {
 
   /**
    * Gets the weight for Governance score.
-   * 
-   * @return Weight value (default: 0.30)
+   *
+   * @return Weight value (default: 0.30).
    */
   public double getGovernanceWeight() {
     return getDoubleFromPath("weights.governance", 0.30);
@@ -117,8 +117,8 @@ public class ESG_Loader {
 
   /**
    * Gets the threshold for "Excellent" rating.
-   * 
-   * @return Threshold value (default: 80)
+   *
+   * @return Threshold value (default: 80).
    */
   public int getExcellentThreshold() {
     return getIntFromPath("thresholds.excellent", 80);
@@ -126,8 +126,8 @@ public class ESG_Loader {
 
   /**
    * Gets the threshold for "Good" rating.
-   * 
-   * @return Threshold value (default: 60)
+   *
+   * @return Threshold value (default: 60).
    */
   public int getGoodThreshold() {
     return getIntFromPath("thresholds.good", 60);
@@ -135,8 +135,8 @@ public class ESG_Loader {
 
   /**
    * Gets the threshold for "Moderate" rating.
-   * 
-   * @return Threshold value (default: 40)
+   *
+   * @return Threshold value (default: 40).
    */
   public int getModerateThreshold() {
     return getIntFromPath("thresholds.moderate", 40);
@@ -144,7 +144,7 @@ public class ESG_Loader {
 
   /**
    * Gets the threshold for "Poor" rating.
-   * 
+   *
    * @return Threshold value (default: 20)
    */
   public int getPoorThreshold() {
@@ -156,9 +156,9 @@ public class ESG_Loader {
   /**
    * Gets the ESG classification for a sector.
    *
-   * @param sectorKey The JSON key of the sector
-   * 
-   * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE, MIXED, NEUTRAL)
+   * @param sectorKey The JSON key of the sector.
+   *
+   * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE, MIXED, NEUTRAL).
    */
   public String getSectorClassification(String sectorKey) {
     if (config == null || !config.has("sectors")) {
@@ -176,10 +176,9 @@ public class ESG_Loader {
   /**
    * Gets the ESG classification for an entry type.
    *
-   * @param entryKey The JSON key of the entry
-   * 
+   * @param entryKey The JSON key of the entry.
    * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE,
-   * CONTEXT_DEPENDENT, NEUTRAL)
+   * CONTEXT_DEPENDENT, NEUTRAL).
    */
   public String getEntryClassification(String entryKey) {
     if (config == null || !config.has("entries")) {
@@ -198,11 +197,11 @@ public class ESG_Loader {
    * Determines the effective ESG category for an entry.
    * If entry is CONTEXT_DEPENDENT, inherits from sector.
    *
-   * @param entryKey The entry JSON key
+   * @param entryKey The entry JSON key.
    * 
-   * @param sectorKey The parent sector JSON key
-   * 
-   * @return The effective ESG category
+   * @param sectorKey The parent sector JSON key.
+   *
+   * @return The effective ESG category.
    */
   public String getEffectiveCategory(String entryKey, String sectorKey) {
     String entryClass = getEntryClassification(entryKey);
@@ -218,7 +217,7 @@ public class ESG_Loader {
 
   /**
    * Gets the progress bar width for terminal display.
-   * 
+   *
    * @return Width in characters (default: 20)
    */
   public int getProgressBarWidth() {
@@ -227,7 +226,7 @@ public class ESG_Loader {
 
   /**
    * Checks if ESG reporting is enabled.
-   * 
+   *
    * @return true if enabled (default: true)
    */
   public boolean isEsgEnabled() {
@@ -236,7 +235,7 @@ public class ESG_Loader {
 
   /**
    * Checks if ESG should be shown in terminal.
-   * 
+   *
    * @return true if enabled (default: true)
    */
   public boolean showEsgInTerminal() {
@@ -245,7 +244,7 @@ public class ESG_Loader {
 
   /**
    * Checks if ESG should be shown in web interface.
-   * 
+   *
    * @return true if enabled (default: true)
    */
   public boolean showEsgInWeb() {
@@ -254,7 +253,7 @@ public class ESG_Loader {
 
   /**
    * Checks if compact ESG summary should be shown after edits.
-   * 
+   *
    * @return true if enabled (default: true)
    */
   public boolean showCompactAfterEdit() {
@@ -265,7 +264,7 @@ public class ESG_Loader {
 
   /**
    * Gets threshold for low environmental score warning.
-   * 
+   *
    * @return Threshold value (default: 50)
    */
   public int getEnvironmentalLowThreshold() {
@@ -274,7 +273,7 @@ public class ESG_Loader {
 
   /**
    * Gets threshold for low social score warning.
-   * 
+   *
    * @return Threshold value (default: 20)
    */
   public int getSocialLowThreshold() {
@@ -283,7 +282,7 @@ public class ESG_Loader {
 
   /**
    * Gets threshold for low governance score warning.
-   * 
+   *
    * @return Threshold value (default: 15)
    */
   public int getGovernanceLowThreshold() {
@@ -294,7 +293,7 @@ public class ESG_Loader {
 
   /**
    * Gets the default language code.
-   * 
+   *
    * @return Language code (default: "el")
    */
   public String getDefaultLanguage() {
@@ -307,7 +306,7 @@ public class ESG_Loader {
    * @param rating The rating level (excellent, good, moderate, poor, critical)
    * 
    * @param language The language code ("el" or "en")
-   * 
+   *
    * @return Localized rating text
    */
   public String getRatingText(String rating, String language) {
@@ -330,7 +329,7 @@ public class ESG_Loader {
 
   /**
    * Gets minimum score difference to show comparison.
-   * 
+   *
    * @return Threshold value (default: 0.1)
    */
   public double getMinScoreDiffToShow() {
@@ -339,7 +338,7 @@ public class ESG_Loader {
 
   /**
    * Gets decimal places for score display.
-   * 
+   *
    * @return Number of decimal places (default: 2)
    */
   public int getScoreDecimalPlaces() {
@@ -348,7 +347,7 @@ public class ESG_Loader {
 
   /**
    * Checks if detailed logging is enabled.
-   * 
+   *
    * @return true if enabled (default: false)
    */
   public boolean isLoggingEnabled() {
@@ -357,7 +356,7 @@ public class ESG_Loader {
 
   /**
    * Checks if ESG calculation caching is enabled.
-   * 
+   *
    * @return true if enabled (default: false)
    */
   public boolean isCachingEnabled() {
@@ -372,7 +371,7 @@ public class ESG_Loader {
    * @param path Dot-separated path (e.g., "weights.environmental")
    * 
    * @param defaultValue Default value if path not found
-   * 
+   *
    * @return The string value or default
    */
   private String getStringFromPath(String path, String defaultValue) {
@@ -442,9 +441,10 @@ public class ESG_Loader {
 
   /**
    * Gets the entire configuration object.
-   * Useful for advanced operations.
+   * 
+   * <p>Useful for advanced operations.
    *
-   * @return The JsonObject configuration
+   * @return The JsonObject configuration.
    * 
    */
   public JsonObject getConfig() {

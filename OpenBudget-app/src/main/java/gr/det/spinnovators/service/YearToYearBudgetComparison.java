@@ -11,27 +11,26 @@ import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
-import gr.det.spinnovators.envdatamodel.ESG_Report;
-import gr.det.spinnovators.printer.ESG_Printer;
+import gr.det.spinnovators.envdatamodel.EsgReport;
+import gr.det.spinnovators.printer.EsgPrinter;
 
+/**
+ * Compares budgets of two different years per sector.
+ * Shows percentage allocation, top changes, and ESG impact.
+ */
 public class YearToYearBudgetComparison {
 
-  // Translates sector json keys to readable names
   private final EnvBudgetTranslator translator;
-
-  // Calculates ESG scores per year
-  private final ESG_Score_Calculator esgCalculator;
-
-  // Prints ESG comparison output
-  private final ESG_Printer esgPrinter;
+  private final EsgScoreCalculator esgCalculator;
+  private final EsgPrinter esgPrinter;
 
   public YearToYearBudgetComparison(EnvBudgetTranslator translator) {
     this.translator = translator;
-    this.esgCalculator = new ESG_Score_Calculator();
-    this.esgPrinter = new ESG_Printer();
+    this.esgCalculator = new EsgScoreCalculator();
+    this.esgPrinter = new EsgPrinter();
   }
 
-  // Entry point for year-to-year comparison
+  /** Main entry point for comparing two years */
   public void compareYears(
       EnvYear baseYear,
       EnvYear compareYear,
@@ -43,32 +42,19 @@ public class YearToYearBudgetComparison {
     Map<String, Double> baseTotals = calculateSectorTotals(baseYear);
     Map<String, Double> compareTotals = calculateSectorTotals(compareYear);
 
-    printSectorComparison(
-        baseTotals,
-        compareTotals,
-        baseTotal,
-        compareTotal);
-
+    printSectorComparison(baseTotals, compareTotals, baseTotal, compareTotal);
     printTopChanges(baseTotals, compareTotals);
-
-    printEsgComparison(
-        baseYear,
-        compareYear,
-        baseTotal,
-        compareTotal);
-
+    printEsgComparison(baseYear, compareYear, baseTotal, compareTotal);
     printConclusions(baseTotals, compareTotals);
 
     printFooter();
   }
 
-  // Sums all entries per sector for a given year
+  /** Sum all entries per sector for a given year */
   private Map<String, Double> calculateSectorTotals(EnvYear year) {
     Map<String, Double> totals = new LinkedHashMap<>();
-
     for (EnvSector sector : year.getSectors()) {
       double sum = 0.0;
-
       for (EnvUnit unit : sector.getUnits()) {
         for (EnvEntry entry : unit.getEntries()) {
           sum += entry.getAmount();
@@ -79,7 +65,7 @@ public class YearToYearBudgetComparison {
     return totals;
   }
 
-  // Prints percentage allocation and year-to-year change per sector
+  /** Prints sector comparison table */
   private void printSectorComparison(
       Map<String, Double> base,
       Map<String, Double> compare,
@@ -99,12 +85,8 @@ public class YearToYearBudgetComparison {
     for (String key : allKeys) {
       double baseValue = base.getOrDefault(key, 0.0);
       double compareValue = compare.getOrDefault(key, 0.0);
-
       double diff = compareValue - baseValue;
-      double pctChange = baseValue > 0
-          ? (diff / baseValue) * 100
-          : 0.0;
-
+      double pctChange = baseValue > 0 ? (diff / baseValue) * 100 : 0.0;
       String arrow = diff > 0 ? "⬆" : diff < 0 ? "⬇" : "→";
       String name = truncate(translator.translateCategory(key), 35);
 
@@ -117,32 +99,24 @@ public class YearToYearBudgetComparison {
           pctChange);
     }
 
-    System.out.println("└─────────────────────────────────────────────────────────────────────┘");
-    System.out.println();
+    System.out.println("└─────────────────────────────────────────────────────────────────────┘\n");
   }
 
-  // Shows the largest absolute sector differences
-  private void printTopChanges(
-      Map<String, Double> base,
-      Map<String, Double> compare) {
-
+  /** Shows top 3 increases and decreases */
+  private void printTopChanges(Map<String, Double> base, Map<String, Double> compare) {
     System.out.println("┌─────────────────────────────────────────────────────────────────────┐");
     System.out.println("│                     ΟΙ ΜΕΓΑΛΥΤΕΡΕΣ ΑΛΛΑΓΕΣ                          │");
-    System.out.println("└─────────────────────────────────────────────────────────────────────┘");
-    System.out.println();
+    System.out.println("└─────────────────────────────────────────────────────────────────────┘\n");
 
     List<SectorChange> changes = new ArrayList<>();
-
     for (String key : base.keySet()) {
       double diff = compare.getOrDefault(key, 0.0) - base.get(key);
       changes.add(new SectorChange(key, diff));
     }
 
-    changes.sort(
-        (a, b) -> Double.compare(Math.abs(b.diff), Math.abs(a.diff)));
+    changes.sort((a, b) -> Double.compare(Math.abs(b.diff), Math.abs(a.diff)));
 
-    int increases = 0;
-    int decreases = 0;
+    int increases = 0, decreases = 0;
     for (SectorChange change : changes) {
       String name = truncate(translator.translateCategory(change.key), 40);
       if (change.diff > 0 && increases < 3) {
@@ -156,68 +130,54 @@ public class YearToYearBudgetComparison {
 
     if (increases == 0) System.out.println(" • Δεν υπάρχουν αυξήσεις");
     if (decreases == 0) System.out.println(" • Δεν υπάρχουν μειώσεις");
-
     System.out.println();
   }
 
-  // Compares ESG reports between the two years
+  /** Compares ESG reports between the two years */
   private void printEsgComparison(
       EnvYear baseYear,
       EnvYear compareYear,
       double baseTotal,
       double compareTotal) {
 
-    ESG_Report baseReport =
-        esgCalculator.calculateReport(baseYear, baseTotal);
-    ESG_Report compareReport =
-        esgCalculator.calculateReport(compareYear, compareTotal);
+    EsgReport baseReport = esgCalculator.calculateReport(baseYear, baseTotal);
+    EsgReport compareReport = esgCalculator.calculateReport(compareYear, compareTotal);
 
     System.out.println("┌─────────────────────────────────────────────────────────────────────┐");
     System.out.println("│                   ΕΠΙΠΤΩΣΗ ΣΤΗΝ ΒΙΩΣΙΜΟΤΗΤΑ (ESG)                   │");
-    System.out.println("└─────────────────────────────────────────────────────────────────────┘");
-    System.out.println();
+    System.out.println("└─────────────────────────────────────────────────────────────────────┘\n");
 
     esgPrinter.printComparison(baseReport, compareReport);
   }
 
-  // Prints total budget difference between years
-  private void printConclusions(
-      Map<String, Double> base,
-      Map<String, Double> compare) {
-
-    double baseSum =
-        base.values().stream().mapToDouble(Double::doubleValue).sum();
-    double compareSum =
-        compare.values().stream().mapToDouble(Double::doubleValue).sum();
+  /** Shows total budget difference */
+  private void printConclusions(Map<String, Double> base, Map<String, Double> compare) {
+    double baseSum = base.values().stream().mapToDouble(Double::doubleValue).sum();
+    double compareSum = compare.values().stream().mapToDouble(Double::doubleValue).sum();
 
     System.out.println("📊 Συνολική Αλλαγή Προϋπολογισμού:");
-    System.out.printf(" Διαφορά: %+, .2f €%n", compareSum - baseSum);
-    System.out.println();
+    System.out.printf(" Διαφορά: %+, .2f €%n%n", compareSum - baseSum);
   }
 
   private void printHeader(String baseYear, String compareYear) {
     System.out.println();
     System.out.println("══════════════════════════════════════════════════════");
     System.out.println(" Σύγκριση Προϋπολογισμού: " + baseYear + " vs " + compareYear);
-    System.out.println("══════════════════════════════════════════════════════");
-    System.out.println();
+    System.out.println("══════════════════════════════════════════════════════\n");
   }
 
   private void printFooter() {
     System.out.println("══════════════════════════════════════════════════════");
-    System.out.println(" Τέλος Ανάλυσης Σύγκρισης");
-    System.out.println();
+    System.out.println(" Τέλος Ανάλυσης Σύγκρισης\n");
   }
 
-  // Truncates long labels for table output
+  /** Shortens long labels for table output */
   private String truncate(String value, int maxLength) {
-    if (value.length() <= maxLength) {
-      return value;
-    }
+    if (value.length() <= maxLength) return value;
     return value.substring(0, maxLength - 3) + "...";
   }
 
-  // Simple holder used for sorting sector differences
+  /** Holder for sector difference sorting */
   private static class SectorChange {
     private final String key;
     private final double diff;

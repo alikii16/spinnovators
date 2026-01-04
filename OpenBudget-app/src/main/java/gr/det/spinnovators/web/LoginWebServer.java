@@ -1,5 +1,7 @@
 package gr.det.spinnovators.web;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 import gr.det.spinnovators.data.MinistryDataInput;
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
@@ -8,9 +10,9 @@ import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.printer.EnvBudgetPrinter;
 import gr.det.spinnovators.printer.FullBudgetPrinter;
+import gr.det.spinnovators.service.BudgetValidator;
 import gr.det.spinnovators.service.EnvBudgetLoader;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -19,9 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
 
 /**
  * Web server class to handle login functionality via HTTP.
@@ -42,8 +41,12 @@ public final class LoginWebServer {
   private static final double BUDGET_2026 = 3133452000.00;
 
   private static double getBudgetAmountForYear(String year) {
-    if (VALID_CHANGE_YEARS[0].equals(year)) return BUDGET_2025;
-    if (VALID_CHANGE_YEARS[1].equals(year)) return BUDGET_2026;
+    if (VALID_CHANGE_YEARS[0].equals(year)) {
+      return BUDGET_2025;
+    }
+    if (VALID_CHANGE_YEARS[1].equals(year)) {
+      return BUDGET_2026;
+    }
     return 0.0;
   }
 
@@ -95,7 +98,7 @@ public final class LoginWebServer {
   private LoginWebServer() {
   }
 
-  private static void initializeBudgetData() {
+  private static synchronized void initializeBudgetData() {
     if (envBudgetData == null) {
       EnvBudgetLoader envLoader = new EnvBudgetLoader();
       envBudgetData = envLoader.loadBudget();
@@ -104,6 +107,12 @@ public final class LoginWebServer {
     }
   }
 
+  /**
+   * Starts the HTTP web server for login and budget management.
+   *
+   * @param frontendPath The path to the frontend HTML files.
+   * @throws IOException If the server fails to start.
+   */
   public static void startServer(final String frontendPath) throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
@@ -177,21 +186,22 @@ public final class LoginWebServer {
     });
 
     server.createContext("/download_report", exchange -> {
-       ChangeSession session = getChangeSession();
+      ChangeSession session = getChangeSession();
        
-       gr.det.spinnovators.export.EditedBudgetExporter exporter = 
-           new gr.det.spinnovators.export.TextReportExporter();
+      gr.det.spinnovators.export.EditedBudgetExporter exporter = 
+          new gr.det.spinnovators.export.TextReportExporter();
 
-       exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
-       exchange.getResponseHeaders().set("Content-Disposition", "attachment; filename=\"Budget_Report.txt\"");
-       exchange.sendResponseHeaders(200, 0);
+      exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+      exchange.getResponseHeaders().set("Content-Disposition",
+          "attachment; filename=\"Budget_Report.txt\"");
+      exchange.sendResponseHeaders(200, 0);
 
-       try {
-           exporter.export(session.changeLog, exchange.getResponseBody());
-       } catch (Exception e) {
-           e.printStackTrace();
-       }
-       exchange.close();
+      try {
+        exporter.export(session.changeLog, exchange.getResponseBody());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      exchange.close();
     });
 
 
@@ -508,8 +518,16 @@ public final class LoginWebServer {
                 + ". Παρακαλώ επιλέξτε 2023, 2024, 2025 ή 2026.");
         return;
       }
-      String budgetOutput = isBudgetPage
-          ? captureEnvBudgetOutput(year) : captureFullBudgetOutput(year);
+
+      String budgetOutput;
+      if (isBudgetPage) {
+        budgetOutput = captureEnvBudgetOutput(year);
+      } else {
+        MinistryDataInput allData = new MinistryDataInput();
+        FullBudgetPrinter printer = new FullBudgetPrinter(allData);
+        budgetOutput = printer.getBudgetOutput(year);
+      }
+
       serveYearPageWithBudget(exchange, frontendPath, filename, formUsername, year, budgetOutput);
     } catch (IOException e) {
       sendErrorResponse(exchange, 500,
@@ -551,20 +569,6 @@ public final class LoginWebServer {
   }
 
   // NOTE: System.out redirection is not thread-safe. Ideally, printers should return String.
-  private static String captureFullBudgetOutput(String year) {
-    MinistryDataInput allData = new MinistryDataInput();
-    FullBudgetPrinter printer = new FullBudgetPrinter(allData);
-    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-    java.io.PrintStream originalOut = System.out;
-    java.io.PrintStream capturedOut = new java.io.PrintStream(baos, true, StandardCharsets.UTF_8);
-    System.setOut(capturedOut);
-    try {
-      printer.showBudget(year);
-    } finally {
-      System.setOut(originalOut);
-    }
-    return baos.toString(StandardCharsets.UTF_8);
-  }
 
   private static void serveYearPageWithBudget(final HttpExchange exchange,
                                               final String frontendPath,
@@ -621,9 +625,10 @@ public final class LoginWebServer {
   }
 
   private static String parseEnvBudgetFormatToHtml(String budgetOutput) {
-    String[] lines = budgetOutput.split("\n");
+    String[] lines = budgetOutput.split("\\R");
     StringBuilder budgetHtml = new StringBuilder();
-    budgetHtml.append("<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>");
+    budgetHtml
+      .append("<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>");
     String currentSector = null;
     String currentUnit = null;
     boolean inUnit = false;
@@ -638,9 +643,11 @@ public final class LoginWebServer {
           budgetHtml.append("</div></div>"); // Close previous sector
         }
         currentSector = line.replace("ΤΟΜΕΑΣ:", "").trim();
-        budgetHtml.append("<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; "
+        budgetHtml
+            .append("<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; "
             + "border-radius: 8px; overflow: hidden;'>");
-        budgetHtml.append("<div style='background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 100%); "
+        budgetHtml
+            .append("<div style='background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 100%); "
             + "padding: 16px; color: #ffffff; font-weight: 600; font-size: 18px;'>");
         budgetHtml.append(currentSector);
         budgetHtml.append("</div><div style='padding: 16px;'>");
@@ -698,7 +705,7 @@ public final class LoginWebServer {
   }
 
   private static String parseFullBudgetFormatToHtml(String budgetOutput) {
-    String[] lines = budgetOutput.split("\n");
+    String[] lines = budgetOutput.split("\\R");
     StringBuilder budgetHtml = new StringBuilder();
     budgetHtml.append("<table style='width: 100%; border-collapse: collapse; "
         + "font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>");
@@ -747,16 +754,16 @@ public final class LoginWebServer {
   private static String insertBudgetHtmlIntoContent(String htmlContent, String budgetHtml) {
     if (htmlContent.contains("</form>")) {
       return htmlContent.replace("</form>", "</form>" + budgetHtml);
-    } else if (htmlContent.contains("        </div>\n    </div>")) {
-      return htmlContent.replace("        </div>\n    </div>",
-          budgetHtml + "\n        </div>\n    </div>");
-    } else if (htmlContent.contains("    </div>\n\n    <div class=\"container\"")) {
-      return htmlContent.replace("    </div>\n\n    <div class=\"container\"",
-          budgetHtml + "\n    </div>\n\n    <div class=\"container\"");
+    } else if (htmlContent.contains("        </div>%n    </div>")) {
+      return htmlContent.replace("        </div>%n    </div>",
+          budgetHtml + "%n        </div>%n    </div>");
+    } else if (htmlContent.contains("    </div>%n%n    <div class=\"container\"")) {
+      return htmlContent.replace("    </div>%n%n    <div class=\"container\"",
+          budgetHtml + "%n    </div>%n%n    <div class=\"container\"");
     } else {
       int lastDivIndex = htmlContent.lastIndexOf("    </div>");
       if (lastDivIndex > 0) {
-        return htmlContent.substring(0, lastDivIndex) + budgetHtml + "\n"
+        return htmlContent.substring(0, lastDivIndex) + budgetHtml + "%n"
             + htmlContent.substring(lastDivIndex);
       }
     }
@@ -785,16 +792,16 @@ public final class LoginWebServer {
       errorHtml += "</p></div>";
       if (htmlContent.contains("</form>")) {
         htmlContent = htmlContent.replace("</form>", "</form>" + errorHtml);
-      } else if (htmlContent.contains("        </div>\n    </div>")) {
-        htmlContent = htmlContent.replace("        </div>\n    </div>", errorHtml
-            + "\n        </div>\n    </div>");
-      } else if (htmlContent.contains("    </div>\n\n    <div class=\"container\"")) {
-        htmlContent = htmlContent.replace("    </div>\n\n    <div class=\"container\"",
-            errorHtml + "\n    </div>\n\n    <div class=\"container\"");
+      } else if (htmlContent.contains("        </div>%n    </div>")) {
+        htmlContent = htmlContent.replace("        </div>%n    </div>", errorHtml
+            + "%n        </div>%n    </div>");
+      } else if (htmlContent.contains("    </div>%n%n    <div class=\"container\"")) {
+        htmlContent = htmlContent.replace("    </div>%n%n    <div class=\"container\"",
+            errorHtml + "%n    </div>%n%n    <div class=\"container\"");
       } else {
         int lastDivIndex = htmlContent.lastIndexOf("    </div>");
         if (lastDivIndex > 0) {
-          htmlContent = htmlContent.substring(0, lastDivIndex) + errorHtml + "\n"
+          htmlContent = htmlContent.substring(0, lastDivIndex) + errorHtml + "%n"
               + htmlContent.substring(lastDivIndex);
         }
       }
@@ -829,7 +836,9 @@ public final class LoginWebServer {
 
   private static void logError(String message, Exception exception) {
     System.err.println("[ERROR] " + message);
-    if (exception != null) exception.printStackTrace(System.err);
+    if (exception != null) {
+      exception.printStackTrace(System.err);
+    }
   }
 
   private static void logDebug(String message) {
@@ -855,7 +864,7 @@ public final class LoginWebServer {
   }
 
   private static void handleChangeBudgetPost(HttpExchange exchange,
-                                             String frontendPath) throws IOException {
+                                            String frontendPath) throws IOException {
     java.util.Map<String, String> formDataMap = parseFormData(exchange);
     String answer = formDataMap.get("answer");
 
@@ -922,7 +931,7 @@ public final class LoginWebServer {
 
   private static void serveSectorQuestion(HttpExchange exchange,
                                           String infoMessage) throws IOException {
-    ChangeSession changeSession = getChangeSession();
+    final ChangeSession changeSession = getChangeSession();
 
     StringBuilder buttons = new StringBuilder();
     buttons.append("<h2 class='section-title'>Επιλέξτε Τομέα</h2>");
@@ -989,23 +998,24 @@ public final class LoginWebServer {
     String buttonHtml;
     
     String downloadBtn = "<a class='secondary-btn' href='/download_report' "
-      +  "target='_blank' style='margin-top:10px; display:block; "
-      +  "text-decoration:none;'> Λήψη Αναφοράς Αλλαγών </a>";
+        +  "target='_blank' style='margin-top:10px; display:block; "
+        +  "text-decoration:none;'> Λήψη Αναφοράς Αλλαγών </a>";
 
     if (success) {
       buttonHtml = downloadBtn + "<a class='primary-btn' href='/esg.html' "
-          + "style='text-decoration:none; margin-top:18px;'>ESG Αξιολόγηση</a>";
+        + "style='text-decoration:none; margin-top:18px;'>ESG Αξιολόγηση</a>";
     } else {
       buttonHtml = downloadBtn + """
-          <form method='POST' style='margin-top:18px;'>
-              <button class='primary-btn' type='submit' name='continue' value='yes'>Συνέχεια Αλλαγών</button>
-          </form>
-          """;
+        <form method='POST' style='margin-top:18px;'>
+        <button class='primary-btn' type='submit' name='continue' value='yes'>
+        Συνέχεια Αλλαγών</button>
+        </form>
+        """;
     }
     String inner = """
-        <h2 class='section-title'>Έλεγχος Ισοσκελισμού</h2>
-        <div class='description' style='color:%s; font-weight:700;'>%s</div>
-        %s
+      <h2 class='section-title'>Έλεγχος Ισοσκελισμού</h2>
+      <div class='description' style='color:%s; font-weight:700;'>%s</div>
+      %s
         """.formatted(color, message, buttonHtml);
     String html = buildStyledChangePage(inner, "");
     sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
@@ -1020,7 +1030,7 @@ public final class LoginWebServer {
     for (EnvUnit u : changeSession.selectedSector.getUnits()) {
       String name = translator.translateCategory(u.getJsonKey());
       buttons.append("<button class='primary-btn' name='unit' value='")
-          .append(name).append("'>").append(name).append("</button>");
+        .append(name).append("'>").append(name).append("</button>");
     }
     buttons.append("</form>");
 
@@ -1054,7 +1064,7 @@ public final class LoginWebServer {
     for (EnvEntry e : changeSession.selectedUnit.getEntries()) {
       String name = translator.translateCategory(e.getJsonKey());
       buttons.append("<button class='primary-btn' name='entry' value='")
-          .append(name).append("'>").append(name).append("</button>");
+        .append(name).append("'>").append(name).append("</button>");
     }
     buttons.append("</form>");
 
@@ -1087,14 +1097,14 @@ public final class LoginWebServer {
   }
 
   private static void serveValueEditor(HttpExchange exchange,
-                                       String validationMessage) throws IOException {
+                                      String validationMessage) throws IOException {
     ChangeSession changeSession = getChangeSession();
 
     String entryName = translator.translateCategory(changeSession.selectedEntry.getJsonKey());
 
     String inner = """
-        <h2 class='section-title'>Αλλαγή ποσού</h2>
-        <div class='description'>Κατηγορία: <b>""" + entryName + "</b></div>"
+      <h2 class='section-title'>Αλλαγή ποσού</h2>
+      <div class='description'>Κατηγορία: <b>""" + entryName + "</b></div>"
         + "<div class='description' style='color:#0d4f1c; font-weight:700;'>Τρέχον ποσό: "
         + String.format("%,.2f €", changeSession.oldValue) + "</div>"
         + "<form method='POST' style='margin-top:18px; display:flex; flex-direction:column; "
@@ -1113,7 +1123,7 @@ public final class LoginWebServer {
   }
 
   private static void handleValueChange(HttpExchange exchange, String formData) throws IOException {
-    ChangeSession changeSession = getChangeSession();
+    final ChangeSession changeSession = getChangeSession();
 
     String raw = extractFormValue(formData, "newValue");
 
@@ -1147,9 +1157,37 @@ public final class LoginWebServer {
       return;
     }
 
-    double deviation = Math.abs((newValue - changeSession.oldValue) / changeSession.oldValue)
-        * 100.0;
-    if (deviation > 30.0) {
+    // 1. Retrieve keys from Session
+    String sectorKey = changeSession.selectedSector.getJsonKey();
+    String entryKey = changeSession.selectedEntry.getJsonKey();
+    
+    BudgetValidator validator = new BudgetValidator();
+
+    // 2. Call Validator with 5 parameters
+    BudgetValidator.ValidationResult result = 
+        validator.validate(changeSession.totalBudget, 
+            changeSession.oldValue, newValue, sectorKey, entryKey);
+
+    // 3. Handle ESG & Error Messages
+    if (result == BudgetValidator.ValidationResult.ESG_ENV_PROTECTION) {
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν επιτρέπεται "
+          + "μείωση >5% σε Περιβαλλοντικές Δαπάνες.");
+      return;
+    }
+    if (result == BudgetValidator.ValidationResult.ESG_GOV_RESTRICTION) {
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: Δεν "
+          + "επιτρέπεται αύξηση >10% σε Διοικητικά Έξοδα.");
+      return;
+    }
+    if (result == BudgetValidator.ValidationResult.ESG_SOCIAL_PROTECTION) {
+      serveValueEditor(exchange, " ΠΕΡΙΟΡΙΣΜΟΣ ESG: "
+          + "Δεν επιτρέπεται μείωση >10% σε Κοινωνικές Παροχές.");
+      return;
+    }
+    
+    // Check for extreme deviation
+    if (result == BudgetValidator.ValidationResult.EXTREME_DEVIATION) {
+      double deviation = validator.calculateDeviationPercentage(changeSession.oldValue, newValue);
       changeSession.pendingValue = newValue;
       changeSession.state = ChangeState.CONFIRM_EXTREME;
       serveExtremeWarning(exchange, deviation);
@@ -1160,14 +1198,14 @@ public final class LoginWebServer {
   }
 
   private static void applyNewValueAndFinish(HttpExchange exchange,
-                                             double newValue) throws IOException {
+                                            double newValue) throws IOException {
     ChangeSession changeSession = getChangeSession();
     String year = changeSession.envYear.getYear();
     String sectorName = translator.translateCategory(changeSession.selectedSector.getJsonKey());
     String unitName = translator.translateCategory(changeSession.selectedUnit.getJsonKey());
     String entryName = translator.translateCategory(changeSession.selectedEntry.getJsonKey());
     String logLine = String.format(java.util.Locale.US, "%s;%s;%s;%s;%.2f;%.2f", 
-      year, sectorName, unitName, entryName, changeSession.oldValue, newValue);
+        year, sectorName, unitName, entryName, changeSession.oldValue, newValue);
     changeSession.changeLog.add(logLine);
 
     changeSession.selectedEntry.setAmount(newValue);
@@ -1184,7 +1222,7 @@ public final class LoginWebServer {
       balanceInfo = "Ο προϋπολογισμός είναι ισοσκελισμένος!";
     } else {
       balanceInfo = String.format("ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ: %,.2f €",
-          changeSession.currentBalance);
+        changeSession.currentBalance);
     }
     banner.append(" | ").append(balanceInfo);
 
@@ -1195,8 +1233,8 @@ public final class LoginWebServer {
   private static void serveErrorPage(HttpExchange exchange, String message) throws IOException {
 
     String inner = """
-        <h2 class='section-title'>Σφάλμα</h2>
-        <div class='error-box'>""" + message + "</div>"
+      <h2 class='section-title'>Σφάλμα</h2>
+      <div class='error-box'>""" + message + "</div>"
         + "<a class='secondary-btn' href='/change-budget' "
         + "style='text-decoration:none; margin-top:18px;'>Ξανά προσπάθεια</a>";
 
@@ -1390,7 +1428,7 @@ public final class LoginWebServer {
     }
     
     String template = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
-    ESGWebDisplay esgDisplay = new ESGWebDisplay();
+    EsgWebDisplay esgDisplay = new EsgWebDisplay();
     String content = esgDisplay.generateEsgComparisonContent(
         changeSession.originalYearSnapshot,
         changeSession.envYear,
