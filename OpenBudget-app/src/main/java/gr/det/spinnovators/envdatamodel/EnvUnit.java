@@ -1,5 +1,7 @@
 package gr.det.spinnovators.envdatamodel;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -13,7 +15,7 @@ public class EnvUnit {
 
   public EnvUnit(String jsonKey, List<EnvEntry> entries) {
     this.jsonKey = jsonKey;
-    this.entries = entries;
+    this.entries = entries != null ? new ArrayList<>(entries) : new ArrayList<>();
   }
 
   public String getJsonKey() {
@@ -21,7 +23,7 @@ public class EnvUnit {
   }
 
   public List<EnvEntry> getEntries() {
-    return entries;
+    return Collections.unmodifiableList(entries);
   }
 
   /**

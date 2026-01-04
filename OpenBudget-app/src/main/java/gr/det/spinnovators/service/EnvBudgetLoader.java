@@ -119,8 +119,8 @@ public class EnvBudgetLoader {
   private Map<String, Object> parseJsonFile(InputStream inputStream)
       throws IOException, JsonSyntaxException {
 
-    try (InputStream nonNullStream = inputStream;
-         JsonReader reader = new JsonReader(new InputStreamReader(nonNullStream))) {
+    try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream,
+        java.nio.charset.StandardCharsets.UTF_8))) {
 
       // Using TypeToken for better type safety with Gson
       Type mapType = new TypeToken<Map<String, Object>>() {}.getType();

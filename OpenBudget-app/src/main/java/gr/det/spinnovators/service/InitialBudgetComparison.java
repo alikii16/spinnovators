@@ -106,7 +106,7 @@ public class InitialBudgetComparison {
    * @param year The budget year
    */
   private void printComparisonHeader(String year) {
-    System.out.println("\n");
+    System.out.println("%n");
     System.out.println("╔════════════════════════════════════════════════════════════════════╗");
     System.out.println("║                                                                    ║");
     System.out.println("║           ΑΝΑΛΥΤΙΚΗ ΣΥΓΚΡΙΣΗ ΠΡΟΫΠΟΛΟΓΙΣΜΟΥ " + year + "           ║");
@@ -146,7 +146,7 @@ public class InitialBudgetComparison {
 
       String arrow = change > 0 ? "⬆" : (change < 0 ? "⬇" : "→");
 
-      System.out.printf("│ %-35s │ %5.1f%% │ %5.1f%% │ %s%6.1f%%   │\n",
+      System.out.printf("│ %-35s │ %5.1f%% │ %5.1f%% │ %s%6.1f%%   │%n",
           shortName, origPercent, modPercent, arrow, changePercent);
     }
 
@@ -186,7 +186,7 @@ public class InitialBudgetComparison {
       String origBar = createPercentageBar(origPercent, 20);
       String modBar = createPercentageBar(modPercent, 20);
 
-      System.out.printf("    %s │%-20s %5.1f%%   │%-20s %5.1f%%\n",
+      System.out.printf("    %s │%-20s %5.1f%%   │%-20s %5.1f%%%n",
           shortName, origBar, origPercent, modBar, modPercent);
     }
 
@@ -243,7 +243,7 @@ public class InitialBudgetComparison {
     for (int i = 0; i < sectorKeys.size(); i++) {
       String shortName = getShortSectorName(sectorKeys.get(i), i);
       String fullName = translator.translateCategory(sectorKeys.get(i));
-      System.out.printf("    %s = %s\n", shortName, fullName);
+      System.out.printf("    %s = %s%n", shortName, fullName);
     }
   }
 
@@ -281,7 +281,7 @@ public class InitialBudgetComparison {
     for (SectorChange change : changes) {
       if (change.absoluteChange > 0 && increases < 3) {
         String name = translator.translateCategory(change.sectorKey);
-        System.out.printf("   %d. %s: +%,.2f € (%+.1f%%)\n",
+        System.out.printf("   %d. %s: +%,.2f € (%+.1f%%)%n",
             increases + 1, truncate(name, 40),
             change.absoluteChange, change.percentChange);
         increases++;
@@ -298,7 +298,7 @@ public class InitialBudgetComparison {
       SectorChange change = changes.get(i);
       if (change.absoluteChange < 0) {
         String name = translator.translateCategory(change.sectorKey);
-        System.out.printf("   %d. %s: %,.2f € (%.1f%%)\n",
+        System.out.printf("   %d. %s: %,.2f € (%.1f%%)%n",
             decreases + 1, truncate(name, 40),
             change.absoluteChange, change.percentChange);
         decreases++;
@@ -360,7 +360,7 @@ public class InitialBudgetComparison {
     if (Math.abs(totalChange) < 0.01) {
       System.out.println("    Ο προϋπολογισμός είναι πλήρως ισοσκελισμένος!");
     } else {
-      System.out.printf("     Διαφορά: %,.2f € (χρειάζεται περαιτέρω προσαρμογές)\n",
+      System.out.printf("     Διαφορά: %,.2f € (χρειάζεται περαιτέρω προσαρμογές)%n",
           totalChange);
     }
 
@@ -438,12 +438,12 @@ public class InitialBudgetComparison {
 
     if (sectorsIncreased > 0) {
       String name = translator.translateCategory(maxIncreaseSector);
-      System.out.printf("   • Κύρια εστίαση: %s (+%,.2f €)\n",
+      System.out.printf("   • Κύρια εστίαση: %s (+%,.2f €)%n",
           truncate(name, 40), maxIncrease);
     }
 
-    System.out.printf("   • Τομείς με αύξηση: %d\n", sectorsIncreased);
-    System.out.printf("   • Τομείς με μείωση: %d\n", sectorsDecreased);
+    System.out.printf("   • Τομείς με αύξηση: %d%n", sectorsIncreased);
+    System.out.printf("   • Τομείς με μείωση: %d%n", sectorsDecreased);
 
     if (sectorsIncreased == 0 && sectorsDecreased == 0) {
       System.out.println("   • Δεν έγιναν σημαντικές αλλαγές");

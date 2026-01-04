@@ -98,7 +98,7 @@ public final class LoginWebServer {
   private LoginWebServer() {
   }
 
-  private static void initializeBudgetData() {
+  private static synchronized void initializeBudgetData() {
     if (envBudgetData == null) {
       EnvBudgetLoader envLoader = new EnvBudgetLoader();
       envBudgetData = envLoader.loadBudget();
@@ -518,8 +518,16 @@ public final class LoginWebServer {
                 + ". Παρακαλώ επιλέξτε 2023, 2024, 2025 ή 2026.");
         return;
       }
-      String budgetOutput = isBudgetPage
-          ? captureEnvBudgetOutput(year) : captureFullBudgetOutput(year);
+
+      String budgetOutput;
+      if (isBudgetPage) {
+        budgetOutput = captureEnvBudgetOutput(year);
+      } else {
+        MinistryDataInput allData = new MinistryDataInput();
+        FullBudgetPrinter printer = new FullBudgetPrinter(allData);
+        budgetOutput = printer.getBudgetOutput(year);
+      }
+
       serveYearPageWithBudget(exchange, frontendPath, filename, formUsername, year, budgetOutput);
     } catch (IOException e) {
       sendErrorResponse(exchange, 500,
@@ -561,20 +569,6 @@ public final class LoginWebServer {
   }
 
   // NOTE: System.out redirection is not thread-safe. Ideally, printers should return String.
-  private static String captureFullBudgetOutput(String year) {
-    MinistryDataInput allData = new MinistryDataInput();
-    FullBudgetPrinter printer = new FullBudgetPrinter(allData);
-    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-    java.io.PrintStream originalOut = System.out;
-    java.io.PrintStream capturedOut = new java.io.PrintStream(baos, true, StandardCharsets.UTF_8);
-    System.setOut(capturedOut);
-    try {
-      printer.showBudget(year);
-    } finally {
-      System.setOut(originalOut);
-    }
-    return baos.toString(StandardCharsets.UTF_8);
-  }
 
   private static void serveYearPageWithBudget(final HttpExchange exchange,
                                               final String frontendPath,
@@ -631,7 +625,7 @@ public final class LoginWebServer {
   }
 
   private static String parseEnvBudgetFormatToHtml(String budgetOutput) {
-    String[] lines = budgetOutput.split("\n");
+    String[] lines = budgetOutput.split("\\R");
     StringBuilder budgetHtml = new StringBuilder();
     budgetHtml
       .append("<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>");
@@ -711,7 +705,7 @@ public final class LoginWebServer {
   }
 
   private static String parseFullBudgetFormatToHtml(String budgetOutput) {
-    String[] lines = budgetOutput.split("\n");
+    String[] lines = budgetOutput.split("\\R");
     StringBuilder budgetHtml = new StringBuilder();
     budgetHtml.append("<table style='width: 100%; border-collapse: collapse; "
         + "font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>");
@@ -760,16 +754,16 @@ public final class LoginWebServer {
   private static String insertBudgetHtmlIntoContent(String htmlContent, String budgetHtml) {
     if (htmlContent.contains("</form>")) {
       return htmlContent.replace("</form>", "</form>" + budgetHtml);
-    } else if (htmlContent.contains("        </div>\n    </div>")) {
-      return htmlContent.replace("        </div>\n    </div>",
-          budgetHtml + "\n        </div>\n    </div>");
-    } else if (htmlContent.contains("    </div>\n\n    <div class=\"container\"")) {
-      return htmlContent.replace("    </div>\n\n    <div class=\"container\"",
-          budgetHtml + "\n    </div>\n\n    <div class=\"container\"");
+    } else if (htmlContent.contains("        </div>%n    </div>")) {
+      return htmlContent.replace("        </div>%n    </div>",
+          budgetHtml + "%n        </div>%n    </div>");
+    } else if (htmlContent.contains("    </div>%n%n    <div class=\"container\"")) {
+      return htmlContent.replace("    </div>%n%n    <div class=\"container\"",
+          budgetHtml + "%n    </div>%n%n    <div class=\"container\"");
     } else {
       int lastDivIndex = htmlContent.lastIndexOf("    </div>");
       if (lastDivIndex > 0) {
-        return htmlContent.substring(0, lastDivIndex) + budgetHtml + "\n"
+        return htmlContent.substring(0, lastDivIndex) + budgetHtml + "%n"
             + htmlContent.substring(lastDivIndex);
       }
     }
@@ -798,16 +792,16 @@ public final class LoginWebServer {
       errorHtml += "</p></div>";
       if (htmlContent.contains("</form>")) {
         htmlContent = htmlContent.replace("</form>", "</form>" + errorHtml);
-      } else if (htmlContent.contains("        </div>\n    </div>")) {
-        htmlContent = htmlContent.replace("        </div>\n    </div>", errorHtml
-            + "\n        </div>\n    </div>");
-      } else if (htmlContent.contains("    </div>\n\n    <div class=\"container\"")) {
-        htmlContent = htmlContent.replace("    </div>\n\n    <div class=\"container\"",
-            errorHtml + "\n    </div>\n\n    <div class=\"container\"");
+      } else if (htmlContent.contains("        </div>%n    </div>")) {
+        htmlContent = htmlContent.replace("        </div>%n    </div>", errorHtml
+            + "%n        </div>%n    </div>");
+      } else if (htmlContent.contains("    </div>%n%n    <div class=\"container\"")) {
+        htmlContent = htmlContent.replace("    </div>%n%n    <div class=\"container\"",
+            errorHtml + "%n    </div>%n%n    <div class=\"container\"");
       } else {
         int lastDivIndex = htmlContent.lastIndexOf("    </div>");
         if (lastDivIndex > 0) {
-          htmlContent = htmlContent.substring(0, lastDivIndex) + errorHtml + "\n"
+          htmlContent = htmlContent.substring(0, lastDivIndex) + errorHtml + "%n"
               + htmlContent.substring(lastDivIndex);
         }
       }

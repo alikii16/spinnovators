@@ -30,7 +30,7 @@ public class EditsApplierTest {
 
     // --- Simulate user input ---
     // 0 -> immediately exit (balance is zero, so allowed)
-    String simulatedInput = "0\n";
+    String simulatedInput = "0%n";
     System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
 
     // --- Create EditsApplier ---

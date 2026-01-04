@@ -1,5 +1,7 @@
 package gr.det.spinnovators.envdatamodel;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,7 +28,7 @@ public class EnvBudgetData {
   public EnvBudgetData(Map<String, EnvYear> dataByYear,
                        Map<String, Double> envMinistryTotalBudget) {
     this.dataByYear = dataByYear;
-    this.envMinistryTotalBudget = envMinistryTotalBudget;
+    this.envMinistryTotalBudget = envMinistryTotalBudget != null ? new HashMap<>(envMinistryTotalBudget) : new HashMap<>();
   }
   
   /**
@@ -37,11 +39,8 @@ public class EnvBudgetData {
    */
 
   public EnvYear getBudgetForYear(String year) {
-    if (dataByYear == null) {
-      return null;
-    }
     return dataByYear.get(year);
-  } // Returns EnvYear object for a specific year or null if it does not exist
+  } // Returns EnvYear object for a specific year
 
   /**
    * Retrieves the map of total ministry budgets for all available years.
@@ -49,6 +48,6 @@ public class EnvBudgetData {
    * @return A map where keys are years and values are the total budget amounts.
    */
   public Map<String, Double> getEnvMinistryTotalBudget() {
-    return envMinistryTotalBudget;
+    return Collections.unmodifiableMap(envMinistryTotalBudget);
   } // Getter for total budget per year
 }

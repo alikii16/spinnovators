@@ -15,6 +15,7 @@ public interface EditedBudgetExporter {
    * Exports the list of budget changes to the specified output stream.
    *
    * @param changeLog A list of strings, where each string represents a change record.
+   *
    * The expected format is: "Year;Sector;Unit;Category;OldAmount;NewAmount".
    *
    * @param out The {@link OutputStream} where the report will be written.

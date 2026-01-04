@@ -42,25 +42,24 @@ public class EsgPrinter {
   public void printComparison(EsgReport before, EsgReport after) {
     double scoreDiff = after.getOverallScore() - before.getOverallScore();
 
-    System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    System.out.println("%n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     System.out.println("        ΑΝΑΛΥΣΗ ΕΠΙΠΤΩΣΗΣ ΑΛΛΑΓΩΝ ΣΤΟ ESG");
-    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━%n");
 
-    System.out.printf(HELLENIC_LOCALE, "ESG Score Πριν:  %.2f / 100\n",
+    System.out.printf(HELLENIC_LOCALE, "ESG Score Πριν:  %.2f / 100%n",
         before.getOverallScore());
-    System.out.printf(HELLENIC_LOCALE, "ESG Score Μετά:  %.2f / 100\n",
+    System.out.printf(HELLENIC_LOCALE, "ESG Score Μετά:  %.2f / 100%n",
         after.getOverallScore());
 
     String arrow = scoreDiff > 0 ? "⬆️" : (scoreDiff < 0 ? "⬇️" : "→");
     String message = scoreDiff > 0 ? "ΒΕΛΤΙΩΣΗ" :
         (scoreDiff < 0 ? "ΕΠΙΔΕΙΝΩΣΗ" : "ΚΑΜΙΑ ΑΛΛΑΓΗ");
 
-    System.out.printf(HELLENIC_LOCALE, "\nΔιαφορά: %s %.2f points %s\n",
+    System.out.printf(HELLENIC_LOCALE, "%nΔιαφορά: %s %.2f points %s%n",
         arrow, Math.abs(scoreDiff), message);
 
     // Category breakdown
-    System.out.println("\n┌─── Λεπτομέρειες Αλλαγών ───────────────────┐");
-
+    System.out.println("%n┌─── Λεπτομέρειες Αλλαγών ───────────────────┐");
     printCategoryComparison(" Environmental",
         before.getEnvironmentalScore(), after.getEnvironmentalScore());
     printCategoryComparison(" Social",
@@ -68,7 +67,7 @@ public class EsgPrinter {
     printCategoryComparison(" Governance",
         before.getGovernanceScore(), after.getGovernanceScore());
 
-    System.out.println("└────────────────────────────────────────────┘\n");
+    System.out.println("└────────────────────────────────────────────┘%n");
 
     // Feedback message
     printComparisonFeedback(scoreDiff);
@@ -97,10 +96,10 @@ public class EsgPrinter {
    * Prints the header of the ESG report.
    */
   private void printHeader() {
-    System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    System.out.println("%n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     System.out.println("        ESG SUSTAINABILITY REPORT");
     System.out.println("     Αξιολόγηση Βιωσιμότητας Προϋπολογισμού");
-    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━%n");
   }
 
   /**
@@ -110,7 +109,7 @@ public class EsgPrinter {
    */
   private void printBasicInfo(EsgReport report) {
     System.out.println("Έτος: " + report.getYear());
-    System.out.printf(HELLENIC_LOCALE, "Συνολικός Προϋπολογισμός: %,.2f €\n\n",
+    System.out.printf(HELLENIC_LOCALE, "Συνολικός Προϋπολογισμός: %,.2f €%n",
         report.getTotalBudget());
   }
 
@@ -140,7 +139,7 @@ public class EsgPrinter {
           (report.getNeutralAmount() / report.getTotalBudget()) * 100);
     }
 
-    System.out.println("└────────────────────────────────────────────────┘\n");
+    System.out.println("└────────────────────────────────────────────────┘%n");
   }
 
   /**
@@ -155,9 +154,9 @@ public class EsgPrinter {
   private void printCategoryLine(String label, double amount, double percentage) {
     String bar = createProgressBar(percentage);
     System.out.printf(HELLENIC_LOCALE,
-        "│ %-22s %5.1f%%  %s │\n", label, percentage, bar);
+        "│ %-22s %5.1f%%  %s │%n", label, percentage, bar);
     System.out.printf(HELLENIC_LOCALE,
-        "│    Δαπάνες: %,18.2f €%8s│\n", amount, "");
+        "│    Δαπάνες: %,18.2f €%8s│%n", amount, "");
     System.out.println("│                                                │");
   }
 
@@ -191,11 +190,11 @@ public class EsgPrinter {
   private void printOverallScore(EsgReport report) {
     System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     System.out.printf(HELLENIC_LOCALE,
-        "  ΣΥΝΟΛΙΚΟ ESG SCORE: %.2f / 100\n", report.getOverallScore());
-    System.out.printf("  Αξιολόγηση: %s (%s βιωσιμότητα)\n",
+        "  ΣΥΝΟΛΙΚΟ ESG SCORE: %.2f / 100%n", report.getOverallScore());
+    System.out.printf("  Αξιολόγηση: %s (%s βιωσιμότητα)%n",
         report.getRating(),
         report.getRatingGreek());
-    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━%n");
   }
 
   /**
@@ -229,7 +228,7 @@ public class EsgPrinter {
    * Prints the footer.
    */
   private void printFooter() {
-    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━%n");
   }
 
   /**
@@ -246,7 +245,7 @@ public class EsgPrinter {
     String arrow = diff > 0 ? "⬆" : (diff < 0 ? "⬇" : "→");
 
     System.out.printf(HELLENIC_LOCALE,
-        "│ %-20s %5.1f%% → %5.1f%% (%s%.1f%%) │\n",
+        "│ %-20s %5.1f%% → %5.1f%% (%s%.1f%%) │%n",
         label, before, after, arrow, Math.abs(diff));
   }
 
@@ -257,11 +256,11 @@ public class EsgPrinter {
    */
   public void printCompactSummary(EsgReport report) {
     System.out.printf(HELLENIC_LOCALE,
-        "[ESG] Score: %.1f/100 | E: %.1f%% | S: %.1f%% | G: %.1f%% \n",
+        "[ESG] Score: %.1f/100 | E: %.1f%% | S: %.1f%% | G: %.1f%% %n",
         report.getOverallScore(),
         report.getEnvironmentalScore(),
         report.getSocialScore(),
         report.getGovernanceScore());
-    System.out.printf(HELLENIC_LOCALE, "Rating: %s\n", report.getRatingGreek());
+    System.out.printf(HELLENIC_LOCALE, "Rating: %s%n", report.getRatingGreek());
   }
 }

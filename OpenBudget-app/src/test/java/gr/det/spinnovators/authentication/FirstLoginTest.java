@@ -10,7 +10,7 @@ public class FirstLoginTest {
 
     @Test
     public void testMinisterLoginSuccess() {
-        String simulatedInput = "Minister\nm1n1st3r\n";
+        String simulatedInput = "Minister%nm1n1st3r%n";
         System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
         
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -23,7 +23,7 @@ public class FirstLoginTest {
 
     @Test
     public void testEmployeeLoginSuccess() {
-        String simulatedInput = "Employee\n3mpl0y33\n";
+        String simulatedInput = "Employee%n3mpl0y33%n";
         System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -36,7 +36,7 @@ public class FirstLoginTest {
 
     @Test
     public void testEmptyUsernameandPassword() {
-        String simulatedInput = "\n\nMinister\nm1n1st3r\n";
+        String simulatedInput = "%n%nMinister%nm1n1st3r%n";
         System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

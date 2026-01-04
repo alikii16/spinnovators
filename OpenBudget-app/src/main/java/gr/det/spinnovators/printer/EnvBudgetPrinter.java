@@ -46,14 +46,14 @@ public class EnvBudgetPrinter {
       return;
     }
 
-    System.out.println("\n ΑΝΑΛΥΤΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΥΠΟΥΡΓΕΙΟΥ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ"
+    System.out.println("%n ΑΝΑΛΥΤΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΥΠΟΥΡΓΕΙΟΥ ΠΕΡΙΒΑΛΛΟΝΤΟΣ ΚΑΙ ΕΝΕΡΓΕΙΑΣ"
                        + " ΤΟΥ ΕΤΟΥΣ " + year);
 
     for (EnvSector sector : yearlyBudget.getSectors()) {
 
       String translatedSector = translator.translateCategory(sector.getJsonKey());
-      System.out.println("\n--------------------------------------------------------------------");
-      System.out.printf(" ΤΟΜΕΑΣ: %s\n", translatedSector);
+      System.out.println("%n--------------------------------------------------------------------");
+      System.out.printf(" ΤΟΜΕΑΣ: %s%n", translatedSector);
       System.out.println("--------------------------------------------------------------------");
 
       double sectorTotal = 0;
@@ -61,7 +61,7 @@ public class EnvBudgetPrinter {
       for (EnvUnit unit : sector.getUnits()) {
 
         String translatedUnit = translator.translateCategory(unit.getJsonKey());
-        System.out.printf(" ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ: %s\n", translatedUnit);
+        System.out.printf(" ΕΚΤΕΛΕΣΤΙΚΗ ΜΟΝΑΔΑ: %s%n", translatedUnit);
 
         double unitTotal = 0;
         for (EnvEntry entry : unit.getEntries()) {
@@ -69,15 +69,15 @@ public class EnvBudgetPrinter {
           String translatedEntry = translator.translateCategory(entry.getJsonKey());
           double amount = entry.getAmount();
 
-          System.out.printf(HELLENIC_LOCALE, "      - %-40s: %,.2f €\n", translatedEntry, amount);
+          System.out.printf(HELLENIC_LOCALE, "      - %-40s: %,.2f €%n", translatedEntry, amount);
           unitTotal += amount;
         }
-        System.out.printf(HELLENIC_LOCALE, " ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: %,.2f €\n\n", unitTotal);
+        System.out.printf(HELLENIC_LOCALE, " ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: %,.2f €%n%n", unitTotal);
         sectorTotal += unitTotal;
       }
-      System.out.printf(HELLENIC_LOCALE, " ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ (%s): %,.2f €\n",
+      System.out.printf(HELLENIC_LOCALE, " ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ (%s): %,.2f €%n",
                                      translatedSector, sectorTotal);
     }
-    System.out.println("\n--------------------------------------------------------------------");
+    System.out.println("%n--------------------------------------------------------------------");
   }
 }

@@ -43,7 +43,7 @@ public class EditsPrinterTest {
     EnvYear year = new EnvYear("2025", List.of(sector1, sector2));
 
     // --- Create EditsPrinter with dummy translator ---
-    EditsPrinter printer = new EditsPrinter(new DummyTranslator(), "2025");
+    EditsPrinter printer = new EditsPrinter(new DummyTranslator());
 
     // --- Call printEditYear and ensure it does not throw any exceptions ---
     assertDoesNotThrow(() -> printer.printEditYear(year));

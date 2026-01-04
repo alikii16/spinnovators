@@ -6,26 +6,31 @@ import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 
-
-/** PRINTS THE RESULTS OF CHANGED DATA. */
-
+/**
+ * Prints the results of the changed budget data.
+ * Responsible for displaying the updated hierarchy and amounts to the console.
+ */
 public class EditsPrinter {
-  private final EnvBudgetTranslator translator;
-  private final String yearForPrinting;
 
-  public EditsPrinter(EnvBudgetTranslator translator, String yearForPrinting) {
-    this.translator  = translator;
-    this.yearForPrinting = yearForPrinting;
+  private final EnvBudgetTranslator translator;
+
+  /**
+   * Constructs an EditsPrinter.
+   *
+   * @param translator The translator service for localized category names.
+   */
+  public EditsPrinter(EnvBudgetTranslator translator) {
+    this.translator = translator;
   }
 
-  /** PRINTS THE RESULTS OF THE CHANGED YEARS.
+  /**
+   * Prints the results of the changed years to the console.
    *
-   * @param year the ministry year data to print.
+   * @param year The ministry year data to print.
    */
   public void printEditYear(EnvYear year) {
 
     System.out.println("ΕΝΗΜΕΡΩΜΕΝΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ ΓΙΑ ΤΟ ΕΤΟΣ " + year.getYear());
-
 
     for (EnvSector sector : year.getSectors()) {
 
@@ -40,16 +45,20 @@ public class EditsPrinter {
         double unitTotal = 0.0;
 
         for (EnvEntry entry : unit.getEntries()) {
-          String translatedEntry = translator.translateCategory(entry.getJsonKey());
+          // SpotBugs Fix: Removed unused variable assignment
           double amount = entry.getAmount();
+          
+          System.out.printf(" - %s : %,.2f €%n", 
+              translator.translateCategory(entry.getJsonKey()), amount);
+              
           unitTotal += amount;
         }
 
-        System.out.printf("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: %.2f%n", unitTotal);
+        System.out.printf("ΣΥΝΟΛΟ ΜΟΝΑΔΑΣ: %.2f €%n", unitTotal);
         sectorTotal += unitTotal;
       }
 
-      System.out.printf("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ %s: %.2f%n%n",
+      System.out.printf("ΣΥΝΟΛΙΚΟ ΠΟΣΟ ΤΟΜΕΑ %s: %.2f €%n%n",
             translatedSector, sectorTotal);
     }
   }

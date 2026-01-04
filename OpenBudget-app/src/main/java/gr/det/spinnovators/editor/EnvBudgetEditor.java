@@ -5,7 +5,6 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.printer.EditsPrinter;
 import gr.det.spinnovators.service.EditsApplier;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -31,7 +30,7 @@ public class EnvBudgetEditor {
   public EnvBudgetEditor(EnvBudgetData data, EnvBudgetTranslator translator) {
     this.data = data;
     this.translator = translator;
-    this.scanner = new Scanner(System.in);
+    this.scanner = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
   }
 
   /**
@@ -40,7 +39,7 @@ public class EnvBudgetEditor {
    * triggers the editing logic, and finally displays the updated results.
    */
   public void startEditingSession() {
-    System.out.println("\n------------------------------------------------");
+    System.out.println("%n------------------------------------------------");
     System.out.print("Θέλετε να προχωρήσετε σε τροποποίηση του προϋπολογισμού; (ΝΑΙ/ΟΧΙ): ");
     String answer = scanner.nextLine().trim();
 
@@ -54,7 +53,7 @@ public class EnvBudgetEditor {
     EnvYear selectedYear = data.getBudgetForYear(yearInput);
 
     // Fixed logic check for consistency
-    if ((!selectedYear.equals("2025")) && (!selectedYear.equals("2026"))) {
+    if ((!selectedYear.getYear().equals("2025")) && (!selectedYear.getYear().equals("2026"))) {
       System.out.println("Σφάλμα: Δεν βρέθηκαν δεδομένα για το έτος " + yearInput);
       return;
     }
@@ -62,7 +61,7 @@ public class EnvBudgetEditor {
     EditsApplier applier = new EditsApplier(translator);
     applier.applyEditsToYear(selectedYear);
 
-    EditsPrinter printer = new EditsPrinter(translator, yearInput);
+    EditsPrinter printer = new EditsPrinter(translator);
     printer.printEditYear(selectedYear);
   }
 }

@@ -26,7 +26,7 @@ public final class FirstLogin {
    */
   public static void login() {
     @SuppressWarnings("resource")
-    Scanner input = new Scanner(System.in);
+    Scanner input = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
 
     final String minister = "Minister";
     final String passwordMinister = "m1n1st3r";

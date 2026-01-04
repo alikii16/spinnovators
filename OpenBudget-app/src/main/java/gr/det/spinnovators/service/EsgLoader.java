@@ -51,7 +51,8 @@ public class EsgLoader {
       return createDefaultConfig();
     }
 
-    try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream))) {
+    try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream,
+        java.nio.charset.StandardCharsets.UTF_8))) {
       return gson.fromJson(reader, JsonObject.class);
     } catch (JsonSyntaxException e) {
       LOGGER.log(Level.SEVERE,

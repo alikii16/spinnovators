@@ -1,5 +1,7 @@
 package gr.det.spinnovators.envdatamodel;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,7 +23,7 @@ public class EnvSector {
    */
   public EnvSector(String jsonKey, List<EnvUnit> units) {
     this.jsonKey = jsonKey;
-    this.units = units;
+    this.units = units != null ? new ArrayList<>(units) : new ArrayList<>();
   }
 
   /**
@@ -39,7 +41,7 @@ public class EnvSector {
    * @return A list containing all EnvUnit objects within this sector.
    */
   public List<EnvUnit> getUnits() {
-    return units;
+    return Collections.unmodifiableList(units);
   }
 
   // Helper method: locate a unit by its key
@@ -56,7 +58,7 @@ public class EnvSector {
       return null; // NullPointerException
     }
     for (EnvUnit unit : units) {
-      if (key.equals(unit.getJsonKey())) {
+      if ((unit.getJsonKey().equals(key))) {
         return unit;
       }
     }

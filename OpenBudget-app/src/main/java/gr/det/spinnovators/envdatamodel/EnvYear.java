@@ -1,5 +1,7 @@
 package gr.det.spinnovators.envdatamodel;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,7 +24,7 @@ public class EnvYear {
    */
   public EnvYear(String year, List<EnvSector> sectors) {
     this.year = year;
-    this.sectors = sectors;
+    this.sectors = sectors != null ? new ArrayList<>(sectors) : new ArrayList<>();
   }
 
   /**
@@ -40,7 +42,7 @@ public class EnvYear {
    * @return A list of EnvSector objects.
    */
   public List<EnvSector> getSectors() {
-    return sectors;
+    return Collections.unmodifiableList(sectors);
   }
 
   /**
@@ -86,7 +88,7 @@ public class EnvYear {
    */
   private EnvSector getSectorByKey(String key) {
     for (EnvSector sector : sectors) {
-      if (key.equals(sector.getJsonKey())) {
+      if (sector.getJsonKey().equals(key)) {
         return sector;
       }
     }
