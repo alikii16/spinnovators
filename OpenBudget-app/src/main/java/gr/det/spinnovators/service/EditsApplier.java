@@ -273,7 +273,7 @@ public class EditsApplier {
           }
 
           try {
-            // Replace comma with dot for decimal compatibility
+            
             amountInput = amountInput.replace(",", ".");
             double inputAmount = Double.parseDouble(amountInput);
 
@@ -311,14 +311,13 @@ public class EditsApplier {
         entry.setAmount(finalValidatedAmount);
         double offsetAmount = oldAmount - finalValidatedAmount;
         this.currentBalance += offsetAmount;
+
         System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Διαφορά: %,.2f €\n", offsetAmount);
-        // Recalculate ESG score after the change
         recalculateEsgScore(year);
         return;
       }
     }
 
-    // Message shown if no matching category was found
     if (!found) {
       System.out.println(" Δεν βρέθηκε κατηγορία με το όνομα: '" + searchName + "'");
       System.out.println(" Συμβουλή: Προσέξτε τους τόνους και την ορθογραφία!");
