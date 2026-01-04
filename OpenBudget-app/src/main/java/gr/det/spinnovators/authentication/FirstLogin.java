@@ -24,7 +24,7 @@ public final class FirstLogin {
    * is provided. The method distinguishes between the "Minister" role 
    * and standard "Employees" based on the provided password.
    */
-  public static void login() {
+  public static String login() {
     @SuppressWarnings("resource")
     Scanner input = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
 
@@ -32,6 +32,7 @@ public final class FirstLogin {
     final String passwordMinister = "m1n1st3r";
     final String passwordEmployee = "3mpl0y33";
     boolean isValid;
+    String userRole = " ";
 
     do {
       System.out.print("Εισάγετε όνομα χρήστη: ");
@@ -42,10 +43,11 @@ public final class FirstLogin {
 
       if (username.equals(minister) && password.equals(passwordMinister)) {
         isValid = true;
+        userRole = "a";
         System.out.println("Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ.");
-
       } else if (!username.equals(minister) && password.equals(passwordEmployee)) {
         isValid = true;
+        userRole = "b";
         System.out.println("Επιτυχής σύνδεση! Καλωσήρθατε " + username + ".");
       } else {
         isValid = false;
@@ -53,5 +55,6 @@ public final class FirstLogin {
       }
 
     } while (!isValid);
+    return userRole;
   }
 }
