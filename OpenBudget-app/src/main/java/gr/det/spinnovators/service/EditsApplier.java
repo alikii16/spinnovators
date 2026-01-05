@@ -17,15 +17,17 @@ import gr.det.spinnovators.printer.EsgPrinter;
 /**
  * Applies edits to budget entries and tracks ESG sustainability impact.
  *
- * This class handles the interactive budget editing process, validates changes,
+ * <p>This class handles the interactive budget editing process, validates changes,
  * and calculates the ESG sustainability score before and after modifications.
  * The editing session continues until the budget is balanced (total changes sum to zero).
  *
- * Key features:
- *   Interactive console-based budget modification
- *   Real-time ESG impact tracking and reporting
- *   Smart validation with ESG-aware rules
- *   Comprehensive before/after comparison analysis
+ * <p>Key features:
+ * <ul>
+ *   <li>Interactive console-based budget modification</li>
+ *   <li>Real-time ESG impact tracking and reporting</li>
+ *   <li>Smart validation with ESG-aware rules</li>
+ *   <li>Comprehensive before/after comparison analysis</li>
+ * </ul>
  *
  * @author Spinnovators Team
  * @version 3.0 (Optimized & ESG-enabled)
@@ -92,13 +94,15 @@ public class EditsApplier {
   /**
    * Initiates the interactive editing session for a specific fiscal year.
    *
-   * The session continues until the user balances the budget
+   * <p>The session continues until the user balances the budget
    * (difference between original and new total must be zero). During the session:
-   *   Displays current balance and ESG score
-   *   Allows user to select sectors, units, and entries to modify
-   *   Validates all changes with ESG-aware rules
-   *   Recalculates ESG impact after each change
-   *   Performs comprehensive comparison at the end
+   * <ul>
+   *   <li>Displays current balance and ESG score</li>
+   *   <li>Allows user to select sectors, units, and entries to modify</li>
+   *   <li>Validates all changes with ESG-aware rules</li>
+   *   <li>Recalculates ESG impact after each change</li>
+   *   <li>Performs comprehensive comparison at the end</li>
+   * </ul>
    *
    * @param year The EnvYear object representing the budget to be modified.
    */
@@ -224,7 +228,7 @@ public class EditsApplier {
   /**
    * Creates a deep copy of EnvYear for comparison purposes.
    *
-   * This method creates a complete independent copy of the year's data structure,
+   * <p>This method creates a complete independent copy of the year's data structure,
    * including all sectors, units, and entries, to preserve the original state
    * for later comparison analysis.
    *
@@ -256,7 +260,7 @@ public class EditsApplier {
   /**
    * Calculates and displays the initial ESG sustainability report.
    *
-   * This method computes the baseline ESG score before any modifications,
+   * <p>This method computes the baseline ESG score before any modifications,
    * providing users with a reference point to understand how their changes
    * will impact environmental, social, and governance metrics.
    *
@@ -284,7 +288,7 @@ public class EditsApplier {
   /**
    * Presents a list of sectors to the user for selection.
    *
-   * Displays all available sectors in a numbered menu format and
+   * <p>Displays all available sectors in a numbered menu format and
    * allows the user to choose one for editing or exit the session.
    *
    * @param year The budget year containing the sectors.
@@ -314,7 +318,7 @@ public class EditsApplier {
   /**
    * Presents a list of units within a sector for user selection.
    *
-   * Displays all administrative units within the selected sector
+   * <p>Displays all administrative units within the selected sector
    * in a numbered menu format.
    *
    * @param sector The parent sector containing units.
@@ -341,7 +345,7 @@ public class EditsApplier {
   /**
    * Searches for a budget entry within a unit by name and allows editing.
    *
-   * This method performs case-insensitive search for the specified entry,
+   * <p>This method performs case-insensitive search for the specified entry,
    * validates the new amount with ESG-aware rules, updates the entry,
    * tracks the balance change, and recalculates the ESG score.
    *
@@ -371,14 +375,16 @@ public class EditsApplier {
   /**
    * Handles the interactive editing of a single budget entry.
    *
-   * This method:
-   *   Displays current amount
-   *   Prompts for new amount
-   *   Validates with ESG-aware rules
-   *   Handles validation failures with informative messages
-   *   Updates the entry only after successful validation
-   *   Tracks balance changes
-   *   Recalculates ESG impact
+   * <p>This method:
+   * <ol>
+   *   <li>Displays current amount</li>
+   *   <li>Prompts for new amount</li>
+   *   <li>Validates with ESG-aware rules</li>
+   *   <li>Handles validation failures with informative messages</li>
+   *   <li>Updates the entry only after successful validation</li>
+   *   <li>Tracks balance changes</li>
+   *   <li>Recalculates ESG impact</li>
+   * </ol>
    *
    * @param entry The budget entry to edit.
    * @param unit The unit containing the entry (for ESG context).
@@ -400,7 +406,7 @@ public class EditsApplier {
   /**
    * Prompts user for new amount and validates it with ESG-aware rules.
    *
-   * Continues prompting until a valid amount is entered or user cancels.
+   * <p>Continues prompting until a valid amount is entered or user cancels.
    * Handles all validation scenarios including ESG protection rules.
    *
    * @param oldAmount The current amount.
@@ -447,7 +453,7 @@ public class EditsApplier {
   /**
    * Parses a monetary amount from user input using Greek locale formatting.
    *
-   * Handles various input formats including decimals and thousands separators.
+   * <p>Handles various input formats including decimals and thousands separators.
    *
    * @param input The user input string.
    * @return The parsed amount.
@@ -491,7 +497,7 @@ public class EditsApplier {
   /**
    * Handles the validation result and returns the appropriate outcome.
    *
-   * Displays appropriate messages for each validation scenario and
+   * <p>Displays appropriate messages for each validation scenario and
    * handles user confirmation for warnings.
    *
    * @param result The validation result from BudgetValidator.
@@ -576,11 +582,13 @@ public class EditsApplier {
   /**
    * Applies the validated budget change to the entry and updates tracking.
    *
-   * This method:
-   *   Updates the entry with the new amount
-   *   Calculates and tracks the balance offset
-   *   Displays confirmation message
-   *   Recalculates ESG score to show impact
+   * <p>This method:
+   * <ul>
+   *   <li>Updates the entry with the new amount</li>
+   *   <li>Calculates and tracks the balance offset</li>
+   *   <li>Displays confirmation message</li>
+   *   <li>Recalculates ESG score to show impact</li>
+   * </ul>
    *
    * @param entry The entry to update.
    * @param oldAmount The previous amount.
@@ -601,7 +609,7 @@ public class EditsApplier {
   /**
    * Reads an integer choice from user input with validation.
    *
-   * Accepts values from 0 to maxOption inclusive. Returns -1 for invalid input.
+   * <p>Accepts values from 0 to maxOption inclusive. Returns -1 for invalid input.
    *
    * @param maxOption Maximum valid option number.
    * @return User's choice (0 to maxOption), or -1 if invalid.
@@ -626,7 +634,7 @@ public class EditsApplier {
   /**
    * Recalculates the ESG sustainability score after a budget change.
    *
-   * Updates the current ESG report and displays a comparison showing
+   * <p>Updates the current ESG report and displays a comparison showing
    * how the change impacted environmental, social, and governance scores.
    *
    * @param year The current budget year with modified data.
