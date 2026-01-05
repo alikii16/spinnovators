@@ -1,5 +1,11 @@
 package gr.det.spinnovators.service;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
+
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
@@ -7,25 +13,45 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.printer.EditsPrinter;
 import gr.det.spinnovators.printer.EsgPrinter;
-import java.util.List;
-import java.util.Scanner;
 
 /**
  * Applies edits to budget entries and tracks ESG sustainability impact.
  *
- * <p>This class handles the interactive budget editing process, validates changes,
- * and calculates the ESG sustainability score before and after modifications.</p>
+ * This class handles the interactive budget editing process, validates changes,
+ * and calculates the ESG sustainability score before and after modifications.
+ * The editing session continues until the budget is balanced (total changes sum to zero).
+ *
+ * Key features:
+ *   Interactive console-based budget modification
+ *   Real-time ESG impact tracking and reporting
+ *   Smart validation with ESG-aware rules
+ *   Comprehensive before/after comparison analysis
  *
  * @author Spinnovators Team
- * @version 2.0 (ESG-enabled)
+ * @version 3.0 (Optimized & ESG-enabled)
  */
 public class EditsApplier {
+
+  // Budget constants for different years
+  private static final double BUDGET_2025 = 2341227000.00;
+  private static final double BUDGET_2026 = 3133452000.00;
+  private static final String YEAR_2025 = "2025";
+  private static final String YEAR_2026 = "2026";
+
+  // Validation threshold for budget balance
+  private static final double BALANCE_TOLERANCE = 0.01;
+
+  // Number formatting for Greek locale
+  private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
+  private static final NumberFormat GREEK_NUMBER_FORMAT =
+      NumberFormat.getNumberInstance(HELLENIC_LOCALE);
 
   private final EnvBudgetTranslator translator;
   private final Scanner scanner;
   private final EsgScoreCalculator esgCalculator;
   private final EsgPrinter esgPrinter;
   private final InitialBudgetComparison comparisonAnalyzer;
+  private final BudgetValidator validator;
 
   // Budget tracking - preserve data during changes
   private double currentBalance = 0;
@@ -44,67 +70,54 @@ public class EditsApplier {
    * @param translator The service used for converting internal keys to readable text.
    */
   public EditsApplier(EnvBudgetTranslator translator) {
+    this(translator, new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8));
+  }
+
+  /**
+   * Constructs an EditsApplier with a custom Scanner for flexible input handling.
+   * This constructor is useful for testing and alternative input sources.
+   *
+   * @param translator The service used for converting internal keys to readable text.
+   * @param scanner The Scanner to use for reading user input.
+   */
+  public EditsApplier(EnvBudgetTranslator translator, Scanner scanner) {
     this.translator = translator;
-    // ΠΡΕΠΕΙ ΝΑ ΕΙΝΑΙ:
-    this.scanner = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
+    this.scanner = scanner;
     this.esgCalculator = new EsgScoreCalculator();
     this.esgPrinter = new EsgPrinter();
     this.comparisonAnalyzer = new InitialBudgetComparison(translator);
+    this.validator = new BudgetValidator();
   }
 
   /**
    * Initiates the interactive editing session for a specific fiscal year.
-   * <p>The session continues until the user balances the budget 
-   * (difference between original and new total must be zero).</p>
+   *
+   * The session continues until the user balances the budget
+   * (difference between original and new total must be zero). During the session:
+   *   Displays current balance and ESG score
+   *   Allows user to select sectors, units, and entries to modify
+   *   Validates all changes with ESG-aware rules
+   *   Recalculates ESG impact after each change
+   *   Performs comprehensive comparison at the end
    *
    * @param year The EnvYear object representing the budget to be modified.
    */
   public void applyEditsToYear(EnvYear year) {
     System.out.println("%n--- ΕΝΑΡΞΗ ΕΠΕΞΕΡΓΑΣΙΑΣ ΓΙΑ ΤΟ ΕΤΟΣ " + year.getYear() + " ---");
 
-    String temp = year.getYear();
-
-    if ("2025".equals(temp)) {
-      this.totalBudget = 2341227000.00;
-    } else if ("2026".equals(temp)) {
-      this.totalBudget = 3133452000.00;
-    }
-
-    this.currentBalance = 0.0;
-
-    // Create deep copy of original state for final comparison
+    initializeBudgetTracking(year);
     this.originalYearSnapshot = createDeepCopy(year);
-
-    // Calculate and display initial ESG report
     calculateAndDisplayInitialEsg(year);
 
     boolean keepEditing = true;
 
     while (keepEditing) {
-      // Display balance status
-      if (Math.abs(currentBalance) > 0.01) {
-        System.out.printf("%n>>> ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ: %,.2f € <<<%n", this.currentBalance);
-      }
-
-      // Also show current ESG score
-      if (currentEsgReport != null) {
-        esgPrinter.printCompactSummary(currentEsgReport);
-      }
+      displayCurrentStatus();
 
       EnvSector selectedSector = selectSector(year);
 
       if (selectedSector == null) {
-        // User wants to exit - check if budget is balanced
-        if (Math.abs(this.currentBalance) < 0.01) {
-          System.out.println(" Ο προϋπολογισμός είναι ισοσκελισμένος!");
-          System.out.println("Τερματισμός Λειτουργίας.");
-          keepEditing = false; // EXIT LOOP
-        } else {
-          System.out.println("!!! ΠΡΟΣΟΧΗ !!!");
-          System.out.println("Δεν επιτρέπεται τερματισμός.");
-          System.out.println("Ο προϋπολογισμός δεν ισοσκελίστηκε.");
-          System.out.printf("Πρέπει να καλύψετε διαφορά: %,.2f €%n", currentBalance);
-        }
+        keepEditing = handleExitRequest();
         continue;
       }
 
@@ -113,24 +126,92 @@ public class EditsApplier {
         continue;
       }
 
-      System.out.println("%n------------------------------------------------");
-      System.out.println("Μονάδα: " + translator.translateCategory(selectedUnit.getJsonKey()));
-      System.out.println("Πληκτρολογήστε το όνομα της κατηγορίας που θέλετε να επεξεργαστείτε:");
-      System.out.print("--> ");
-
-      String searchInput = scanner.nextLine().trim();
-
-      if (!searchInput.isEmpty()) {
-        findAndEditEntryInUnit(selectedUnit, searchInput, year);
-      }
+      processUnitEdit(selectedUnit, year);
     }
 
+    finalizeEditingSession(year);
+  }
+
+  /**
+   * Initializes budget tracking variables based on the selected year.
+   *
+   * @param year The budget year being edited.
+   */
+  private void initializeBudgetTracking(EnvYear year) {
+    String yearString = year.getYear();
+
+    if (YEAR_2025.equals(yearString)) {
+      this.totalBudget = BUDGET_2025;
+    } else if (YEAR_2026.equals(yearString)) {
+      this.totalBudget = BUDGET_2026;
+    }
+
+    this.currentBalance = 0.0;
+  }
+
+  /**
+   * Displays the current budget balance and ESG score status.
+   */
+  private void displayCurrentStatus() {
+    if (Math.abs(currentBalance) > BALANCE_TOLERANCE) {
+      System.out.printf("%n>>> ΥΠΟΛΟΙΠΟ ΓΙΑ ΙΣΟΣΚΕΛΙΣΜΟ: %,.2f € <<<%n", this.currentBalance);
+    }
+
+    if (currentEsgReport != null) {
+      esgPrinter.printCompactSummary(currentEsgReport);
+    }
+  }
+
+  /**
+   * Handles the user's request to exit the editing session.
+   * Checks if the budget is balanced before allowing exit.
+   *
+   * @return false if exit is allowed (budget balanced), true to continue editing.
+   */
+  private boolean handleExitRequest() {
+    if (Math.abs(this.currentBalance) < BALANCE_TOLERANCE) {
+      System.out.println(" Ο προϋπολογισμός είναι ισοσκελισμένος!");
+      System.out.println(" Τερματισμός Λειτουργίας.");
+      return false; // EXIT LOOP
+    } else {
+      System.out.println("!!! ΠΡΟΣΟΧΗ !!!");
+      System.out.println(" Δεν επιτρέπεται τερματισμός.");
+      System.out.println(" Ο προϋπολογισμός δεν ισοσκελίστηκε.");
+      System.out.printf(" Πρέπει να καλύψετε διαφορά: %,.2f €%n", currentBalance);
+      return true; // CONTINUE EDITING
+    }
+  }
+
+  /**
+   * Processes the editing of entries within a selected unit.
+   *
+   * @param unit The selected unit containing entries to edit.
+   * @param year The current budget year.
+   */
+  private void processUnitEdit(EnvUnit unit, EnvYear year) {
+    System.out.println("%n------------------------------------------------");
+    System.out.println("Μονάδα: " + translator.translateCategory(unit.getJsonKey()));
+    System.out.println("Πληκτρολογήστε το όνομα της κατηγορίας που θέλετε να επεξεργαστείτε:");
+    System.out.print("--> ");
+
+    String searchInput = scanner.nextLine().trim();
+
+    if (!searchInput.isEmpty()) {
+      findAndEditEntryInUnit(unit, searchInput, year);
+    }
+  }
+
+  /**
+   * Finalizes the editing session by printing results and performing comparison.
+   *
+   * @param year The modified budget year.
+   */
+  private void finalizeEditingSession(EnvYear year) {
     EditsPrinter printer = new EditsPrinter(translator);
     printer.printEditYear(year);
 
     System.out.println("%n Προετοιμασία αναλυτικής σύγκρισης...%n");
 
-    // Perform full comparison between original and modified budget
     comparisonAnalyzer.performFullComparison(
         originalYearSnapshot,  // Original state (snapshot)
         year,                  // Modified state (current)
@@ -143,9 +224,12 @@ public class EditsApplier {
   /**
    * Creates a deep copy of EnvYear for comparison purposes.
    *
+   * This method creates a complete independent copy of the year's data structure,
+   * including all sectors, units, and entries, to preserve the original state
+   * for later comparison analysis.
+   *
    * @param year The year to copy.
-   * 
-   * @return A deep copy of the year.
+   * @return A deep copy of the year with independent objects.
    */
   private EnvYear createDeepCopy(EnvYear year) {
     List<EnvSector> copiedSectors = new java.util.ArrayList<>();
@@ -157,7 +241,6 @@ public class EditsApplier {
         List<EnvEntry> copiedEntries = new java.util.ArrayList<>();
 
         for (EnvEntry entry : unit.getEntries()) {
-          // Create new entry with same values
           copiedEntries.add(new EnvEntry(entry.getJsonKey(), entry.getAmount()));
         }
 
@@ -171,26 +254,28 @@ public class EditsApplier {
   }
 
   /**
-   * Calculates and displays the initial ESG report.
+   * Calculates and displays the initial ESG sustainability report.
    *
-   * @param year The budget year.
+   * This method computes the baseline ESG score before any modifications,
+   * providing users with a reference point to understand how their changes
+   * will impact environmental, social, and governance metrics.
+   *
+   * @param year The budget year to analyze.
    */
   private void calculateAndDisplayInitialEsg(EnvYear year) {
     System.out.println("%n Υπολογισμός αρχικού ESG Score...%n");
 
     try {
-      // Calculate initial ESG report
       this.initialEsgReport = esgCalculator.calculateReport(year, totalBudget);
       this.currentEsgReport = initialEsgReport;
 
-      // Display the report
       esgPrinter.printReport(initialEsgReport);
 
       System.out.println(" Μπορείτε να δείτε πώς οι αλλαγές σας επηρεάζουν το ESG score!");
       System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━%n");
     } catch (Exception e) {
       System.err.println("  Σφάλμα κατά τον υπολογισμό ESG: " + e.getMessage());
-      System.out.println("Η επεξεργασία θα συνεχιστεί χωρίς ESG tracking.%n");
+      System.out.println(" Η επεξεργασία θα συνεχιστεί χωρίς ESG tracking.%n");
       this.initialEsgReport = null;
       this.currentEsgReport = null;
     }
@@ -198,6 +283,9 @@ public class EditsApplier {
 
   /**
    * Presents a list of sectors to the user for selection.
+   *
+   * Displays all available sectors in a numbered menu format and
+   * allows the user to choose one for editing or exit the session.
    *
    * @param year The budget year containing the sectors.
    * @return The chosen EnvSector or null if the user chooses to exit.
@@ -226,7 +314,10 @@ public class EditsApplier {
   /**
    * Presents a list of units within a sector for user selection.
    *
-   * @param sector The parent sector.
+   * Displays all administrative units within the selected sector
+   * in a numbered menu format.
+   *
+   * @param sector The parent sector containing units.
    * @return The chosen EnvUnit or null to return to sector selection.
    */
   private EnvUnit selectUnit(EnvSector sector) {
@@ -248,113 +339,25 @@ public class EditsApplier {
   }
 
   /**
-   * Searches for an entry in a unit and allows editing.
+   * Searches for a budget entry within a unit by name and allows editing.
    *
-   * @param unit       The unit to search in
-   * @param searchName The category name to search for
-   * @param year       The current budget year
+   * This method performs case-insensitive search for the specified entry,
+   * validates the new amount with ESG-aware rules, updates the entry,
+   * tracks the balance change, and recalculates the ESG score.
+   *
+   * @param unit The unit to search in.
+   * @param searchName The category name to search for.
+   * @param year The current budget year (needed for ESG context).
    */
   private void findAndEditEntryInUnit(EnvUnit unit, String searchName, EnvYear year) {
     boolean found = false;
 
-    // A loop in order to search the Unit and find the desired entry
     for (EnvEntry entry : unit.getEntries()) {
       String entryName = translator.translateCategory(entry.getJsonKey());
 
       if (entryName.equalsIgnoreCase(searchName)) {
         found = true;
-        System.out.printf("%nΒρέθηκε: %s | Τρέχον Ποσό: %,.2f €%n", entryName, entry.getAmount());
-        
-        double oldAmount = entry.getAmount();
-        BudgetValidator validator = new BudgetValidator();
-        double finalValidatedAmount = oldAmount;
-
-        // Loop for validation until we get a valid or confirmed value
-        while (true) {
-          System.out.print("Εισάγετε το νέο ποσό: ");
-          String amountInput = scanner.nextLine().trim();
-
-          if (amountInput.isEmpty()) {
-            System.out.println(" Δεν δόθηκε τιμή. Καμία αλλαγή.");
-            return;
-          }
-
-          try {
-            
-            amountInput = amountInput.replace(",", ".");
-            double inputAmount = Double.parseDouble(amountInput);
-
-            // 1. Retrieve Sector Key (required for ESG classification)
-            String sectorKey = year.getSectors().stream()
-                .filter(s -> s.getUnits().contains(unit))
-                .findFirst()
-                .map(EnvSector::getJsonKey)
-                .orElse("unknown");
-            
-            // 2. Call Validator with ESG context
-            BudgetValidator.ValidationResult result = 
-                validator.validate(this.totalBudget, oldAmount, inputAmount, 
-                  sectorKey, entry.getJsonKey());
-
-            // 3. Handle Validation Results
-            if (result == BudgetValidator.ValidationResult.OK) {
-              finalValidatedAmount = inputAmount;
-              break;
-
-            } else if (result == BudgetValidator.ValidationResult.NEGATIVE_VALUE) {
-              System.out.println(" ΣΦΑΛΜΑ: Μη έγκυρη τιμή (αρνητικό ποσό).");
-
-            } else if (result == BudgetValidator.ValidationResult.EXCEEDS_TOTAL_BUDGET) {
-              System.out.printf(" ΣΦΑΛΜΑ: Υπέρβαση Ορίου Προϋπολογισμού (Όριο: %,.2f €).%n",
-                  this.totalBudget);
-
-            // --- SMART ESG BLOCKS ---
-            } else if (result == BudgetValidator.ValidationResult.ESG_ENV_PROTECTION) {
-              System.out.println(" ΠΡΟΣΤΑΣΙΑ ΠΕΡΙΒΑΛΛΟΝΤΟΣ: Η μείωση δαπανών άνω του "
-                  + "5% απαγορεύεται.");
-              System.out.println(" Στόχος: Διατήρηση υψηλού δείκτη βιωσιμότητας "
-                  + "(Environmental Score).");
-
-            } else if (result == BudgetValidator.ValidationResult.ESG_GOV_RESTRICTION) {
-              System.out.println(" ΔΗΜΟΣΙΟΝΟΜΙΚΗ ΠΕΙΘΑΡΧΙΑ: Η αύξηση διοικητικών δαπανών "
-                  + "άνω του 10% απαγορεύεται.");
-              System.out.println(" Στόχος: Περιορισμός της γραφειοκρατίας και εξοικονόμηση "
-                  + "πόρων (Governance Score).");
-
-            } else if (result == BudgetValidator.ValidationResult.ESG_SOCIAL_PROTECTION) {
-              System.out.println(" ΚΟΙΝΩΝΙΚΗ ΠΟΛΙΤΙΚΗ: Η μείωση μισθών/παροχών άνω του "
-                  + "10% απαγορεύεται.");
-              System.out.println(" Στόχος: Προστασία του βιοτικού επιπέδου των εργαζομένων "
-                  + "(Social Score).");
-
-            // --- WARNING (Yellow Card) ---
-            } else if (result == BudgetValidator.ValidationResult.EXTREME_DEVIATION) {
-              double dev = validator.calculateDeviationPercentage(oldAmount, inputAmount);
-              System.out.printf(" ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Παρατηρείται μεγάλη απόκλιση (%.2f%%).%n", dev);
-              System.out.print(" Επιθυμείτε να προχωρήσετε παρόλα αυτά; (ΝΑΙ/ΟΧΙ): ");
-              
-              String confirm = scanner.nextLine().trim();
-              if (confirm.equalsIgnoreCase("ΝΑΙ")) {
-                finalValidatedAmount = inputAmount;
-                break;
-              } else {
-                System.out.println(" Η αλλαγή ακυρώθηκε. Παρακαλώ εισάγετε νέα τιμή.");
-              }
-            }
-
-          } catch (NumberFormatException e) {
-            System.out.println(" ΣΦΑΛΜΑ: Μη έγκυρη μορφή αριθμού.");
-          }
-        }
-
-        // Apply changes & Recalculate
-        entry.setAmount(finalValidatedAmount);
-        double offsetAmount = oldAmount - finalValidatedAmount;
-        this.currentBalance += offsetAmount;
-        System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Διαφορά: %,.2f €\n", offsetAmount);
-        
-        // Important: Recalculate to show the impact
-        recalculateEsgScore(year);
+        editBudgetEntry(entry, unit, year);
         return;
       }
     }
@@ -366,10 +369,242 @@ public class EditsApplier {
   }
 
   /**
-   * Reads an integer choice from user input.
+   * Handles the interactive editing of a single budget entry.
    *
-   * @param maxOption Maximum valid option number
-   * @return User's choice or -1 if invalid
+   * This method:
+   *   Displays current amount
+   *   Prompts for new amount
+   *   Validates with ESG-aware rules
+   *   Handles validation failures with informative messages
+   *   Updates the entry only after successful validation
+   *   Tracks balance changes
+   *   Recalculates ESG impact
+   *
+   * @param entry The budget entry to edit.
+   * @param unit The unit containing the entry (for ESG context).
+   * @param year The current budget year (for ESG context).
+   */
+  private void editBudgetEntry(EnvEntry entry, EnvUnit unit, EnvYear year) {
+    String entryName = translator.translateCategory(entry.getJsonKey());
+    double oldAmount = entry.getAmount();
+
+    System.out.printf("%nΒρέθηκε: %s | Τρέχον Ποσό: %,.2f €%n", entryName, oldAmount);
+
+    Double validatedAmount = promptAndValidateAmount(oldAmount, entry, unit, year);
+
+    if (validatedAmount != null) {
+      applyBudgetChange(entry, oldAmount, validatedAmount, year);
+    }
+  }
+
+  /**
+   * Prompts user for new amount and validates it with ESG-aware rules.
+   *
+   * Continues prompting until a valid amount is entered or user cancels.
+   * Handles all validation scenarios including ESG protection rules.
+   *
+   * @param oldAmount The current amount.
+   * @param entry The entry being edited.
+   * @param unit The unit containing the entry.
+   * @param year The current budget year.
+   * @return The validated amount, or null if user cancelled.
+   */
+  private Double promptAndValidateAmount(double oldAmount, EnvEntry entry,
+                                        EnvUnit unit, EnvYear year) {
+    while (true) {
+      System.out.print("Εισάγετε το νέο ποσό: ");
+      String amountInput = scanner.nextLine().trim();
+
+      if (amountInput.isEmpty()) {
+        System.out.println(" Δεν δόθηκε τιμή. Καμία αλλαγή.");
+        return null;
+      }
+
+      try {
+        double inputAmount = parseAmount(amountInput);
+        String sectorKey = findSectorKeyForUnit(unit, year);
+
+        BudgetValidator.ValidationResult result =
+            validator.validate(this.totalBudget, oldAmount, inputAmount,
+                sectorKey, entry.getJsonKey());
+
+        ValidationOutcome outcome = handleValidationResult(result, validator,
+            oldAmount, inputAmount);
+
+        if (outcome == ValidationOutcome.ACCEPTED) {
+          return inputAmount;
+        } else if (outcome == ValidationOutcome.CANCELLED) {
+          return null;
+        }
+        // Otherwise, continue loop for new input
+
+      } catch (ParseException e) {
+        System.out.println(" ΣΦΑΛΜΑ: Μη έγκυρη μορφή αριθμού.");
+      }
+    }
+  }
+
+  /**
+   * Parses a monetary amount from user input using Greek locale formatting.
+   *
+   * Handles various input formats including decimals and thousands separators.
+   *
+   * @param input The user input string.
+   * @return The parsed amount.
+   * @throws ParseException If the input cannot be parsed as a number.
+   */
+  private double parseAmount(String input) throws ParseException {
+    try {
+      Number number = GREEK_NUMBER_FORMAT.parse(input);
+      return number.doubleValue();
+    } catch (ParseException e) {
+      // Fallback: Try simple dot replacement for backwards compatibility
+      String normalized = input.replace(",", ".");
+      return Double.parseDouble(normalized);
+    }
+  }
+
+  /**
+   * Finds the sector key for a given unit within the budget year.
+   *
+   * @param unit The unit to locate.
+   * @param year The budget year.
+   * @return The sector key, or "unknown" if not found.
+   */
+  private String findSectorKeyForUnit(EnvUnit unit, EnvYear year) {
+    return year.getSectors().stream()
+        .filter(s -> s.getUnits().contains(unit))
+        .findFirst()
+        .map(EnvSector::getJsonKey)
+        .orElse("unknown");
+  }
+
+  /**
+   * Enumeration for validation outcome decisions.
+   */
+  private enum ValidationOutcome {
+    ACCEPTED,    // Amount is valid and accepted
+    REJECTED,    // Amount failed validation, prompt again
+    CANCELLED    // User cancelled the change
+  }
+
+  /**
+   * Handles the validation result and returns the appropriate outcome.
+   *
+   * Displays appropriate messages for each validation scenario and
+   * handles user confirmation for warnings.
+   *
+   * @param result The validation result from BudgetValidator.
+   * @param validator The validator instance (for calculating deviation).
+   * @param oldAmount The original amount.
+   * @param newAmount The proposed new amount.
+   * @return The validation outcome (ACCEPTED, REJECTED, or CANCELLED).
+   */
+  private ValidationOutcome handleValidationResult(
+      BudgetValidator.ValidationResult result,
+      BudgetValidator validator,
+      double oldAmount,
+      double newAmount) {
+
+    if (result == BudgetValidator.ValidationResult.OK) {
+      return ValidationOutcome.ACCEPTED;
+
+    } else if (result == BudgetValidator.ValidationResult.NEGATIVE_VALUE) {
+      System.out.println(" ΣΦΑΛΜΑ: Μη έγκυρη τιμή (αρνητικό ποσό).");
+      return ValidationOutcome.REJECTED;
+
+    } else if (result == BudgetValidator.ValidationResult.EXCEEDS_TOTAL_BUDGET) {
+      System.out.printf(" ΣΦΑΛΜΑ: Υπέρβαση Ορίου Προϋπολογισμού (Όριο: %,.2f €).%n",
+          this.totalBudget);
+      return ValidationOutcome.REJECTED;
+
+    } else if (result == BudgetValidator.ValidationResult.ESG_ENV_PROTECTION) {
+      System.out.println(" ΠΡΟΣΤΑΣΙΑ ΠΕΡΙΒΑΛΛΟΝΤΟΣ: Η μείωση δαπανών άνω του "
+          + "5% απαγορεύεται.");
+      System.out.println(" Στόχος: Διατήρηση υψηλού δείκτη βιωσιμότητας "
+          + "(Environmental Score).");
+      return ValidationOutcome.REJECTED;
+
+    } else if (result == BudgetValidator.ValidationResult.ESG_GOV_RESTRICTION) {
+      System.out.println(" ΔΗΜΟΣΙΟΝΟΜΙΚΗ ΠΕΙΘΑΡΧΙΑ: Η αύξηση διοικητικών δαπανών "
+          + "άνω του 10% απαγορεύεται.");
+      System.out.println(" Στόχος: Περιορισμός της γραφειοκρατίας και εξοικονόμηση "
+          + "πόρων (Governance Score).");
+      return ValidationOutcome.REJECTED;
+
+    } else if (result == BudgetValidator.ValidationResult.ESG_SOCIAL_PROTECTION) {
+      System.out.println(" ΚΟΙΝΩΝΙΚΗ ΠΟΛΙΤΙΚΗ: Η μείωση μισθών/παροχών άνω του "
+          + "10% απαγορεύεται.");
+      System.out.println(" Στόχος: Προστασία του βιοτικού επιπέδου των εργαζομένων "
+          + "(Social Score).");
+      return ValidationOutcome.REJECTED;
+
+    } else if (result == BudgetValidator.ValidationResult.EXTREME_DEVIATION) {
+      return handleExtremeDeviationWarning(validator, oldAmount, newAmount);
+    }
+
+    return ValidationOutcome.REJECTED;
+  }
+
+  /**
+   * Handles the extreme deviation warning by asking user for confirmation.
+   *
+   * @param validator The validator instance.
+   * @param oldAmount The original amount.
+   * @param newAmount The proposed new amount.
+   * @return ACCEPTED if user confirms, CANCELLED if user declines.
+   */
+  private ValidationOutcome handleExtremeDeviationWarning(
+      BudgetValidator validator,
+      double oldAmount,
+      double newAmount) {
+
+    double deviation = validator.calculateDeviationPercentage(oldAmount, newAmount);
+    System.out.printf(" ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Παρατηρείται μεγάλη απόκλιση (%.2f%%).%n",
+        deviation);
+    System.out.print(" Επιθυμείτε να προχωρήσετε παρόλα αυτά; (ΝΑΙ/ΟΧΙ): ");
+
+    String confirm = scanner.nextLine().trim();
+    if (confirm.equalsIgnoreCase("ΝΑΙ")) {
+      return ValidationOutcome.ACCEPTED;
+    } else {
+      System.out.println(" Η αλλαγή ακυρώθηκε. Παρακαλώ εισάγετε νέα τιμή.");
+      return ValidationOutcome.CANCELLED;
+    }
+  }
+
+  /**
+   * Applies the validated budget change to the entry and updates tracking.
+   *
+   * This method:
+   *   Updates the entry with the new amount
+   *   Calculates and tracks the balance offset
+   *   Displays confirmation message
+   *   Recalculates ESG score to show impact
+   *
+   * @param entry The entry to update.
+   * @param oldAmount The previous amount.
+   * @param newAmount The validated new amount.
+   * @param year The current budget year (for ESG recalculation).
+   */
+  private void applyBudgetChange(EnvEntry entry, double oldAmount,
+                                double newAmount, EnvYear year) {
+    entry.setAmount(newAmount);
+    double offsetAmount = oldAmount - newAmount;
+    this.currentBalance += offsetAmount;
+
+    System.out.printf(" [OK] Η τιμή άλλαξε επιτυχώς. Διαφορά: %,.2f €%n", offsetAmount);
+
+    recalculateEsgScore(year);
+  }
+
+  /**
+   * Reads an integer choice from user input with validation.
+   *
+   * Accepts values from 0 to maxOption inclusive. Returns -1 for invalid input.
+   *
+   * @param maxOption Maximum valid option number.
+   * @return User's choice (0 to maxOption), or -1 if invalid.
    */
   private int readIntegerChoice(int maxOption) {
     try {
@@ -382,16 +617,19 @@ public class EditsApplier {
         return val;
       }
     } catch (NumberFormatException e) {
-      // We ignore the mistake and return -1
+      // Invalid input, will return -1
     }
-    System.out.println("Μη έγκυρη επιλογή.");
+    System.out.println(" Μη έγκυρη επιλογή.");
     return -1;
   }
 
   /**
-   * Recalculates the ESG score after a budget change.
+   * Recalculates the ESG sustainability score after a budget change.
    *
-   * @param year The current budget year
+   * Updates the current ESG report and displays a comparison showing
+   * how the change impacted environmental, social, and governance scores.
+   *
+   * @param year The current budget year with modified data.
    */
   private void recalculateEsgScore(EnvYear year) {
     if (this.currentEsgReport == null) {
@@ -404,7 +642,6 @@ public class EditsApplier {
       EsgReport previousReport = this.currentEsgReport;
       this.currentEsgReport = esgCalculator.calculateReport(year, totalBudget);
 
-      // Show comparison
       esgPrinter.printComparison(previousReport, currentEsgReport);
     } catch (Exception e) {
       System.err.println("  Σφάλμα κατά την ανανέωση ESG: " + e.getMessage());
