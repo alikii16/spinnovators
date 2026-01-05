@@ -213,6 +213,14 @@ public final class LoginWebServer {
       }
     });
 
+    server.createContext("/comparison.html", exchange -> {
+      if ("GET".equals(exchange.getRequestMethod())) {
+        handleComparisonPage(exchange, frontendPath);
+      } else {
+        redirect(exchange, "/comparison.html");
+      }
+    });
+
     server.setExecutor(null);
     server.start();
 
@@ -1236,11 +1244,14 @@ public final class LoginWebServer {
         +  "target='_blank' style='margin-top:10px; display:block; "
         +  "text-decoration:none;'> Λήψη Αναφοράς Αλλαγών </a>";
 
+    String comparisonBtn = "<a class='secondary-btn' href='/comparison.html' "
+        + "style='text-decoration:none; margin-top:18px; display:block;'>Σύγκριση Προϋπολογισμού</a>";
+    
     if (success) {
-      buttonHtml = downloadBtn + "<a class='secondary-btn' href='/esg.html' "
+      buttonHtml = downloadBtn + comparisonBtn + "<a class='secondary-btn' href='/esg.html' "
         + "style='text-decoration:none; margin-top:18px;'>ESG Αξιολόγηση</a>";
     } else {
-      buttonHtml = downloadBtn + """
+      buttonHtml = downloadBtn + comparisonBtn + """
         <form method='POST' style='margin-top:18px;'>
         <button class='primary-btn' type='submit' name='continue' value='yes'>
         Συνέχεια Αλλαγών</button>
@@ -1637,6 +1648,31 @@ public final class LoginWebServer {
     // "no" or anything else: ask again for new value
     serveValueEditor(exchange, "Ακύρωση: Παρακαλώ εισάγετε νέα τιμή.");
     changeSession.state = ChangeState.EDIT_VALUE;
+  }
+
+  /**
+   * Handles comparison page request.
+   */
+  private static void handleComparisonPage(HttpExchange exchange, String frontendPath) throws IOException {
+    ChangeSession changeSession = getChangeSession();
+    
+    if (changeSession.originalYearSnapshot == null || changeSession.envYear == null) {
+      String errorHtml = buildStyledChangePage(
+          "<h2 class='section-title'>Σφάλμα</h2>"
+          + "<p class='description'>Δεν υπάρχουν δεδομένα για σύγκριση.</p>"
+          + "<a class='primary-btn' href='/minister_statebudget.html' "
+          + "style='text-decoration:none; margin-top:18px;'>Επιστροφή</a>",
+          "");
+      sendResponse(exchange, errorHtml, 200, "text/html; charset=UTF-8");
+      return;
+    }
+    
+    String inner = """
+        <h2 class='section-title'>Σύγκριση Προϋπολογισμού</h2>
+        <p class='description'>Σελίδα σύγκρισης (σε ανάπτυξη)</p>
+        """;
+    String html = buildStyledChangePage(inner, "");
+    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
   }
 
   /**
