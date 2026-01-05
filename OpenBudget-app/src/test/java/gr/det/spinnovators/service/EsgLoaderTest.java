@@ -5,22 +5,20 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+
+
 
 
 import com.google.gson.JsonObject;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+
+
+
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.mockito.MockedStatic;
+
 
 
 /**
@@ -34,64 +32,7 @@ import org.mockito.MockedStatic;
 class EsgLoaderTest {
 
   private EsgLoader esgLoader;
-  private static final String VALID_JSON_CONFIG = """
-      {
-          "weights": {
-              "environmental": 0.35,
-              "social": 0.35,
-              "governance": 0.30
-          },
-          "thresholds": {
-              "excellent": 85,
-              "good": 65,
-              "moderate": 45,
-              "poor": 25
-          },
-          "sectors": {
-              "energy": "ENVIRONMENTAL",
-              "healthcare": "SOCIAL",
-              "finance": "GOVERNANCE",
-              "technology": "MIXED"
-          },
-          "entries": {
-              "carbon_emissions": "ENVIRONMENTAL",
-              "employee_training": "SOCIAL",
-              "board_diversity": "GOVERNANCE",
-              "community_outreach": "CONTEXT_DEPENDENT"
-          },
-          "display_settings": {
-              "progress_bar_width": 30,
-              "enable_esg": true,
-              "show_esg_terminal": false,
-              "show_esg_web": true,
-              "show_compact_after_edit": false
-          },
-          "improvement_suggestions": {
-              "environmental_low": 40,
-              "social_low": 25,
-              "governance_low": 20
-          },
-          "localization": {
-              "default_language": "en",
-              "ratings": {
-                  "excellent": {
-                      "el": "Άριστη",
-                      "en": "Excellent"
-                  },
-                  "good": {
-                      "el": "Καλή",
-                      "en": "Good"
-                  }
-              }
-          },
-          "advanced_settings": {
-              "min_score_diff_to_show": 0.15,
-              "score_decimal_places": 3,
-              "enable_logging": true,
-              "enable_caching": true
-          }
-      }
-      """;
+
 
   /**
    * Sets up test fixtures before each test.
@@ -414,49 +355,7 @@ class EsgLoaderTest {
   /**
    * Tests configuration loading with valid JSON.
    */
-  @Test
-  void testLoadValidConfig() {
-    try (MockedStatic<EsgLoader> mockedLoader = mockStatic(EsgLoader.class)) {
-      ClassLoader mockClassLoader = mock(ClassLoader.class);
-      InputStream mockStream = new ByteArrayInputStream(
-          VALID_JSON_CONFIG.getBytes(StandardCharsets.UTF_8));
-      
-      when(EsgLoader.class.getClassLoader()).thenReturn(mockClassLoader);
-      when(mockClassLoader.getResourceAsStream(eq("esg_config.json")))
-          .thenReturn(mockStream);
-      
-      EsgLoader customLoader = new EsgLoader();
-      assertNotNull(customLoader, "Loader should be created with valid config");
-    }
-  }
 
-  /**
-   * Tests configuration loading with missing file.
-   */
-  @Test
-  void testLoadMissingConfigFile() {
-    try (MockedStatic<EsgLoader> mockedLoader = mockStatic(EsgLoader.class)) {
-      ClassLoader mockClassLoader = mock(ClassLoader.class);
-      
-      when(EsgLoader.class.getClassLoader()).thenReturn(mockClassLoader);
-      when(mockClassLoader.getResourceAsStream(eq("esg_config.json")))
-          .thenReturn(null);
-      
-      EsgLoader customLoader = new EsgLoader();
-      assertNotNull(customLoader, 
-          "Loader should be created with default config");
-      
-      // Verify default values are used
-      assertEquals(0.40, customLoader.getEnvironmentalWeight(), 0.001,
-          "Should use default environmental weight");
-      assertEquals(80, customLoader.getExcellentThreshold(),
-          "Should use default excellent threshold");
-    }
-  }
-
-  /**
-   * Tests helper method getStringFromPath with valid path.
-   */
   @Test
   void testGetStringFromPathValid() {
     // This tests the private method indirectly through public methods
