@@ -35,7 +35,7 @@ The system supports:
 - [Data Structures & Algorithms](#data-structures--algorithms)
 - [Testing](#testing-and-code-coverage)
 - [Troubleshooting](#troubleshooting)
-- [System Capabilities](#system-capabilities-and-limitations)
+- [System Capabilities and Limitations](#system-capabilities-and-limitations)
 - [FAQ](#faq)
 - [Contributing](#contributing)
 - [License](#license)
