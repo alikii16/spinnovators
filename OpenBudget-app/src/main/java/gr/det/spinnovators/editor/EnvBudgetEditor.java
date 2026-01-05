@@ -57,7 +57,7 @@ public class EnvBudgetEditor {
       return;
     }
 
-    EditsApplier applier = new EditsApplier(translator);
+    EditsApplier applier = new EditsApplier(translator, this.scanner);
     applier.applyEditsToYear(selectedYear);
   }
 }
