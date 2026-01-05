@@ -90,7 +90,7 @@ public class EditsApplier {
     this.comparisonAnalyzer = new InitialBudgetComparison(translator);
     this.validator = new BudgetValidator();
   }
-
+  
   /**
    * Initiates the interactive editing session for a specific fiscal year.
    *

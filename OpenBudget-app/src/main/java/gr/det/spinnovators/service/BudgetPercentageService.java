@@ -10,6 +10,10 @@ public class BudgetPercentageService {
     this.dataInput = new MinistryDataInput();
   }
 
+  public BudgetPercentageService(MinistryDataInput dataInput) {
+    this.dataInput = dataInput;
+  }
+
   public void displayEnvironmentPercentage(int year) {
     String target = "Υπουργείο Περιβάλλοντος και Ενέργειας";
     double[] amounts;

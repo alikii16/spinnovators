@@ -6,10 +6,9 @@ import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.printer.EsgPrinter;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,6 +22,8 @@ public class YearToYearBudgetComparison {
   private final EsgScoreCalculator esgCalculator;
   private final EsgPrinter esgPrinter;
   private final Map<String, Double> totalBudgets;
+  
+  private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
 
   public YearToYearBudgetComparison(EnvBudgetTranslator translator, Map<String, Double> totalBudgets) {
     this.translator = translator;
@@ -32,122 +33,76 @@ public class YearToYearBudgetComparison {
   }
 
   /** Main entry point for comparing two years */
-  public void compareYears(EnvYear baseYear, EnvYear compareYear) {
+  public void compareYears(EnvYear base, EnvYear compare) {
+    String baseYear = base.getYear();
+    String compareYear = compare.getYear();
 
-    double baseTotal = totalBudgets.getOrDefault(baseYear.getYear(), 0.0);
-    double compareTotal = totalBudgets.getOrDefault(compareYear.getYear(), 0.0);
+    printHeader(baseYear, compareYear);
 
-    printHeader(baseYear.getYear(), compareYear.getYear());
+    // 1. Calculate per-sector totals
+    Map<String, Double> baseSectors = getSectorTotals(base);
+    Map<String, Double> compareSectors = getSectorTotals(compare);
 
-    Map<String, Double> baseTotals = calculateSectorTotals(baseYear);
-    Map<String, Double> compareTotals = calculateSectorTotals(compareYear);
+    // 2. Identify all unique sectors involved
+    Set<String> allSectors = new LinkedHashSet<>();
+    allSectors.addAll(baseSectors.keySet());
+    allSectors.addAll(compareSectors.keySet());
 
-    printSectorComparison(baseTotals, compareTotals, baseTotal, compareTotal);
-    printTopChanges(baseTotals, compareTotals);
-    printEsgComparison(baseYear, compareYear, baseTotal, compareTotal);
-    printConclusions(baseTotals, compareTotals);
+    // 3. Print table header
+    System.out.printf(HELLENIC_LOCALE, "%-45s | %12s | %12s | %12s | %8s%n", 
+        "Τομέας / Sector", baseYear, compareYear, "Διαφορά", "%");
+    System.out.println("---------------------------------------------------------------------------------------------------------");
 
+    // 4. Print rows
+    for (String sectorKey : allSectors) {
+      double val1 = baseSectors.getOrDefault(sectorKey, 0.0);
+      double val2 = compareSectors.getOrDefault(sectorKey, 0.0);
+      double diff = val2 - val1;
+      double pct = (val1 == 0) ? (val2 == 0 ? 0 : 100.0) : (diff / val1) * 100.0;
+
+      String name = translator.translateCategory(sectorKey);
+      if (name.length() > 45) name = truncate(name, 42);
+
+      System.out.printf(HELLENIC_LOCALE, "%-45s | %,12.0f | %,12.0f | %+,.0f | %+7.1f%%%n", 
+          name, val1, val2, diff, pct);
+    }
+
+    // 5. Comparison Conclusions
+    printConclusions(baseSectors, compareSectors);
+
+    // 6. ESG Comparison
+    Double totalBase = totalBudgets.get(baseYear);
+    Double totalCompare = totalBudgets.get(compareYear);
+    
+    if (totalBase == null) {
+      totalBase = baseSectors.values().stream().mapToDouble(Double::doubleValue).sum();
+    }
+    if (totalCompare == null) {
+      totalCompare = compareSectors.values().stream().mapToDouble(Double::doubleValue).sum();
+    }
+
+    System.out.println("🌱 Σύγκριση ESG Score:");
+    EsgReport baseReport = esgCalculator.calculateReport(base, totalBase);
+    EsgReport compareReport = esgCalculator.calculateReport(compare, totalCompare);
+    
+    esgPrinter.printComparison(baseReport, compareReport);
+    
     printFooter();
   }
 
-  /** Sum all entries per sector for a given year */
-  private Map<String, Double> calculateSectorTotals(EnvYear year) {
-    Map<String, Double> totals = new LinkedHashMap<>();
-    for (EnvSector sector : year.getSectors()) {
-      double sum = 0.0;
-      for (EnvUnit unit : sector.getUnits()) {
-        for (EnvEntry entry : unit.getEntries()) {
-          sum += entry.getAmount();
+  /** Helper to aggregate totals by sector */
+  private Map<String, Double> getSectorTotals(EnvYear year) {
+    Map<String, Double> map = new LinkedHashMap<>();
+    for (EnvSector s : year.getSectors()) {
+      double sum = 0;
+      for (EnvUnit u : s.getUnits()) {
+        for (EnvEntry e : u.getEntries()) {
+          sum += e.getAmount();
         }
       }
-      totals.put(sector.getJsonKey(), sum);
+      map.put(s.getJsonKey(), sum);
     }
-    return totals;
-  }
-
-  /** Prints sector comparison table */
-  private void printSectorComparison(
-      Map<String, Double> base,
-      Map<String, Double> compare,
-      double baseTotal,
-      double compareTotal) {
-
-    System.out.println("┌────────────────────────────────────────────────────────────────────┐");
-    System.out.println("│                 ΣΥΓΚΡΙΣΗ ΑΝΑ ΤΟΜΕΑ                                 │");
-    System.out.println("├─────────────────────────────────────┬────────┬────────┬────────────┤");
-    System.out.println("│ Τομέας                              │ Πριν   │ Μετά   │ Αλλαγή     │");
-    System.out.println("├─────────────────────────────────────┼────────┼────────┼────────────┤");
-
-    Set<String> allKeys = new LinkedHashSet<>();
-    allKeys.addAll(base.keySet());
-    allKeys.addAll(compare.keySet());
-
-    for (String key : allKeys) {
-      double baseValue = base.getOrDefault(key, 0.0);
-      double compareValue = compare.getOrDefault(key, 0.0);
-      double diff = compareValue - baseValue;
-      double pctChange = baseValue > 0 ? (diff / baseValue) * 100 : 0.0;
-      String arrow = diff > 0 ? "⬆" : diff < 0 ? "⬇" : "→";
-      String name = truncate(translator.translateCategory(key), 35);
-
-      System.out.printf(
-          "│ %-35s │ %5.1f%% │ %5.1f%% │ %s%6.1f%%   │%n",
-          name,
-          (baseValue / baseTotal) * 100,
-          (compareValue / compareTotal) * 100,
-          arrow,
-          pctChange);
-    }
-
-    System.out.println("└─────────────────────────────────────────────────────────────────────┘\n");
-  }
-
-  /** Shows top 3 increases and decreases */
-  private void printTopChanges(Map<String, Double> base, Map<String, Double> compare) {
-    System.out.println("┌─────────────────────────────────────────────────────────────────────┐");
-    System.out.println("│                     ΟΙ ΜΕΓΑΛΥΤΕΡΕΣ ΑΛΛΑΓΕΣ                          │");
-    System.out.println("└─────────────────────────────────────────────────────────────────────┘\n");
-
-    List<SectorChange> changes = new ArrayList<>();
-    for (String key : base.keySet()) {
-      double diff = compare.getOrDefault(key, 0.0) - base.get(key);
-      changes.add(new SectorChange(key, diff));
-    }
-
-    changes.sort((a, b) -> Double.compare(Math.abs(b.diff), Math.abs(a.diff)));
-
-    int increases = 0, decreases = 0;
-    for (SectorChange change : changes) {
-      String name = truncate(translator.translateCategory(change.key), 40);
-      if (change.diff > 0 && increases < 3) {
-        System.out.printf(" • Μεγαλύτερη αύξηση: %s: +%,.2f €%n", name, change.diff);
-        increases++;
-      } else if (change.diff < 0 && decreases < 3) {
-        System.out.printf(" • Μεγαλύτερη μείωση: %s: %, .2f €%n", name, change.diff);
-        decreases++;
-      }
-    }
-
-    if (increases == 0) System.out.println(" • Δεν υπάρχουν αυξήσεις");
-    if (decreases == 0) System.out.println(" • Δεν υπάρχουν μειώσεις");
-    System.out.println();
-  }
-
-  /** Compares ESG reports between the two years */
-  private void printEsgComparison(
-      EnvYear baseYear,
-      EnvYear compareYear,
-      double baseTotal,
-      double compareTotal) {
-
-    EsgReport baseReport = esgCalculator.calculateReport(baseYear, baseTotal);
-    EsgReport compareReport = esgCalculator.calculateReport(compareYear, compareTotal);
-
-    System.out.println("┌─────────────────────────────────────────────────────────────────────┐");
-    System.out.println("│                   ΕΠΙΠΤΩΣΗ ΣΤΗΝ ΒΙΩΣΙΜΟΤΗΤΑ (ESG)                   │");
-    System.out.println("└─────────────────────────────────────────────────────────────────────┘\n");
-
-    esgPrinter.printComparison(baseReport, compareReport);
+    return map;
   }
 
   /** Shows total budget difference */
@@ -155,8 +110,9 @@ public class YearToYearBudgetComparison {
     double baseSum = base.values().stream().mapToDouble(Double::doubleValue).sum();
     double compareSum = compare.values().stream().mapToDouble(Double::doubleValue).sum();
 
+    System.out.println();
     System.out.println("📊 Συνολική Αλλαγή Προϋπολογισμού:");
-    System.out.printf(" Διαφορά: %+, .2f €%n%n", compareSum - baseSum);
+    System.out.printf(HELLENIC_LOCALE, " Διαφορά: %+,.2f €%n%n", compareSum - baseSum);
   }
 
   private void printHeader(String baseYear, String compareYear) {
@@ -175,16 +131,5 @@ public class YearToYearBudgetComparison {
   private String truncate(String value, int maxLength) {
     if (value.length() <= maxLength) return value;
     return value.substring(0, maxLength - 3) + "...";
-  }
-
-  /** Holder for sector difference sorting */
-  private static class SectorChange {
-    private final String key;
-    private final double diff;
-
-    SectorChange(String key, double diff) {
-      this.key = key;
-      this.diff = diff;
-    }
   }
 }

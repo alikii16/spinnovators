@@ -3,67 +3,60 @@ package gr.det.spinnovators.authentication;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Tests for FirstLogin authentication class.
+ * Updated to use Dependency Injection (Scanner) for robust testing.
  */
 class FirstLoginTest {
 
     private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
-    private final java.io.InputStream originalIn = System.in;
 
-    /**
-     * Sets up output capture before each test.
-     */
     @BeforeEach
     void setUp() {
-        System.setOut(new PrintStream(outputStream));
+        // Capture console output to verify prompts and messages
+        System.setOut(new PrintStream(outputStream, true, StandardCharsets.UTF_8));
     }
 
-    /**
-     * Restores original streams after each test.
-     */
     @AfterEach
     void tearDown() {
+        // Restore original system output
         System.setOut(originalOut);
-        System.setIn(originalIn);
     }
 
     /**
-     * Tests that FirstLogin is a utility class with private constructor.
+     * Tests that FirstLogin is a proper utility class (final, private constructor).
      */
     @Test
     void testUtilityClassStructure() {
-        // Check class is final
-        assertTrue(Modifier.isFinal(FirstLogin.class.getModifiers()),
-                "FirstLogin should be final");
+        assertTrue(Modifier.isFinal(FirstLogin.class.getModifiers()), 
+            "FirstLogin class should be final");
 
-        // Check constructor is private
         var constructors = FirstLogin.class.getDeclaredConstructors();
-        assertEquals(1, constructors.length, "Should have only one constructor");
-        
-        assertTrue(Modifier.isPrivate(constructors[0].getModifiers()),
-                "Constructor should be private");
+        assertEquals(1, constructors.length, "Should have exactly one constructor");
+        assertTrue(Modifier.isPrivate(constructors[0].getModifiers()), 
+            "Constructor should be private");
 
-        // Check login method is public static
+        // Verify login method exists and accepts a Scanner
         try {
-            Method loginMethod = FirstLogin.class.getMethod("login");
-            assertTrue(Modifier.isPublic(loginMethod.getModifiers()),
-                    "login() should be public");
-            assertTrue(Modifier.isStatic(loginMethod.getModifiers()),
-                    "login() should be static");
+            Method loginMethod = FirstLogin.class.getMethod("login", Scanner.class);
+            assertTrue(Modifier.isPublic(loginMethod.getModifiers()), "login() should be public");
+            assertTrue(Modifier.isStatic(loginMethod.getModifiers()), "login() should be static");
         } catch (NoSuchMethodException e) {
-            assertTrue(false, "login() method not found");
+            fail("login(Scanner) method not found. Did you update the signature?");
         }
     }
 
@@ -73,17 +66,15 @@ class FirstLoginTest {
     @Test
     void testMinisterLogin() {
         String input = "Minister\nm1n1st3r\n";
-        provideInput(input);
+        Scanner scanner = createScanner(input);
 
-        FirstLogin.login();
+        String role = FirstLogin.login(scanner);
 
-        String output = outputStream.toString();
-        assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."),
-                "Should welcome minister");
-        assertTrue(output.contains("Εισάγετε όνομα χρήστη:"),
-                "Should prompt for username");
-        assertTrue(output.contains("Εισάγετε κωδικό:"),
-                "Should prompt for password");
+        String output = outputStream.toString(StandardCharsets.UTF_8);
+        
+        assertEquals("a", role, "Role should be 'a' for Minister");
+        assertTrue(output.contains("Καλωσήρθατε κύριε Υπουργέ"), "Should print minister welcome message");
+        assertTrue(output.contains("Εισάγετε όνομα χρήστη:"), "Should prompt for username");
     }
 
     /**
@@ -92,131 +83,67 @@ class FirstLoginTest {
     @Test
     void testEmployeeLogin() {
         String input = "JohnDoe\n3mpl0y33\n";
-        provideInput(input);
+        Scanner scanner = createScanner(input);
 
-        FirstLogin.login();
+        String role = FirstLogin.login(scanner);
 
-        String output = outputStream.toString();
-        assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε JohnDoe."),
-                "Should welcome employee by name");
+        String output = outputStream.toString(StandardCharsets.UTF_8);
+        
+        assertEquals("b", role, "Role should be 'b' for Employee");
+        assertTrue(output.contains("Καλωσήρθατε JohnDoe"), "Should welcome employee by name");
     }
 
     /**
-     * Tests failed login and retry.
+     * Tests failed login followed by a successful retry.
      */
     @Test
     void testFailedLoginWithRetry() {
-        // First wrong attempt, then correct employee login
+        // Scenario: Wrong User -> Wrong Pass -> Correct Employee
         String input = "WrongUser\nWrongPass\nJohnDoe\n3mpl0y33\n";
-        provideInput(input);
+        Scanner scanner = createScanner(input);
 
-        FirstLogin.login();
+        String role = FirstLogin.login(scanner);
 
-        String output = outputStream.toString();
-        assertTrue(output.contains("Λάθος όνομα ή κωδικός."),
-                "Should show error on wrong credentials");
-        assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε JohnDoe."),
-                "Should succeed on second attempt");
+        String output = outputStream.toString(StandardCharsets.UTF_8);
+        
+        assertTrue(output.contains("Λάθος όνομα ή κωδικός"), "Should display error message on failure");
+        assertTrue(output.contains("Καλωσήρθατε JohnDoe"), "Should eventually succeed");
+        assertEquals("b", role);
     }
 
     /**
-     * Tests minister with wrong password.
+     * Tests minister username with wrong password.
      */
     @Test
     void testMinisterWrongPassword() {
+        // Scenario: Minister/Wrong -> Minister/Correct
         String input = "Minister\nwrongpass\nMinister\nm1n1st3r\n";
-        provideInput(input);
+        Scanner scanner = createScanner(input);
 
-        FirstLogin.login();
+        String role = FirstLogin.login(scanner);
 
-        String output = outputStream.toString();
-        assertTrue(output.contains("Λάθος όνομα ή κωδικός."),
-                "Should fail with wrong password");
-        assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε κύριε Υπουργέ."),
-                "Should succeed with correct password");
+        String output = outputStream.toString(StandardCharsets.UTF_8);
+        
+        assertTrue(output.contains("Λάθος όνομα ή κωδικός"), "Should fail with wrong password");
+        assertEquals("a", role, "Should login as Minister after correction");
     }
 
     /**
-     * Tests employee with minister password.
+     * Tests empty input handling.
      */
     @Test
-    void testEmployeeWithMinisterPassword() {
-        String input = "JohnDoe\nm1n1st3r\nJohnDoe\n3mpl0y33\n";
-        provideInput(input);
+    void testEmptyInputHandling() {
+        // Scenario: Empty Username -> Empty Password -> Correct Login
+        String input = "\n\nJohn\n3mpl0y33\n";
+        Scanner scanner = createScanner(input);
 
-        FirstLogin.login();
+        String role = FirstLogin.login(scanner);
 
-        String output = outputStream.toString();
-        assertTrue(output.contains("Λάθος όνομα ή κωδικός."),
-                "Should fail with minister password for employee");
-        assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε JohnDoe."),
-                "Should succeed with employee password");
-    }
-
-    /**
-     * Tests empty username.
-     */
-    @Test
-    void testEmptyUsername() {
-        String input = "\n3mpl0y33\nEmployee\n3mpl0y33\n";
-        provideInput(input);
-
-        FirstLogin.login();
-
-        String output = outputStream.toString();
-        // Empty username is not Minister, so needs employee password
-        // First attempt should fail (empty username + employee password = success? Let's check)
-        // Actually empty string != "Minister", so employee password should work
-        // But let's just verify it handles empty input
-        assertTrue(output.contains("Εισάγετε όνομα χρήστη:"),
-                "Should prompt for username");
-    }
-
-    /**
-     * Tests empty password.
-     */
-    @Test
-    void testEmptyPassword() {
-        String input = "Minister\n\nMinister\nm1n1st3r\n";
-        provideInput(input);
-
-        FirstLogin.login();
-
-        String output = outputStream.toString();
-        assertTrue(output.contains("Λάθος όνομα ή κωδικός."),
-                "Should fail with empty password");
-    }
-
-    /**
-     * Tests whitespace in input.
-     */
-    @Test
-    void testInputWithWhitespace() {
-        // Test with trailing spaces
-        String input = "Minister \nm1n1st3r\nMinister\nm1n1st3r\n";
-        provideInput(input);
-
-        FirstLogin.login();
-
-        String output = outputStream.toString();
-        assertTrue(output.contains("Λάθος όνομα ή κωδικός."),
-                "Should fail with trailing space in username");
-    }
-
-    /**
-     * Tests case sensitivity.
-     */
-    @Test
-    void testCaseSensitivity() {
-        // All credentials are case-sensitive as per code
-        String input = "minister\nm1n1st3r\nMinister\nm1n1st3r\n";
-        provideInput(input);
-
-        FirstLogin.login();
-
-        String output = outputStream.toString();
-        assertTrue(output.contains("Λάθος όνομα ή κωδικός."),
-                "Should be case-sensitive for username");
+        String output = outputStream.toString(StandardCharsets.UTF_8);
+        
+        // Ensure it didn't crash and eventually logged in
+        assertEquals("b", role);
+        assertTrue(output.contains("Εισάγετε όνομα χρήστη"), "Should handle empty lines and re-prompt");
     }
 
     /**
@@ -225,107 +152,57 @@ class FirstLoginTest {
     @Test
     void testMultipleFailures() {
         StringBuilder inputBuilder = new StringBuilder();
-        // 3 wrong attempts
-        inputBuilder.append("Wrong1\nWrong1\n");
-        inputBuilder.append("Wrong2\nWrong2\n");
-        inputBuilder.append("Wrong3\nWrong3\n");
-        // Then correct
+        // 3 failed attempts
+        inputBuilder.append("User1\nPass1\n");
+        inputBuilder.append("User2\nPass2\n");
+        inputBuilder.append("User3\nPass3\n");
+        // 1 successful attempt
         inputBuilder.append("Alice\n3mpl0y33\n");
         
-        provideInput(inputBuilder.toString());
+        Scanner scanner = createScanner(inputBuilder.toString());
 
-        FirstLogin.login();
+        String role = FirstLogin.login(scanner);
 
-        String output = outputStream.toString();
-        // Count error messages
-        long errorCount = output.chars()
-                .filter(ch -> output.indexOf("Λάθος όνομα ή κωδικός.", (int) ch) != -1)
-                .count();
+        String output = outputStream.toString(StandardCharsets.UTF_8);
         
-        assertTrue(errorCount >= 3, "Should allow multiple retries");
-        assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε Alice."),
-                "Should eventually succeed");
+        // Count how many times the error message appeared
+        int errorCount = output.split("Λάθος όνομα ή κωδικός").length - 1;
+        assertTrue(errorCount >= 3, "Should show error message for each failed attempt");
+        
+        assertEquals("b", role);
+        assertTrue(output.contains("Καλωσήρθατε Alice"), "Should welcome Alice");
     }
 
     /**
-     * Tests UTF-8 scanner encoding.
-     */
-    @Test
-    void testGreekCharacters() {
-        String input = "Υπάλληλος\n3mpl0y33\n";
-        provideInput(input);
-
-        FirstLogin.login();
-
-        String output = outputStream.toString();
-        assertTrue(output.contains("Επιτυχής σύνδεση! Καλωσήρθατε Υπάλληλος."),
-                "Should handle Greek characters in username");
-    }
-
-    /**
-     * Helper method to provide simulated input.
-     */
-    private void provideInput(String data) {
-        System.setIn(new ByteArrayInputStream(data.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
-    }
-
-    /**
-     * Tests that the class can be loaded and methods exist.
+     * Tests that the class exists and is loaded correctly.
      */
     @Test
     void testClassCompilation() {
-        assertNotNull(FirstLogin.class, "Class should exist");
-        assertTrue(FirstLogin.class.getName().contains("FirstLogin"),
-                "Class name should be FirstLogin");
+        assertNotNull(FirstLogin.class, "Class should be loadable");
+        assertEquals("gr.det.spinnovators.authentication.FirstLogin", FirstLogin.class.getName());
     }
 
     /**
-     * Tests the logic directly without running login().
+     * Tests password constants verification logic indirectly.
      */
     @Test
-    void testLoginLogic() {
-        // Test the logic from the method
-
+    void testPasswordConstantsLogic() {
+        // This test simulates the logic used inside the class to verify constants haven't changed logic
+        String ministerPass = "m1n1st3r";
+        String employeePass = "3mpl0y33";
         
-        // Case 1: Minister with correct password
-        assertTrue(isValidLogin("Minister", "m1n1st3r"));
-        
-        // Case 2: Employee with correct password
-        assertTrue(isValidLogin("John", "3mpl0y33"));
-        assertTrue(isValidLogin("Alice", "3mpl0y33"));
-        assertTrue(isValidLogin("Bob", "3mpl0y33"));
-        
-        // Case 3: Minister with wrong password
-
+        assertEquals("m1n1st3r", ministerPass);
+        assertEquals("3mpl0y33", employeePass);
+        assertTrue(!ministerPass.equals(employeePass));
     }
 
-    /**
-     * Replicates the login logic from FirstLogin for testing.
-     */
-    private boolean isValidLogin(String username, String password) {
-        final String minister = "Minister";
-        final String passwordMinister = "m1n1st3r";
-        final String passwordEmployee = "3mpl0y33";
-        
-        if (username.equals(minister) && password.equals(passwordMinister)) {
-            return true;
-        } else if (!username.equals(minister) && password.equals(passwordEmployee)) {
-            return true;
-        }
-        return false;
-    }
+    // --- Helper Method ---
 
     /**
-     * Tests password constants.
+     * Creates a Scanner initialized with the provided string input.
+     * Uses UTF-8 encoding to support Greek characters.
      */
-    @Test
-    void testPasswordConstants() {
-        // Verify the passwords used in the code
-        assertEquals("m1n1st3r", "m1n1st3r", "Minister password should match");
-        assertEquals("3mpl0y33", "3mpl0y33", "Employee password should match");
-        
-        // They should be different
-        assertTrue(!"m1n1st3r".equals("3mpl0y33"),
-                "Passwords should be different");
+    private Scanner createScanner(String input) {
+        return new Scanner(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
     }
 }

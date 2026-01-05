@@ -24,10 +24,7 @@ public final class FirstLogin {
    * is provided. The method distinguishes between the "Minister" role 
    * and standard "Employees" based on the provided password.
    */
-  public static String login() {
-    @SuppressWarnings("resource")
-    Scanner input = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
-
+  public static String login(Scanner input) {
     final String minister = "Minister";
     final String passwordMinister = "m1n1st3r";
     final String passwordEmployee = "3mpl0y33";
