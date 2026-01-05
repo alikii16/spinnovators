@@ -8,7 +8,7 @@ import java.util.List;
  * This class serves as a data repository for budget allocations spanning 
  * from the year 2023 to 2026.
  */
-public final class MinistryDataInput {
+public class MinistryDataInput {
 
   /** 
    * Represents a single ministry budget record.

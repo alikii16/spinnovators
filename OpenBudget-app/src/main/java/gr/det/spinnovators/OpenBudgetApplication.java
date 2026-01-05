@@ -15,6 +15,7 @@ import gr.det.spinnovators.service.YearToYearBudgetComparison;
 import gr.det.spinnovators.web.LoginWebServer;
 import gr.det.spinnovators.editor.EnvBudgetEditor;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 /**
@@ -29,6 +30,8 @@ public class OpenBudgetApplication {
    * @param args Command-line arguments passed to the application at startup.
    */
   public static void main(String[] args) {
+    
+    Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
 
     EnvBudgetTranslator translator = new EnvBudgetTranslator();
     EnvBudgetLoader envLoader = new EnvBudgetLoader();
@@ -81,14 +84,13 @@ public class OpenBudgetApplication {
     }
 
     // Terminal interface execution (original functionality)
-    String role = FirstLogin.login();
+    String role = FirstLogin.login(scanner);
 
     MinistryDataInput allData = new MinistryDataInput();
     FullBudgetPrinter fullPrinter = new FullBudgetPrinter(allData);
     EsgScoreCalculator esgCalculator = new EsgScoreCalculator();
     BudgetPercentageService percentageService = new BudgetPercentageService();
 
-    Scanner scanner = new Scanner(System.in);
 
     if (role.equals("a")) {
       boolean exitApp = false;
@@ -99,6 +101,8 @@ public class OpenBudgetApplication {
         System.out.println("2. Προϋπολογισμός Υπουργείου Περιβάλλοντος & Ενέργειας");
         System.out.println("3. Έξοδος");
         System.out.print("Επιλογή: ");
+        
+        if (!scanner.hasNextLine()) break;
         String mainChoice = scanner.nextLine();
 
         if (mainChoice.equals("1")) {
@@ -108,13 +112,17 @@ public class OpenBudgetApplication {
             System.out.println("%n--- Κρατικός Προϋπολογισμός ---");
             System.out.println("1. Προβολή Προϋπολογισμού (ανά έτος)");
             System.out.println("2. Επιστροφή στο Αρχικό Μενού");
-           System.out.print("Επιλογή: ");
+            System.out.print("Επιλογή: ");
+            
+            if (!scanner.hasNextLine()) break;
             String subChoice = scanner.nextLine();
 
             if (subChoice.equals("1")) {
               System.out.print("Δώστε έτος (2023, 2024, 2025, 2026): ");
-              String yr = scanner.nextLine();
-              fullPrinter.showBudget(yr);
+              if (scanner.hasNextLine()) {
+                  String yr = scanner.nextLine();
+                  fullPrinter.showBudget(yr);
+              }
             } else if (subChoice.equalsIgnoreCase("2")) {
               backToMain = true;
             }
@@ -131,14 +139,22 @@ public class OpenBudgetApplication {
             System.out.println("4. Προβολή Αναφοράς Βιωσιμότητας (ESG Report)");
             System.out.println("5. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
+            
+            if (!scanner.hasNextLine()) break;
             String subChoice = scanner.nextLine();
 
             if (subChoice.equals("1")) {
               System.out.print("Δώστε έτος για το Υπ. Περιβάλλοντος: ");
-              String yr = scanner.nextLine();
-              int selectedYearInt = Integer.parseInt(yr);
-              percentageService.displayEnvironmentPercentage(selectedYearInt);
-              envPrinter.printYearlyBudget(yr);
+              if (scanner.hasNextLine()) {
+                  String yr = scanner.nextLine();
+                  try {
+                      int selectedYearInt = Integer.parseInt(yr);
+                      percentageService.displayEnvironmentPercentage(selectedYearInt);
+                      envPrinter.printYearlyBudget(yr);
+                  } catch (NumberFormatException e) {
+                      System.out.println("Λάθος έτος.");
+                  }
+              }
 
             } else if (subChoice.equals("2")) {
               EnvBudgetEditor editor = new EnvBudgetEditor(envBudgetData, translator);
@@ -146,9 +162,9 @@ public class OpenBudgetApplication {
 
             } else if (subChoice.equals("3")) {
               System.out.print("Με βάση ποιο έτος θέλετε να γίνει η σύγκριση: ");
-              String y1 = scanner.nextLine();
+              String y1 = scanner.hasNextLine() ? scanner.nextLine() : "";
               System.out.print("Επιλέξτε το δεύτερο έτος: ");
-              String y2 = scanner.nextLine();
+              String y2 = scanner.hasNextLine() ? scanner.nextLine() : "";
 
               EnvYear baseYear = envBudgetData.getBudgetForYear(y1);
               EnvYear compareYear = envBudgetData.getBudgetForYear(y2);
@@ -163,7 +179,7 @@ public class OpenBudgetApplication {
 
             } else if (subChoice.equalsIgnoreCase("4")) {
               System.out.print("Επιλέξτε έτος για αναφορά ESG (π.χ. 2025): ");
-              String yrEsg = scanner.nextLine();
+              String yrEsg = scanner.hasNextLine() ? scanner.nextLine() : "";
 
               EnvYear selectedYear = envBudgetData.getBudgetForYear(yrEsg);
               Double totalBudget = envBudgetData.getEnvMinistryTotalBudget().get(yrEsg);
@@ -210,6 +226,8 @@ public class OpenBudgetApplication {
         System.out.println("2. Προϋπολογισμός Υπουργείου Περιβάλλοντος & Ενέργειας");
         System.out.println("3. Έξοδος");
         System.out.print("Επιλογή: ");
+        
+        if (!scanner.hasNextLine()) break;
         String mainChoice = scanner.nextLine();
 
         if (mainChoice.equals("1")) {
@@ -220,12 +238,13 @@ public class OpenBudgetApplication {
             System.out.println("1. Προβολή Προϋπολογισμού (ανά έτος)");
             System.out.println("2. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
+            
+            if (!scanner.hasNextLine()) break;
             String subChoice = scanner.nextLine();
 
             if (subChoice.equals("1")) {
               System.out.print("Δώστε έτος (2023, 2024, 2025, 2026): ");
-              String yr = scanner.nextLine();
-              fullPrinter.showBudget(yr);
+              if (scanner.hasNextLine()) fullPrinter.showBudget(scanner.nextLine());
             } else if (subChoice.equalsIgnoreCase("2")) {
               backToMain = true;
             }
@@ -240,20 +259,28 @@ public class OpenBudgetApplication {
             System.out.println("3. Προβολή Αναφοράς Βιωσιμότητας (ESG Report)");
             System.out.println("4. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
+            
+            if (!scanner.hasNextLine()) break;
             String subChoice = scanner.nextLine();
 
             if (subChoice.equals("1")) {
               System.out.print("Δώστε έτος για το Υπουργείο Περιβάλλοντος: ");
-              String yr = scanner.nextLine();
-              int selectedYearInt = Integer.parseInt(yr);
-              percentageService.displayEnvironmentPercentage(selectedYearInt);
-              envPrinter.printYearlyBudget(yr);
+              if (scanner.hasNextLine()) {
+                  String yr = scanner.nextLine();
+                  try {
+                      int selectedYearInt = Integer.parseInt(yr);
+                      percentageService.displayEnvironmentPercentage(selectedYearInt);
+                      envPrinter.printYearlyBudget(yr);
+                  } catch (NumberFormatException e) {
+                      System.out.println("Λάθος έτος.");
+                  }
+              }
 
             } else if (subChoice.equals("2")) {
               System.out.print("Με βάση ποιο έτος θέλετε να γίνει η σύγκριση: ");
-              String y1 = scanner.nextLine();
+              String y1 = scanner.hasNextLine() ? scanner.nextLine() : "";
               System.out.print("Επιλέξτε το δεύτερο έτος: ");
-              String y2 = scanner.nextLine();
+              String y2 = scanner.hasNextLine() ? scanner.nextLine() : "";
 
               EnvYear baseYear = envBudgetData.getBudgetForYear(y1);
               EnvYear compareYear = envBudgetData.getBudgetForYear(y2);
@@ -268,7 +295,7 @@ public class OpenBudgetApplication {
 
             } else if (subChoice.equalsIgnoreCase("3")) {
               System.out.print("Επιλέξτε έτος για αναφορά ESG (π.χ. 2025): ");
-              String yrEsg = scanner.nextLine();
+              String yrEsg = scanner.hasNextLine() ? scanner.nextLine() : "";
 
               EnvYear selectedYear = envBudgetData.getBudgetForYear(yrEsg);
     
@@ -302,7 +329,6 @@ public class OpenBudgetApplication {
         } else if (mainChoice.equals("3")) {
           System.out.println("Έξοδος...");
           exitApp = true;
-          System.exit(0);
         } else {
           System.out.println("Μη έγκυρη επιλογή. Παρακαλώ επιλέξτε μεταξύ 1, 2 ή 3.");
         }
