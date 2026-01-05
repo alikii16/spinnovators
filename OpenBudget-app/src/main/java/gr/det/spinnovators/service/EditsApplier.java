@@ -45,13 +45,27 @@ public class EditsApplier {
    */
   public EditsApplier(EnvBudgetTranslator translator) {
     this.translator = translator;
-    // ΠΡΕΠΕΙ ΝΑ ΕΙΝΑΙ:
     this.scanner = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
     this.esgCalculator = new EsgScoreCalculator();
     this.esgPrinter = new EsgPrinter();
     this.comparisonAnalyzer = new InitialBudgetComparison(translator);
   }
 
+  /**
+   * Overloaded constructor to allow Scanner injection (Dependency Injection).
+   * Crucial for Unit Testing to share the input stream.
+   *
+   * @param translator The translator service.
+   * @param scanner The shared scanner instance.
+   */
+  public EditsApplier(EnvBudgetTranslator translator, Scanner scanner) {
+    this.translator = translator;
+    this.scanner = scanner; // <--- Εδώ παίρνει τον "κοινό" Scanner
+    this.esgCalculator = new EsgScoreCalculator();
+    this.esgPrinter = new EsgPrinter();
+    this.comparisonAnalyzer = new InitialBudgetComparison(translator);
+  }
+  
   /**
    * Initiates the interactive editing session for a specific fiscal year.
    * <p>The session continues until the user balances the budget 
