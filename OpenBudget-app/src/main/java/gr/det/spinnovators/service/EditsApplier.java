@@ -88,21 +88,6 @@ public class EditsApplier {
     this.comparisonAnalyzer = new InitialBudgetComparison(translator);
     this.validator = new BudgetValidator();
   }
-
-  /**
-   * Overloaded constructor to allow Scanner injection (Dependency Injection).
-   * Crucial for Unit Testing to share the input stream.
-   *
-   * @param translator The translator service.
-   * @param scanner The shared scanner instance.
-   */
-  public EditsApplier(EnvBudgetTranslator translator, Scanner scanner) {
-    this.translator = translator;
-    this.scanner = scanner; // <--- Εδώ παίρνει τον "κοινό" Scanner
-    this.esgCalculator = new EsgScoreCalculator();
-    this.esgPrinter = new EsgPrinter();
-    this.comparisonAnalyzer = new InitialBudgetComparison(translator);
-  }
   
   /**
    * Initiates the interactive editing session for a specific fiscal year.
