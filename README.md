@@ -1,6 +1,11 @@
 # OpenBudget – [Prime] Minister for a Day  
 **Budget Management System**
 
+[![Java](https://img.shields.io/badge/Java-21-blue.svg)](https://openjdk.org/)
+[![Maven](https://img.shields.io/badge/Maven-3.8+-red.svg)](https://maven.apache.org/)
+[![License](https://img.shields.io/badge/License-Educational-green.svg)](#license)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](#testing-and-code-coverage)
+
 > *Spinnovators*
 
 OpenBudget is a **command-line and web-based Java application** that allows users to view, edit, and analyze the **Greek state budget**, with a special focus on the **Ministry of Environment and Energy** — as if they were the **Prime Minister for a Day**.
@@ -29,9 +34,12 @@ The system supports:
 - [UML Diagram](#uml-diagram)
 - [Data Structures & Algorithms](#data-structures--algorithms)
 - [Testing](#testing-and-code-coverage)
-- [System Capabilities](#system-capabilities-and-constraints)
+- [Troubleshooting](#troubleshooting)
+- [System Capabilities and Limitations](#system-capabilities-and-limitations)
+- [FAQ](#faq)
+- [Contributing](#contributing)
 - [License](#license)
-- [Team](#team---spinnovators)[License](#-license)
+- [Team](#team---spinnovators)
 
 ---
 
@@ -848,7 +856,45 @@ void testCalculateReport() {
 
 ---
 
-## System Capabilities and Constraints
+## Troubleshooting
+
+### Port 8080 Already in Use
+```bash
+# Find process using port 8080
+lsof -i :8080
+
+# Kill the process
+kill -9 <PID>
+
+# Or change port in LoginWebServer.java (line XX)
+```
+
+### Frontend Directory Not Found
+```bash
+# Verify path exists
+ls src/main/resources/frontend/
+
+# If running from different directory
+cd OpenBudget-app
+```
+
+### JSON File Not Loading
+- Check file encoding: Must be **UTF-8**
+- Validate JSON syntax: Use [jsonlint.com](https://jsonlint.com)
+- Ensure file location: `src/main/resources/env_budget_data.json`
+
+### Maven Build Fails
+```bash
+# Clear local repository cache
+mvn clean install -U
+
+# Skip tests if needed
+mvn clean package -DskipTests
+```
+
+---
+
+## System Capabilities and Limitations
 
 ### Capabilities
 
@@ -866,18 +912,56 @@ void testCalculateReport() {
 -  **Concurrent Users:** ThreadLocal session management (web interface)
 ---
 
-###  Constraints and Restrictions
+###  Known Limitations
 
--  **Data Persistence:** Changes not saved to JSON file (in-memory only)
--  **Scope:** Detailed editing limited to Ministry of Environment & Energy
--  **Session Persistence:** Changes lost on server restart
--  **Validation Limits:**
-  - No negative values
-  - Cannot exceed total ministry budget
-  - Environmental cuts >5% blocked
-  - Governance increases >10% blocked
-  - Social cuts >10% blocked
--  **Concurrency:** No multi-user collaboration on same budget session
+| Limitation | Impact | Workaround |
+|------------|--------|-----------|
+| **No Persistence** | Changes lost on restart | Export to CSV before closing |
+| **Single Ministry Editing** | Only Environment Ministry editable | Full state budget view-only |
+| **Session Isolation** | No collaboration | Use export/import for team work |
+| **Budget Balance Required** | Cannot exit until balanced | Track balance carefully |
+| **Locale Dependency** | Greek-language UI only | Translations file extensible |
+
+---
+
+## FAQ
+
+**Q: Can I add new ministries to edit?**  
+A: Currently only Environment Ministry supports editing. To extend, modify `env_budget_data.json` and add corresponding sectors.
+
+**Q: Are changes saved permanently?**  
+A: No, changes are in-memory only. Use CSV export to save modifications.
+
+**Q: Can multiple users edit simultaneously?**  
+A: Yes in web interface (isolated sessions), but no collaboration features.
+
+**Q: Why can't I exit editing?**  
+A: Budget must be balanced (total changes = 0). Check the balance indicator.
+
+**Q: How is ESG score calculated?**  
+A: Weighted formula: `E×0.40 + S×0.30 + G×0.30`. See [ESG Calculation Algorithm](#2-esg-score-calculation-algorithm).
+
+---
+
+## Contributing
+
+This is an educational project, but we welcome feedback!
+
+### Reporting Issues
+- Use [GitHub Issues](https://github.com/yourusername/openbudget/issues)
+- Include error logs and steps to reproduce
+
+### Code Style
+- Follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
+- Run Checkstyle: `mvn checkstyle:check`
+- Run SpotBugs: `mvn spotbugs:check`
+
+### Pull Requests
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open Pull Request
 
 ---
 
