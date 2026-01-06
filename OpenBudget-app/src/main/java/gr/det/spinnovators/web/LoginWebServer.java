@@ -221,6 +221,24 @@ public final class LoginWebServer {
       }
     });
 
+    server.createContext("/year-comparison.html", exchange -> {
+      if ("GET".equals(exchange.getRequestMethod())) {
+        handleYearComparisonPage(exchange, frontendPath);
+      } else if ("POST".equals(exchange.getRequestMethod())) {
+        handleYearComparisonPost(exchange, frontendPath);
+      } else {
+        redirect(exchange, "/year-comparison.html");
+      }
+    });
+
+    server.createContext("/end-message", exchange -> {
+      if ("GET".equals(exchange.getRequestMethod())) {
+        handleEndMessagePage(exchange);
+      } else {
+        redirect(exchange, "/end-message");
+      }
+    });
+
     server.setExecutor(null);
     server.start();
 
@@ -1035,7 +1053,7 @@ public final class LoginWebServer {
     String answer = formDataMap.get("answer");
 
     if ("no".equals(answer)) {
-      redirect(exchange, "/minister_statebudget.html");
+      redirect(exchange, "/year-comparison.html");
       return;
     }
 
@@ -1227,6 +1245,16 @@ public final class LoginWebServer {
     return budgetHtml.toString();
   }
 
+  private static void handleEndMessagePage(HttpExchange exchange) throws IOException {
+    ChangeSession changeSession = getChangeSession();
+    boolean success = Math.abs(changeSession.currentBalance) < 0.01;
+    String message = success ? "Ο προϋπολογισμός είναι ισοσκελισμένος! Τερματισμός Λειτουργίας." :
+        "!!! ΠΡΟΣΟΧΗ !!! Δεν επιτρέπεται τερματισμός. "
+        + "Ο προϋπολογισμός δεν ισοσκελίστηκε. Πρέπει να καλύψετε διαφορά: "
+        + String.format("%,.2f €", changeSession.currentBalance);
+    serveEndMessage(exchange, message, success);
+  }
+
   private static void serveEndMessage(HttpExchange exchange,
                                       String message, boolean success) throws IOException {
     ChangeSession changeSession = getChangeSession();
@@ -1247,16 +1275,20 @@ public final class LoginWebServer {
     String comparisonBtn = "<a class='secondary-btn' href='/comparison.html' "
         + "style='text-decoration:none; margin-top:18px; display:block;'>Σύγκριση Προϋπολογισμού</a>";
     
+    String yearComparisonBtn = "<a class='secondary-btn' href='/year-comparison.html' "
+        + "style='text-decoration:none; margin-top:18px; display:block;'>Σύγκριση Προϋπολογισμού ανά Έτος</a>";
+    
     if (success) {
       buttonHtml = downloadBtn + comparisonBtn + "<a class='secondary-btn' href='/esg.html' "
-        + "style='text-decoration:none; margin-top:18px;'>ESG Αξιολόγηση</a>";
+        + "style='text-decoration:none; margin-top:18px; display:block;'>ESG Αξιολόγηση</a>"
+        + yearComparisonBtn;
     } else {
       buttonHtml = downloadBtn + comparisonBtn + """
         <form method='POST' style='margin-top:18px;'>
         <button class='primary-btn' type='submit' name='continue' value='yes'>
         Συνέχεια Αλλαγών</button>
         </form>
-        """;
+        """ + yearComparisonBtn;
     }
     String inner = """
       <h2 class='section-title'>Έλεγχος Ισοσκελισμού</h2>
@@ -1654,25 +1686,148 @@ public final class LoginWebServer {
    * Handles comparison page request.
    */
   private static void handleComparisonPage(HttpExchange exchange, String frontendPath) throws IOException {
-    ChangeSession changeSession = getChangeSession();
-    
-    if (changeSession.originalYearSnapshot == null || changeSession.envYear == null) {
-      String errorHtml = buildStyledChangePage(
-          "<h2 class='section-title'>Σφάλμα</h2>"
-          + "<p class='description'>Δεν υπάρχουν δεδομένα για σύγκριση.</p>"
-          + "<a class='primary-btn' href='/minister_statebudget.html' "
-          + "style='text-decoration:none; margin-top:18px;'>Επιστροφή</a>",
-          "");
-      sendResponse(exchange, errorHtml, 200, "text/html; charset=UTF-8");
-      return;
+    try {
+      ChangeSession changeSession = getChangeSession();
+      
+      if (changeSession.originalYearSnapshot == null || changeSession.envYear == null) {
+        String errorHtml = buildStyledChangePage(
+            "<h2 class='section-title'>Σφάλμα</h2>"
+            + "<p class='description'>Δεν υπάρχουν δεδομένα για σύγκριση.</p>"
+            + "<a class='primary-btn' href='/minister_statebudget.html' "
+            + "style='text-decoration:none; margin-top:18px;'>Επιστροφή</a>",
+            "");
+        sendResponse(exchange, errorHtml, 200, "text/html; charset=UTF-8");
+        return;
+      }
+      
+      Path htmlPath = Paths.get(frontendPath, "comparison.html");
+      if (!Files.exists(htmlPath)) {
+        sendErrorResponse(exchange, 404, "comparison.html not found");
+        return;
+      }
+      
+      String template = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
+      initializeBudgetData();
+      gr.det.spinnovators.web.BudgetComparisonWebDisplay comparisonDisplay = 
+          new gr.det.spinnovators.web.BudgetComparisonWebDisplay(translator);
+      String content = comparisonDisplay.generateComparisonContent(
+          changeSession.originalYearSnapshot,
+          changeSession.envYear,
+          changeSession.totalBudget
+      );
+      
+      String html = template.replace(
+          "<!-- Content will be generated dynamically by Java -->",
+          content
+      );
+      
+      sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+    } catch (Exception e) {
+      e.printStackTrace();
+      sendErrorResponse(exchange, 500, "Error loading comparison page: " + e.getMessage(), e);
     }
-    
-    String inner = """
-        <h2 class='section-title'>Σύγκριση Προϋπολογισμού</h2>
-        <p class='description'>Σελίδα σύγκρισης (σε ανάπτυξη)</p>
-        """;
-    String html = buildStyledChangePage(inner, "");
-    sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+  }
+
+  /**
+   * Handles year-to-year comparison page request.
+   */
+  private static void handleYearComparisonPage(HttpExchange exchange, String frontendPath) throws IOException {
+    try {
+      Path htmlPath = Paths.get(frontendPath, "year-comparison.html");
+      if (!Files.exists(htmlPath)) {
+        sendErrorResponse(exchange, 404, "year-comparison.html not found");
+        return;
+      }
+      
+      String template = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
+      String content = "<h2 class='section-title'>Σύγκριση Προϋπολογισμού ανά Έτος</h2>"
+          + "<p class='description'>Επιλέξτε δύο έτη για σύγκριση</p>"
+          + "<form method='POST' style='margin-top: 32px;'>"
+          + "<div style='display: flex; flex-direction: column; gap: 20px; margin-bottom: 28px;'>"
+          + "<div style='display: flex; flex-direction: column; gap: 10px;'>"
+          + "<label style='font-size: 15px; color: #1b5e20; font-weight: 600;'>Πρώτο Έτος:</label>"
+          + "<input type='text' name='year1' placeholder='π.χ. 2023' required "
+          + "style='width: 100%; padding: 14px; border: 2px solid #a5d6a7; border-radius: 6px; font-size: 16px; background-color: #fafafa; transition: border-color 0.3s;'>"
+          + "</div>"
+          + "<div style='display: flex; flex-direction: column; gap: 10px;'>"
+          + "<label style='font-size: 15px; color: #1b5e20; font-weight: 600;'>Δεύτερο Έτος:</label>"
+          + "<input type='text' name='year2' placeholder='π.χ. 2024' required "
+          + "style='width: 100%; padding: 14px; border: 2px solid #a5d6a7; border-radius: 6px; font-size: 16px; background-color: #fafafa; transition: border-color 0.3s;'>"
+          + "</div>"
+          + "</div>"
+          + "<button type='submit' "
+          + "style='width: 100%; padding: 15px; background: linear-gradient(135deg, #0d4f1c 0%, #1b5e20 100%); color: #ffffff; text-align: center; text-decoration: none; font-size: 17px; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 6px 18px rgba(13, 79, 28, 0.4);'>Σύγκριση</button>"
+          + "</form>";
+      
+      String html = template.replace(
+          "<!-- Content will be generated dynamically by Java -->",
+          content
+      );
+      
+      sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+    } catch (Exception e) {
+      e.printStackTrace();
+      sendErrorResponse(exchange, 500, "Error loading year comparison page: " + e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Handles POST request for year comparison.
+   */
+  private static void handleYearComparisonPost(HttpExchange exchange, String frontendPath) throws IOException {
+    try {
+      java.util.Map<String, String> formDataMap = parseFormData(exchange);
+      String year1 = formDataMap.get("year1");
+      String year2 = formDataMap.get("year2");
+      
+      if (year1 == null || year1.isEmpty() || year2 == null || year2.isEmpty()) {
+        String errorHtml = buildStyledChangePage(
+            "<h2 class='section-title'>Σφάλμα</h2>"
+            + "<p class='description'>Παρακαλώ επιλέξτε δύο έτη.</p>"
+            + "<a class='primary-btn' href='/year-comparison.html' "
+            + "style='text-decoration:none; margin-top:18px;'>Επιστροφή</a>",
+            "");
+        sendResponse(exchange, errorHtml, 200, "text/html; charset=UTF-8");
+        return;
+      }
+      
+      initializeBudgetData();
+      EnvYear baseYear = envBudgetData.getBudgetForYear(year1);
+      EnvYear compareYear = envBudgetData.getBudgetForYear(year2);
+      
+      if (baseYear == null || compareYear == null) {
+        String errorHtml = buildStyledChangePage(
+            "<h2 class='section-title'>Σφάλμα</h2>"
+            + "<p class='description'>Τα έτη " + year1 + " και " + year2 + " δεν βρέθηκαν στα δεδομένα.</p>"
+            + "<a class='primary-btn' href='/year-comparison.html' "
+            + "style='text-decoration:none; margin-top:18px;'>Επιστροφή</a>",
+            "");
+        sendResponse(exchange, errorHtml, 200, "text/html; charset=UTF-8");
+        return;
+      }
+      
+      Path htmlPath = Paths.get(frontendPath, "year-comparison.html");
+      if (!Files.exists(htmlPath)) {
+        sendErrorResponse(exchange, 404, "year-comparison.html not found");
+        return;
+      }
+      
+      String template = new String(Files.readAllBytes(htmlPath), StandardCharsets.UTF_8);
+      java.util.Map<String, Double> totalBudgets = envBudgetData.getEnvMinistryTotalBudget();
+      gr.det.spinnovators.web.YearComparisonWebDisplay yearComparisonDisplay = 
+          new gr.det.spinnovators.web.YearComparisonWebDisplay(translator);
+      String content = yearComparisonDisplay.generateComparisonContent(baseYear, compareYear, totalBudgets);
+      
+      String html = template.replace(
+          "<!-- Content will be generated dynamically by Java -->",
+          content
+      );
+      
+      sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
+    } catch (Exception e) {
+      e.printStackTrace();
+      sendErrorResponse(exchange, 500, "Error processing year comparison: " + e.getMessage(), e);
+    }
   }
 
   /**
