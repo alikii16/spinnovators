@@ -131,7 +131,7 @@ public class OpenBudgetApplication {
           // Ministry Budget Menu for minister
           boolean backToMain = false;
           while (!backToMain) {
-            System.out.println("%n--- Υπουργείο Περιβάλλοντος & Ενέργειας ---");
+            System.out.println("--- Υπουργείο Περιβάλλοντος & Ενέργειας ---");
             System.out.println("1. Προβολή (ανά έτος)");
             System.out.println("2. Επεξεργασία Προϋπολογισμού και στη συνέχεια"
                       + "Σύγκριση του με τα αρχικά δεδομένα");
@@ -221,7 +221,7 @@ public class OpenBudgetApplication {
       boolean exitApp = false;
 
       while (!exitApp) {
-        System.out.println("%n=== ΜΕΝΟΥ ΕΠΙΛΟΓΗΣ ===");
+        System.out.println("=== ΜΕΝΟΥ ΕΠΙΛΟΓΗΣ ===");
         System.out.println("1. Κρατικός Προϋπολογισμός");
         System.out.println("2. Προϋπολογισμός Υπουργείου Περιβάλλοντος & Ενέργειας");
         System.out.println("3. Έξοδος");
@@ -234,7 +234,7 @@ public class OpenBudgetApplication {
           // General Budget Menu for employee
           boolean backToMain = false;
           while (!backToMain) {
-            System.out.println("%n--- Κρατικός Προϋπολογισμός ---");
+            System.out.println("--- Κρατικός Προϋπολογισμός ---");
             System.out.println("1. Προβολή Προϋπολογισμού (ανά έτος)");
             System.out.println("2. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
@@ -253,7 +253,7 @@ public class OpenBudgetApplication {
           // Ministry Budget Menu for employee
           boolean backToMain = false;
           while (!backToMain) {
-            System.out.println("%n--- Υπουργείο Περιβάλλοντος & Ενέργειας ---");
+            System.out.println("--- Υπουργείο Περιβάλλοντος & Ενέργειας ---");
             System.out.println("1. Προβολή (ανά έτος)");
             System.out.println("2. Σύγκριση Προϋπολογισμών μεταξύ ετών");
             System.out.println("3. Προβολή Αναφοράς Βιωσιμότητας (ESG Report)");
