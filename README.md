@@ -229,16 +229,18 @@ By simulating the decision-making process, users can experience the challenges o
 
 ##  Repository Structure
 ```
+# OpenBudget Project Architecture
+
+```
 OpenBudget-app/
 ├── src/
 │   ├── main/
-│   │   ├── java/
-│   │   │   └── gr/det/spinnovators/
+│   │   ├── java/gr/det/spinnovators/
 │   │   │       ├── OpenBudgetApplication.java      # Main entry point
 │   │   │       ├── authentication/
 │   │   │       │   └── FirstLogin.java             # Login authentication
 │   │   │       ├── data/
-│   │   │       │   └── MinistryDataInput.java      # State budget data
+│   │   │       │   └── MinistryDataInput.java      
 │   │   │       ├── envdatamodel/                   # Data model layer
 │   │   │       │   ├── EnvBudgetData.java
 │   │   │       │   ├── EnvYear.java
@@ -272,32 +274,120 @@ OpenBudget-app/
 │   │   │           ├── YearComparisonWebDisplay.java
 │   │   │           └── EsgWebDisplay.java
 │   │   └── resources/
-│   │       ├── env_budget_data.json                # Budget data
-│   │       ├── env_budget_translations.properties  # Greek translations
-│   │       ├── esg_mappings.json                     # ESG configuration
-│   │       └── frontend/                           # HTML interface
-│   │           ├── login.html
-│   │           ├── minister_statebudget.html
-│   │           ├── minister_budget.html
-│   │           ├── employee_statebudget.html
-│   │           ├── employee_budget.html
-│   │           ├── change-budget.html
-│   │           ├── comparison.html
-│   │           ├── year-comparison.html
-│   │           └── esg.html
+│   │       └── frontend/                                       # HTML interface
+│   │           ├── change-budget.html                         
+│   │           ├── comparison.html                             
+│   │           ├── employee_budget.html                       
+│   │           ├── employee_statebudget.html                   
+│   │           ├── esg.html                                   
+│   │           ├── login.html                                 
+│   │           ├── minister_budget.html                     
+│   │           ├── minister_statebudget.html                  
+│   │           └── year-comparison.html                        
+│   │       ├── env_budget_data.json                            
+│   │       ├── env_budget_translations.properties             
+│   │       └── esg_mappings.json                              
 │   └── test/
-│       └── java/
-│           └── gr/det/spinnovators/                # Unit tests
-│               ├── authentication/
-│               ├── data/
-│               ├── editor/
-│               ├── envdatamodel/
-│               ├── export/
-│               ├── printer/
-│               ├── service/
-│               └── web/
-├── pom.xml                                         # Maven configuration
-└── README.md                                       # This file
+│       └── java/gr/det/spinnovators/                           # Unit tests
+│           ├── authentication/                                 # Authentication tests
+│           │   └── FirstLoginTest.java                        
+│           ├── data/                                           # Data tests
+│           │   └── MinistryDataInputTest.java                 
+│           ├── editor/                                         # Editor tests
+│           │   └── EnvBudgetEditorTest.java                   
+│           ├── envdatamodel/                                  
+│           │   ├── EnvBudgetDataTest.java                      
+│           │   ├── EnvEntryTest.java                          
+│           │   ├── EnvSectorTest.java                          
+│           │   ├── EnvUnitTest.java                          
+│           │   ├── EnvYearTest.java                           
+│           │   ├── EsgCategoryTest.java                        
+│           │   └── EsgReportTest.java                          
+│           ├── export/                                         # Export tests
+│           │   ├── EditedBudgetExporterTest.java               
+│           │   └── TextReportExporterTest.java                
+│           ├── printer/                                        # Printer tests
+│           │   ├── EditsPrinterTest.java                       
+│           │   ├── EnvBudgetPrinterTest.java                   
+│           │   ├── EsgPrinterTest.java                         
+│           │   └── FullBudgetPrinterTest.java                  
+│           ├── service/                                        # Service tests
+│           │   ├── BudgetPercentageServiceTest.java            
+│           │   ├── BudgetValidatorTest.java                    
+│           │   ├── EditsApplierTest.java                       
+│           │   ├── EnvBudgetLoaderTest.java                    
+│           │   ├── EnvBudgetTranslatorTest.java                
+│           │   ├── EsgClassifierTest.java                      
+│           │   ├── EsgLoaderTest.java                          
+│           │   ├── EsgScoreCalculatorTest.java                 
+│           │   ├── InitialBudgetComparisonTest.java            
+│           │   └── YeartoYearBudgetComparisonTest.java         
+│           └── web/                                            # Web tests
+│               ├── EsgWebDisplayTest.java                      
+│               ├── LoginWebServerTest.java                     
+│               └── OpenBudgetApplicationTest.java              # Main application test
+├── target/                                                     # Build output
+│   └── classes/                                                # Compiled classes
+│       └── frontend/                                           # Compiled resources
+│           └── [HTML files]                                    # Built HTML files
+├── pom.xml                                                     # Maven configuration
+└── README.md                                                   # Project documentation - This file 
+```
+
+## Architecture Overview
+
+### Main Application Layer
+- **OpenBudgetApplication.java**: Entry point of the application
+
+### Service Layer
+Core business logic services:
+- **EsgLoader.java**: Loads ESG (Environmental, Social, Governance) data
+- **EsgScoreCalculator.java**: Calculates ESG scores for budget items
+- **InitialBudgetComparison.java**: Compares current budget with initial state
+- **YearToYearBudgetComparison.java**: Compares budgets across different years
+
+### Web Layer
+Web interface and server components:
+- **LoginWebServer.java**: Handles authentication and server initialization
+- **BudgetComparisonWebDisplay.java**: Displays budget comparisons
+- **YearComparisonWebDisplay.java**: Displays year-over-year comparisons
+- **EsgWebDisplay.java**: Displays ESG analysis and reports
+
+### Frontend Resources
+HTML interfaces for different user roles:
+- **login.html**: Authentication page
+- **minister_statebudget.html**: Minister view of state budget
+- **minister_budget.html**: Minister view of department budget
+- **employee_statebudget.html**: Employee view of state budget
+- **employee_budget.html**: Employee view of department budget
+- **change-budget.html**: Budget editing interface
+- **comparison.html**: Budget comparison view
+- **year-comparison.html**: Year-over-year comparison view
+- **esg.html**: ESG analysis dashboard
+
+### Configuration Files
+- **env_budget_data.json**: Budget data storage
+- **env_budget_translations.properties**: Greek language translations
+- **esg_mappings.json**: ESG category mappings and configuration
+
+### Test Suite
+Comprehensive unit tests organized by functionality:
+- **authentication/**: Login and authentication tests
+- **data/**: Data input and processing tests
+- **editor/**: Budget editing functionality tests
+- **envdatamodel/**: Data model validation tests
+- **export/**: Export functionality tests
+- **printer/**: Output formatting tests
+- **service/**: Business logic tests
+- **web/**: Web interface and server tests
+
+## Key Features
+1. Role-based access control (Minister/Employee)
+2. Budget comparison and analysis
+3. ESG scoring and reporting
+4. Multi-year budget tracking
+5. Data export capabilities
+6. Greek language support
 ```
 
 ---
