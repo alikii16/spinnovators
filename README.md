@@ -230,6 +230,8 @@ By simulating the decision-making process, users can experience the challenges o
 ##  Repository Structure
 
 ```
+.github\workflows
+├── ci.yml
 OpenBudget-app/
 ├── src/
 │   ├── main/
@@ -325,11 +327,13 @@ OpenBudget-app/
 │               ├── LoginWebServerTest.java                     
 │               └── OpenBudgetApplicationTest.java              # Main application test
 ├── target/                                                     # Build output
-│   └── classes/                                                # Compiled classes
-│       └── frontend/                                           # Compiled resources
-│           └── [HTML files]                                    # Built HTML files
-├── pom.xml                                                     # Maven configuration
-└── README.md                                                   # Project documentation - This file 
+│  | └── classes/                                               # Compiled classes
+│  |    └── frontend/                                           # Compiled resources
+│  |         └── [HTML files]                                   # Built HTML files
+|  ├── pom.xml                                                  # Maven configuration
+├── .gitignore
+└── README.md                                                   # Project documentation - This file
+
 ```
 
 ## Architecture Overview
