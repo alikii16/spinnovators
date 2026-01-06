@@ -15,6 +15,7 @@ public final class FullBudgetPrinter {
 
   /**
    * Generates the full budget string for the specified year.
+   *
    * @param year The year to display.
    * @return Formatted string.
    */
@@ -55,7 +56,7 @@ public final class FullBudgetPrinter {
 
     sb.append("----------------------------\n");
     sb.append(String.format(" * %-55s: %,.2f €%n", "ΣΥΝΟΛΙΚΟΣ ΠΡΟΫΠΟΛΟΓΙΣΜΟΣ", totalBudget));
-    
+
     return sb.toString();
   }
 

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import gr.det.spinnovators.envdatamodel.EsgCategory;
 
+
 /**
  * Classifies budget sectors, units, and entries into ESG categories.
  *
@@ -168,12 +169,10 @@ public class EsgClassifier {
 
   /**
    * Classifies recovery funds based on sector context.
-   *
    * Recovery and Resilience Funds distribution strategy:
    * - Environmental sectors: 70% Environmental (green transition focus)
    * - Governance sectors: 60% Governance, 40% mixed
    * - Energy sector: 80% Environmental (renewable energy)
-   *
    * For realistic ESG scoring, we use weighted classification:
    * - Natural Environment + Water: 70% E
    * - Spatial Planning: 60% E, 40% G

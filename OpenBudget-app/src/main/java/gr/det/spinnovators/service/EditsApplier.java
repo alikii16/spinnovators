@@ -1,11 +1,5 @@
 package gr.det.spinnovators.service;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
-
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
@@ -13,6 +7,11 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.printer.EditsPrinter;
 import gr.det.spinnovators.printer.EsgPrinter;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
 
 /**
  * Applies edits to budget entries and tracks ESG sustainability impact.
@@ -90,7 +89,7 @@ public class EditsApplier {
     this.comparisonAnalyzer = new InitialBudgetComparison(translator);
     this.validator = new BudgetValidator();
   }
-  
+
   /**
    * Initiates the interactive editing session for a specific fiscal year.
    *
