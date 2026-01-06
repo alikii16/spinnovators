@@ -157,7 +157,7 @@ public class OpenBudgetApplication {
               }
 
             } else if (subChoice.equals("2")) {
-              EnvBudgetEditor editor = new EnvBudgetEditor(envBudgetData, translator);
+              EnvBudgetEditor editor = new EnvBudgetEditor(envBudgetData, translator, scanner);
               editor.startEditingSession();
 
             } else if (subChoice.equals("3")) {
