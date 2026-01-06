@@ -2,10 +2,27 @@ package gr.det.spinnovators.service;
 
 import gr.det.spinnovators.data.MinistryDataInput;
 
+/**
+ * Service class responsible for calculating and displaying the percentage
+ * share of the Ministry of Environment and Energy in the total State Budget
+ * for a given year.
+ *
+ * <p>The calculation is based on budget data provided by the
+ * {MinistryDataInput} class.</p>
+ *
+ * @author Spinnovators Team
+ * @version 3.0
+ */
 public class BudgetPercentageService {
 
   private MinistryDataInput dataInput;
 
+  /**
+   * Default constructor.
+   *
+   * <p>Initializes the service using a new instance of
+   *  MinistryDataInput.</p>
+   */
   public BudgetPercentageService() {
     this.dataInput = new MinistryDataInput();
   }
@@ -54,7 +71,10 @@ public class BudgetPercentageService {
     if (totalSum > 0) {
       double percentage = (ministryAmount / totalSum) * 100;
       System.out.printf("--- Στατιστικά Έτους %d ---%n", year);
-      System.out.printf("Το %s αντιπροσωπεύει το %.4f%% του κρατικού προϋπολογισμού.%n", target, percentage);
+      System.out.printf(
+           "Το %s αντιπροσωπεύει το %.4f%% του κρατικού προϋπολογισμού.%n",
+           target,
+           percentage);
     }
   }
 }
