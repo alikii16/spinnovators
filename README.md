@@ -228,8 +228,6 @@ By simulating the decision-making process, users can experience the challenges o
 ---
 
 ##  Repository Structure
-```
-# OpenBudget Project Architecture
 
 ```
 OpenBudget-app/
