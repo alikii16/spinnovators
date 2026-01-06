@@ -631,6 +631,15 @@ public final class LoginWebServer {
             budgetHtml = budgetHtml + esgHtml; // Direct concatenation avoids "lost" visual blocks
         }
       }
+      
+      // Προσθήκη ποσοστού αν είναι statebudget page (minister_statebudget.html ή employee_statebudget.html)
+      boolean isStateBudgetPage = filename.contains("statebudget.html");
+      if (isStateBudgetPage) {
+        String percentageHtml = generatePercentageHtmlForYear(year);
+        if (!percentageHtml.isEmpty()) {
+            budgetHtml = budgetHtml + percentageHtml;
+        }
+      }
 
       htmlContent = insertBudgetHtmlIntoContent(htmlContent, budgetHtml);
       sendResponse(exchange, htmlContent, 200, "text/html; charset=UTF-8");
@@ -815,6 +824,83 @@ public final class LoginWebServer {
       }
     }
     return htmlContent;
+  }
+
+  private static String generatePercentageHtmlForYear(String yearStr) {
+    try {
+      int year = Integer.parseInt(yearStr);
+      MinistryDataInput dataInput = new MinistryDataInput();
+      String target = "Υπουργείο Περιβάλλοντος και Ενέργειας";
+      double[] amounts;
+      String[] names;
+
+      switch (year) {
+        case 2026:
+          amounts = dataInput.getBudgetAmount26();
+          names = dataInput.getNames26();
+          break;
+        case 2025:
+          amounts = dataInput.getBudgetAmount25();
+          names = dataInput.getNames25();
+          break;
+        case 2024:
+          amounts = dataInput.getBudgetAmount24();
+          names = dataInput.getNames24();
+          break;
+        case 2023:
+          amounts = dataInput.getBudgetAmount23();
+          names = dataInput.getNames23();
+          break;
+        default:
+          return "";
+      }
+
+      double totalSum = 0;
+      double ministryAmount = 0;
+
+      for (int i = 0; i < amounts.length; i++) {
+        totalSum += amounts[i];
+        if (names[i].equals(target)) {
+          ministryAmount = amounts[i];
+        }
+      }
+
+      if (totalSum > 0) {
+        double percentage = (ministryAmount / totalSum) * 100;
+        return buildPercentageHtml(year, percentage, ministryAmount, totalSum);
+      }
+      return "";
+    } catch (Exception e) {
+      return "";
+    }
+  }
+
+  private static String buildPercentageHtml(int year, double percentage, double ministryAmount, double totalSum) {
+    StringBuilder html = new StringBuilder();
+    html.append("<div style='margin-top: 32px; padding-top: 24px; border-top: 2px solid #c8e6c9;'>");
+    html.append("<h3 style='font-size: 20px; font-weight: 700; color: #0d4f1c; margin-bottom: 20px; text-align: center;'>Στατιστικά Έτους ").append(year).append("</h3>");
+    html.append("<div style='padding: 24px; background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%); border: 2px solid #0d4f1c; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(13, 79, 28, 0.15);'>");
+    html.append("<div style='font-size: 18px; color: #1b5e20; font-weight: 600; margin-bottom: 16px;'>Υπουργείο Περιβάλλοντος και Ενέργειας</div>");
+    html.append("<div style='font-size: 36px; font-weight: 700; color: #0d4f1c; margin-bottom: 12px;'>");
+    html.append(String.format(java.util.Locale.forLanguageTag("el-GR"), "%.4f%%", percentage));
+    html.append("</div>");
+    html.append("<div style='font-size: 14px; color: #2e7d32; margin-bottom: 8px;'>του Κρατικού Προϋπολογισμού</div>");
+    html.append("<div style='margin-top: 20px; padding-top: 20px; border-top: 1px solid #c8e6c9; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 16px;'>");
+    html.append("<div style='flex: 1; min-width: 150px;'>");
+    html.append("<div style='font-size: 12px; color: #558b2f; font-weight: 600; margin-bottom: 4px;'>Προϋπολογισμός Υπουργείου</div>");
+    html.append("<div style='font-size: 16px; color: #1b5e20; font-weight: 700;'>");
+    html.append(String.format(java.util.Locale.forLanguageTag("el-GR"), "%,.2f €", ministryAmount));
+    html.append("</div>");
+    html.append("</div>");
+    html.append("<div style='flex: 1; min-width: 150px;'>");
+    html.append("<div style='font-size: 12px; color: #558b2f; font-weight: 600; margin-bottom: 4px;'>Συνολικός Κρατικός Προϋπολογισμός</div>");
+    html.append("<div style='font-size: 16px; color: #1b5e20; font-weight: 700;'>");
+    html.append(String.format(java.util.Locale.forLanguageTag("el-GR"), "%,.2f €", totalSum));
+    html.append("</div>");
+    html.append("</div>");
+    html.append("</div>");
+    html.append("</div></div>");
+    return html.toString();
   }
 
   private static String generateEsgHtmlForYear(String year) {
