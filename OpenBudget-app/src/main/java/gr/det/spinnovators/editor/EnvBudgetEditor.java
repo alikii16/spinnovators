@@ -26,10 +26,10 @@ public class EnvBudgetEditor {
    * @param translator The service used to translate or format budget categories.
    */
 
-  public EnvBudgetEditor(EnvBudgetData data, EnvBudgetTranslator translator) {
+public EnvBudgetEditor(EnvBudgetData data, EnvBudgetTranslator translator, Scanner scanner){
     this.data = data;
     this.translator = translator;
-    this.scanner = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
+    this.scanner = scanner;
   }
 
   /**
@@ -40,6 +40,9 @@ public class EnvBudgetEditor {
   public void startEditingSession() {
     System.out.println("%n------------------------------------------------");
     System.out.print("Θέλετε να προχωρήσετε σε τροποποίηση του προϋπολογισμού; (ΝΑΙ/ΟΧΙ): ");
+    if (!scanner.hasNextLine()) {
+      return;
+    }
     String answer = scanner.nextLine().trim();
 
     if (!answer.equalsIgnoreCase("ΝΑΙ")) {
@@ -48,11 +51,15 @@ public class EnvBudgetEditor {
 
     // Choosing the year to edit
     System.out.print("Επιλέξτε το έτος που θέλετε να επεξεργαστείτε: (2025/2026): ");
+    if (!scanner.hasNextLine()) {
+      return;
+    }
     String yearInput = scanner.nextLine().trim();
     EnvYear selectedYear = data.getBudgetForYear(yearInput);
 
     // Fixed logic check for consistency
-    if ((!selectedYear.getYear().equals("2025")) && (!selectedYear.getYear().equals("2026"))) {
+    if (selectedYear == null || (!selectedYear.getYear().equals("2025") 
+          && !selectedYear.getYear().equals("2026"))) {
       System.out.println("Σφάλμα: Δεν βρέθηκαν δεδομένα για το έτος " + yearInput);
       return;
     }

@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Unit tests for the {@link EnvBudgetEditor} class.
@@ -36,17 +37,17 @@ public class EnvBudgetEditorTest {
   public void setUp() {
     // 1. Prepare Dummy Data for ALL scenarios (2025, 2026, 2099)
     EnvYear year2025 = new EnvYear("2025", new ArrayList<EnvSector>());
-    EnvYear year2026 = new EnvYear("2026", new ArrayList<EnvSector>()); // <--- ΠΡΟΣΘΗΚΗ
+    EnvYear year2026 = new EnvYear("2026", new ArrayList<EnvSector>());
     EnvYear year2099 = new EnvYear("2099", new ArrayList<EnvSector>());
     
     Map<String, EnvYear> years = new HashMap<>();
     years.put("2025", year2025);
-    years.put("2026", year2026); // <--- ΠΡΟΣΘΗΚΗ
+    years.put("2026", year2026);
     years.put("2099", year2099);
     
     Map<String, Double> totals = new HashMap<>();
     totals.put("2025", 100000.0);
-    totals.put("2026", 120000.0); // <--- ΠΡΟΣΘΗΚΗ
+    totals.put("2026", 120000.0);
 
     dummyData = new EnvBudgetData(years, totals);
     
@@ -54,7 +55,7 @@ public class EnvBudgetEditorTest {
     translator = new EnvBudgetTranslator();
 
     // 3. Redirect System.out to capture output
-    System.setOut(new PrintStream(outputStreamCaptor));
+    System.setOut(new PrintStream(outputStreamCaptor, true, StandardCharsets.UTF_8));
   }
 
   /**
@@ -68,11 +69,14 @@ public class EnvBudgetEditorTest {
   public void testStartEditingSession_UserDeclines() {
     String input = "ΟΧΙ\n";
     System.setIn(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
-
-    EnvBudgetEditor editor = new EnvBudgetEditor(dummyData, translator);
+    
+  
+    Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
+    EnvBudgetEditor editor = new EnvBudgetEditor(dummyData, translator, scanner);
+    
     editor.startEditingSession();
 
-    String output = outputStreamCaptor.toString();
+    String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
     Assertions.assertTrue(output.contains("Θέλετε να προχωρήσετε"), 
         "failure - Editor should ask for confirmation prompt.");
     Assertions.assertFalse(output.contains("Επιλέξτε το έτος"), 
@@ -92,10 +96,12 @@ public class EnvBudgetEditorTest {
     String input = "ΝΑΙ\n2099\n";
     System.setIn(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
 
-    EnvBudgetEditor editor = new EnvBudgetEditor(dummyData, translator);
+    Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
+    EnvBudgetEditor editor = new EnvBudgetEditor(dummyData, translator, scanner);
+    
     editor.startEditingSession();
 
-    String output = outputStreamCaptor.toString();
+    String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
     Assertions.assertTrue(output.contains("Επιλέξτε το έτος"), 
         "failure - Editor should ask for year selection.");
     Assertions.assertTrue(output.contains("Σφάλμα: Δεν βρέθηκαν δεδομένα"), 
@@ -114,11 +120,12 @@ public class EnvBudgetEditorTest {
     String input = "ΝΑΙ\n2025\n0\n";
     System.setIn(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
 
-    EnvBudgetEditor editor = new EnvBudgetEditor(dummyData, translator);
+    Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
+    EnvBudgetEditor editor = new EnvBudgetEditor(dummyData, translator, scanner);
     
     editor.startEditingSession();
 
-    String output = outputStreamCaptor.toString();
+    String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
     
     Assertions.assertTrue(output.contains("ΕΝΑΡΞΗ ΕΠΕΞΕΡΓΑΣΙΑΣ"),
         "failure - Should print start message for valid year 2025.");
@@ -136,11 +143,12 @@ public class EnvBudgetEditorTest {
     String input = "ΝΑΙ\n2026\n0\n";
     System.setIn(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
 
-    EnvBudgetEditor editor = new EnvBudgetEditor(dummyData, translator);
+    Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
+    EnvBudgetEditor editor = new EnvBudgetEditor(dummyData, translator, scanner);
     
     editor.startEditingSession();
 
-    String output = outputStreamCaptor.toString();
+    String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
     
     Assertions.assertTrue(output.contains("ΕΝΑΡΞΗ ΕΠΕΞΕΡΓΑΣΙΑΣ"),
         "failure - Should print start message for valid year 2026.");
