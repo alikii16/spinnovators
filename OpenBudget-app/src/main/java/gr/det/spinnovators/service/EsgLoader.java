@@ -1,14 +1,15 @@
 package gr.det.spinnovators.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.JsonReader;
 
 /**
  * Loads ESG configuration from JSON file.
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  * and display settings defined in esg_config.json.
  *
  * @author Spinnovators Team
- * 
+ *
  * @version 2.0
  */
 public class EsgLoader {
@@ -198,7 +199,7 @@ public class EsgLoader {
    * If entry is CONTEXT_DEPENDENT, inherits from sector.
    *
    * @param entryKey The entry JSON key.
-   * 
+   *
    * @param sectorKey The parent sector JSON key.
    *
    * @return The effective ESG category.
@@ -304,7 +305,7 @@ public class EsgLoader {
    * Gets localized rating text.
    *
    * @param rating The rating level (excellent, good, moderate, poor, critical)
-   * 
+   *
    * @param language The language code ("el" or "en")
    *
    * @return Localized rating text
@@ -369,7 +370,7 @@ public class EsgLoader {
    * Gets a string value from a dot-notation path in JSON.
    *
    * @param path Dot-separated path (e.g., "weights.environmental")
-   * 
+   *
    * @param defaultValue Default value if path not found
    *
    * @return The string value or default
@@ -441,13 +442,14 @@ public class EsgLoader {
 
   /**
    * Gets the entire configuration object.
-   * 
+   *
    * <p>Useful for advanced operations.
    *
    * @return The JsonObject configuration.
-   * 
+   *
    */
   public JsonObject getConfig() {
     return config;
   }
 }
+
