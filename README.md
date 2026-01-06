@@ -268,6 +268,8 @@ OpenBudget-app/
 │   │   │       │   └── TextReportExporter.java
 │   │   │       └── web/                            # Web interface
 │   │   │           ├── LoginWebServer.java
+│   │   │           ├── BudgetComparisonWebDisplay.java
+│   │   │           ├── YearComparisonWebDisplay.java
 │   │   │           └── EsgWebDisplay.java
 │   │   └── resources/
 │   │       ├── env_budget_data.json                # Budget data
@@ -280,6 +282,8 @@ OpenBudget-app/
 │   │           ├── employee_statebudget.html
 │   │           ├── employee_budget.html
 │   │           ├── change-budget.html
+│   │           ├── comparison.html
+│   │           ├── year-comparison.html
 │   │           └── esg.html
 │   └── test/
 │       └── java/
