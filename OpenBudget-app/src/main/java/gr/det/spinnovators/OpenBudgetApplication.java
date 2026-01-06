@@ -96,7 +96,7 @@ public class OpenBudgetApplication {
       boolean exitApp = false;
 
       while (!exitApp) {
-        System.out.println("%n=== ΜΕΝΟΥ ΕΠΙΛΟΓΗΣ ===");
+        System.out.println("=== ΜΕΝΟΥ ΕΠΙΛΟΓΗΣ ===");
         System.out.println("1. Κρατικός Προϋπολογισμός");
         System.out.println("2. Προϋπολογισμός Υπουργείου Περιβάλλοντος & Ενέργειας");
         System.out.println("3. Έξοδος");
@@ -109,7 +109,7 @@ public class OpenBudgetApplication {
           // General Budget Menu for minister
           boolean backToMain = false;
           while (!backToMain) {
-            System.out.println("%n--- Κρατικός Προϋπολογισμός ---");
+            System.out.println("--- Κρατικός Προϋπολογισμός ---");
             System.out.println("1. Προβολή Προϋπολογισμού (ανά έτος)");
             System.out.println("2. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
