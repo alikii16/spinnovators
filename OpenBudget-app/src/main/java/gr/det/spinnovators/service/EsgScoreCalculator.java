@@ -10,6 +10,7 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgCategory;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 
+
 /**
  * Calculates ESG sustainability scores for ministry budgets.
  *

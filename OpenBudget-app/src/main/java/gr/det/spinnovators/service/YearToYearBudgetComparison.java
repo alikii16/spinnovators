@@ -33,6 +33,12 @@ public class YearToYearBudgetComparison {
 
   private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
 
+  /**
+   * Constructs a YearToYearBudgetComparison analyzer.
+   *
+   * @param translator Service for translating budget category keys to Greek.
+   * @param totalBudgets Map of year to total ministry budget amounts.
+   */
   public YearToYearBudgetComparison(EnvBudgetTranslator translator,
                                     Map<String, Double> totalBudgets) {
     this.translator = translator;

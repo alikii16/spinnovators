@@ -26,7 +26,11 @@ public class BudgetPercentageService {
   public BudgetPercentageService() {
     this.dataInput = new MinistryDataInput();
   }
-
+  /**
+   * Constructs the service using a custom MinistryDataInput instance.
+   *
+   * @param dataInput the data provider used to retrieve budget information
+   */
   public BudgetPercentageService(MinistryDataInput dataInput) {
     this.dataInput = dataInput;
   }

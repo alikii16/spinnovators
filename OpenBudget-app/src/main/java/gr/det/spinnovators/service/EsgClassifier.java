@@ -5,7 +5,6 @@ import java.util.Map;
 
 import gr.det.spinnovators.envdatamodel.EsgCategory;
 
-
 /**
  * Classifies budget sectors, units, and entries into ESG categories.
  *
