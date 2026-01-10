@@ -628,16 +628,16 @@ public final class LoginWebServer {
       if (isBudgetPage) {
         String esgHtml = generateEsgHtmlForYear(year);
         if (!esgHtml.isEmpty()) {
-            budgetHtml = budgetHtml + esgHtml; // Direct concatenation avoids "lost" visual blocks
+          budgetHtml = budgetHtml + esgHtml; // Direct concatenation avoids "lost" visual blocks
         }
       }
       
-      // Προσθήκη ποσοστού αν είναι statebudget page (minister_statebudget.html ή employee_statebudget.html)
+      // Add percentage section for state budget pages (minister/employee)
       boolean isStateBudgetPage = filename.contains("statebudget.html");
       if (isStateBudgetPage) {
         String percentageHtml = generatePercentageHtmlForYear(year);
         if (!percentageHtml.isEmpty()) {
-            budgetHtml = budgetHtml + percentageHtml;
+          budgetHtml = budgetHtml + percentageHtml;
         }
       }
 
@@ -875,25 +875,70 @@ public final class LoginWebServer {
     }
   }
 
-  private static String buildPercentageHtml(int year, double percentage, double ministryAmount, double totalSum) {
+  private static String buildPercentageHtml(
+      int year,
+      double percentage,
+      double ministryAmount,
+      double totalSum
+  ) {
     StringBuilder html = new StringBuilder();
-    html.append("<div style='margin-top: 32px; padding-top: 24px; border-top: 2px solid #c8e6c9;'>");
-    html.append("<h3 style='font-size: 20px; font-weight: 700; color: #0d4f1c; margin-bottom: 20px; text-align: center;'>Στατιστικά Έτους ").append(year).append("</h3>");
-    html.append("<div style='padding: 24px; background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%); border: 2px solid #0d4f1c; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(13, 79, 28, 0.15);'>");
-    html.append("<div style='font-size: 18px; color: #1b5e20; font-weight: 600; margin-bottom: 16px;'>Υπουργείο Περιβάλλοντος και Ενέργειας</div>");
-    html.append("<div style='font-size: 36px; font-weight: 700; color: #0d4f1c; margin-bottom: 12px;'>");
-    html.append(String.format(java.util.Locale.forLanguageTag("el-GR"), "%.4f%%", percentage));
+    html.append(
+        "<div style='margin-top: 32px; padding-top: 24px; "
+        + "border-top: 2px solid #c8e6c9;'>"
+    );
+    html.append(
+        "<h3 style='font-size: 20px; font-weight: 700; color: #0d4f1c; "
+        + "margin-bottom: 20px; text-align: center;'>Στατιστικά Έτους "
+    )
+        .append(year)
+        .append("</h3>");
+    html.append(
+        "<div style='padding: 24px; background: linear-gradient(135deg, "
+        + "#f1f8e9 0%, #e8f5e9 100%); border: 2px solid #0d4f1c; "
+        + "border-radius: 12px; text-align: center; "
+        + "box-shadow: 0 4px 12px rgba(13, 79, 28, 0.15);'>"
+    );
+    html.append(
+        "<div style='font-size: 18px; color: #1b5e20; font-weight: 600; "
+        + "margin-bottom: 16px;'>Υπουργείο Περιβάλλοντος και Ενέργειας</div>"
+    );
+    html.append(
+        "<div style='font-size: 36px; font-weight: 700; color: #0d4f1c; "
+        + "margin-bottom: 12px;'>"
+    );
+    html.append(
+        String.format(
+        java.util.Locale.forLanguageTag("el-GR"),
+        "%.4f%%",
+        percentage
+    )
+    );
     html.append("</div>");
-    html.append("<div style='font-size: 14px; color: #2e7d32; margin-bottom: 8px;'>του Κρατικού Προϋπολογισμού</div>");
-    html.append("<div style='margin-top: 20px; padding-top: 20px; border-top: 1px solid #c8e6c9; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 16px;'>");
+    html.append(
+        "<div style='font-size: 14px; color: #2e7d32; margin-bottom: 8px;'>"
+        + "του Κρατικού Προϋπολογισμού</div>"
+    );
+    html.append(
+        "<div style='margin-top: 20px; "
+        + "padding-top: 20px; "
+        + "border-top: 1px solid #c8e6c9; "
+        + "display: flex; justify-content: space-around; "
+        + "flex-wrap: wrap; gap: 16px;'>"
+    );
     html.append("<div style='flex: 1; min-width: 150px;'>");
-    html.append("<div style='font-size: 12px; color: #558b2f; font-weight: 600; margin-bottom: 4px;'>Προϋπολογισμός Υπουργείου</div>");
+    html.append(
+        "<div style='font-size: 12px; color: #558b2f; font-weight: 600; "
+        + "margin-bottom: 4px;'>Προϋπολογισμός Υπουργείου</div>"
+    );
     html.append("<div style='font-size: 16px; color: #1b5e20; font-weight: 700;'>");
     html.append(String.format(java.util.Locale.forLanguageTag("el-GR"), "%,.2f €", ministryAmount));
     html.append("</div>");
     html.append("</div>");
     html.append("<div style='flex: 1; min-width: 150px;'>");
-    html.append("<div style='font-size: 12px; color: #558b2f; font-weight: 600; margin-bottom: 4px;'>Συνολικός Κρατικός Προϋπολογισμός</div>");
+    html.append(
+        "<div style='font-size: 12px; color: #558b2f; font-weight: 600; "
+        + "margin-bottom: 4px;'>Συνολικός Κρατικός Προϋπολογισμός</div>"
+    );
     html.append("<div style='font-size: 16px; color: #1b5e20; font-weight: 700;'>");
     html.append(String.format(java.util.Locale.forLanguageTag("el-GR"), "%,.2f €", totalSum));
     html.append("</div>");
@@ -946,7 +991,11 @@ public final class LoginWebServer {
     return total;
   }
 
-  private static String generateSectorBreakdownHtml(EnvYear year, double totalBudget, String yearStr) {
+  private static String generateSectorBreakdownHtml(
+    EnvYear year,
+    double totalBudget,
+    String yearStr
+  ) {
     java.util.List<String> names = new java.util.ArrayList<>();
     java.util.List<Double> amounts = new java.util.ArrayList<>();
     java.util.List<Double> percentages = new java.util.ArrayList<>();
@@ -981,21 +1030,77 @@ public final class LoginWebServer {
     }
     
     StringBuilder html = new StringBuilder();
-    html.append("<div style='margin-top: 24px; padding: 16px; background: #ffffff; border-radius: 8px; border: 1px solid #a5d6a7;'>");
-    html.append("<div style='text-align: center; margin-bottom: 20px; padding: 8px 12px; background: #f1f8e9; border-radius: 6px; border: 1px solid #c8e6c9;'>");
-    html.append("<div style='font-size: 13px; font-weight: 600; color: #2e7d32; margin-bottom: 4px;'>Συνολικό Ποσό Υπουργείου ").append(yearStr).append("</div>");
-    html.append("<div style='font-size: 18px; font-weight: 700; color: #1b5e20;'>").append(String.format(java.util.Locale.US, "%,.2f €", totalBudget)).append("</div></div>");
-    html.append("<h4 style='text-align: center; font-size: 16px; font-weight: 600; color: #1b5e20; margin-bottom: 16px;'>Κατανομή ανά Τομέα</h4>");
+    html.append(
+        "<div style='margin-top: 24px; padding: 16px; background: #ffffff; "
+        + "border-radius: 8px; border: 1px solid #a5d6a7;'>"
+    );
+    html.append(
+        "<div style='text-align: center; margin-bottom: 20px; padding: 8px 12px; "
+        + "background: #f1f8e9; border-radius: 6px; border: 1px solid #c8e6c9;'>"
+    );
+    html.append(
+        "<div style='font-size: 13px; font-weight: 600; color: #2e7d32; "
+        + "margin-bottom: 4px;'>Συνολικό Ποσό Υπουργείου "
+    )
+        .append(yearStr)
+        .append("</div>");
+    html.append(
+        "<div style='font-size: 18px; font-weight: 700; color: #1b5e20;'>"
+    )
+        .append(
+        String.format(
+            java.util.Locale.US,
+            "%,.2f €",
+            totalBudget
+        )
+    )
+        .append("</div></div>");
+    html.append(
+        "<h4 style='text-align: center; font-size: 16px; font-weight: 600; "
+        + "color: #1b5e20; margin-bottom: 16px;'>Κατανομή ανά Τομέα</h4>"
+    );
     html.append("<div style='display: flex; flex-direction: column; gap: 12px;'>");
     
     for (int i = 0; i < names.size(); i++) {
       double pct = percentages.get(i);
-      html.append("<div style='margin-bottom: 8px;'><div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;'>");
-      html.append("<span style='font-size: 14px; font-weight: 600; color: #0d4f1c;'>").append(names.get(i)).append("</span>");
-      html.append("<span style='font-size: 14px; font-weight: 700; color: #1b5e20;'>").append(String.format(java.util.Locale.US, "%,.2f €", amounts.get(i)));
-      html.append(" <span style='color: #2e7d32;'>(").append(Math.abs(pct - Math.round(pct)) < 0.01 ? String.format(java.util.Locale.US, "%.0f", pct) : String.format(java.util.Locale.US, "%.1f", pct)).append("%)</span></span></div>");
-      html.append("<div style='background: #e8e8e8; border-radius: 4px; height: 24px; overflow: hidden;'>");
-      html.append("<div style='background: #2e7d32; height: 100%; width: ").append(pct).append("%; border-radius: 4px;'></div></div></div>");
+      html.append(
+          "<div style='margin-bottom: 8px;'>"
+          + "<div style='display: flex; justify-content: space-between; "
+          + "align-items: center; margin-bottom: 6px;'>"
+      );
+      html.append(
+          "<span style='font-size: 14px; font-weight: 600; color: #0d4f1c;'>"
+      )
+          .append(names.get(i))
+          .append("</span>");
+      html.append(
+          "<span style='font-size: 14px; font-weight: 700; color: #1b5e20;'>"
+      )
+          .append(
+          String.format(
+            java.util.Locale.US,
+            "%,.2f €",
+            amounts.get(i)
+        )
+          );
+      html.append(" <span style='color: #2e7d32;'>(")
+          .append(
+        Math.abs(pct - Math.round(pct)) < 0.01
+            ? String.format(java.util.Locale.US, "%.0f", pct)
+            : String.format(java.util.Locale.US, "%.1f", pct)
+    )
+          .append("%)</span></span></div>");
+      html.append(
+           "<div style='background: #e8e8e8; border-radius: 4px; "
+          + "height: 24px; overflow: hidden;'>"
+      );
+      html.append(
+          "<div style='background: #2e7d32; height: 100%; width: "
+      )
+          .append(pct)
+          .append(
+            "%; border-radius: 4px;'></div></div></div>"
+          );
     }
     html.append("</div></div>");
     return html.toString();
@@ -1009,24 +1114,26 @@ public final class LoginWebServer {
         ΣΥΝΟΛΙΚΟ ESG SCORE
         </h3>
         <div style='text-align: center; margin-bottom: 16px;'>
-        <div style='font-size: 28px; font-weight: 700; color: #1b5e20; margin-bottom: 4px;'>
-        %.2f / 100
-        </div>
-        <div style='font-size: 14px; color: #2e7d32; font-weight: 600;'>
-        Αξιολόγηση: %s
-        </div>
+        <div style='font-size: 28px; font-weight: 700; color: #1b5e20; margin-bottom: 4px;'>%.2f / 100</div>
+        <div style='font-size: 14px; color: #2e7d32; font-weight: 600;'>Αξιολόγηση: %s</div>
         </div>
         <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;'>
-        <div style='background: #e8f5e9; padding: 12px; border-radius: 6px; border: 1px solid #a5d6a7; text-align: center;'>
-        <div style='font-size: 12px; color: #2e7d32; font-weight: 600; margin-bottom: 6px;'>Environmental (E)</div>
+        <div style='background: #e8f5e9; padding: 12px; border-radius: 6px; 
+        + "border: 1px solid #a5d6a7; text-align: center;'>
+        <div style='font-size: 12px; color: #2e7d32; font-weight: 600; 
+        + "margin-bottom: 6px;'>Environmental (E)</div>
         <div style='font-size: 18px; font-weight: 700; color: #1b5e20;'>%.1f%%</div>
         </div>
-        <div style='background: #e3f2fd; padding: 12px; border-radius: 6px; border: 1px solid #90caf9; text-align: center;'>
-        <div style='font-size: 12px; color: #1565c0; font-weight: 600; margin-bottom: 6px;'>Social (S)</div>
+        <div style='background: #e3f2fd; padding: 12px; border-radius: 6px; 
+        + "border: 1px solid #90caf9; text-align: center;'>
+        <div style='font-size: 12px; color: #1565c0; font-weight: 600; 
+        + "margin-bottom: 6px;'>Social (S)</div>
         <div style='font-size: 18px; font-weight: 700; color: #0d47a1;'>%.1f%%</div>
         </div>
-        <div style='background: #fff3e0; padding: 12px; border-radius: 6px; border: 1px solid #ffcc02; text-align: center;'>
-        <div style='font-size: 12px; color: #e65100; font-weight: 600; margin-bottom: 6px;'>Governance (G)</div>
+        <div style='background: #fff3e0; padding: 12px; border-radius: 6px; 
+        + "border: 1px solid #ffcc02; text-align: center;'>       
+        <div style='font-size: 12px; color: #e65100; font-weight: 600; 
+        + "margin-bottom: 6px;'>Governance (G)</div>
         <div style='font-size: 18px; font-weight: 700; color: #bf360c;'>%.1f%%</div>
         </div>
         </div>
@@ -1268,15 +1375,21 @@ public final class LoginWebServer {
     
     // Header
     budgetHtml.append(buildBudgetHtmlHeader(year));
-    budgetHtml.append("<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;'>");
+    budgetHtml.append(
+        "<div style='font-family: \"Segoe UI\", Tahoma, "
+        + "Geneva, Verdana, sans-serif;'>"
+    );
     
     for (EnvSector sector : envYear.getSectors()) {
       String translatedSector = translator.translateCategory(sector.getJsonKey());
       
       budgetHtml.append("<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; ")
           .append("border-radius: 8px; overflow: hidden;'>");
-      budgetHtml.append("<div style='background: linear-gradient(135deg, #1b5e20 0%, #0d4f1c 100%); ")
-          .append("padding: 16px; color: #ffffff; font-weight: 600; font-size: 18px;'>");
+      budgetHtml.append(
+          "<div style='background: linear-gradient(135deg, #1b5e20 0%, "
+          + "#0d4f1c 100%); "
+      );
+      budgetHtml.append("padding: 16px; color: #ffffff; font-weight: 600; font-size: 18px;'>");
       budgetHtml.append(translatedSector);
       budgetHtml.append("</div><div style='padding: 16px;'>");
       
@@ -1359,11 +1472,12 @@ public final class LoginWebServer {
         +  "text-decoration:none;'> Λήψη Αναφοράς Αλλαγών </a>";
 
     String comparisonBtn = "<a class='secondary-btn' href='/comparison.html' "
-        + "style='text-decoration:none; margin-top:18px; display:block;'>Σύγκριση Προϋπολογισμού</a>";
+        + "style='text-decoration:none; margin-top:18px; "
+        + "display:block;'>Σύγκριση Προϋπολογισμού</a>";
     
     String yearComparisonBtn = "<a class='secondary-btn' href='/year-comparison.html' "
-        + "style='text-decoration:none; margin-top:18px; display:block;'>Σύγκριση Προϋπολογισμού ανά Έτος</a>";
-    
+        + "style='text-decoration:none; margin-top:18px; display:block;'>"
+        + "Σύγκριση Προϋπολογισμού ανά Έτος</a>";
     if (success) {
       buttonHtml = downloadBtn + comparisonBtn + "<a class='secondary-btn' href='/esg.html' "
         + "style='text-decoration:none; margin-top:18px; display:block;'>ESG Αξιολόγηση</a>"
@@ -1771,7 +1885,10 @@ public final class LoginWebServer {
   /**
    * Handles comparison page request.
    */
-  private static void handleComparisonPage(HttpExchange exchange, String frontendPath) throws IOException {
+  private static void handleComparisonPage(
+      HttpExchange exchange,
+      String frontendPath) throws IOException {
+
     try {
       ChangeSession changeSession = getChangeSession();
       
@@ -1817,7 +1934,10 @@ public final class LoginWebServer {
   /**
    * Handles year-to-year comparison page request.
    */
-  private static void handleYearComparisonPage(HttpExchange exchange, String frontendPath) throws IOException {
+  private static void handleYearComparisonPage(
+      HttpExchange exchange,
+      String frontendPath) throws IOException {
+
     try {
       Path htmlPath = Paths.get(frontendPath, "year-comparison.html");
       if (!Files.exists(htmlPath)) {
@@ -1833,16 +1953,25 @@ public final class LoginWebServer {
           + "<div style='display: flex; flex-direction: column; gap: 10px;'>"
           + "<label style='font-size: 15px; color: #1b5e20; font-weight: 600;'>Πρώτο Έτος:</label>"
           + "<input type='text' name='year1' placeholder='π.χ. 2023' required "
-          + "style='width: 100%; padding: 14px; border: 2px solid #a5d6a7; border-radius: 6px; font-size: 16px; background-color: #fafafa; transition: border-color 0.3s;'>"
+          + "style='width: 100%; padding: 14px; border: 2px solid #a5d6a7; "
+          + "border-radius: 6px; font-size: 16px; background-color: #fafafa; "
+          + "transition: border-color 0.3s;'>"
           + "</div>"
           + "<div style='display: flex; flex-direction: column; gap: 10px;'>"
-          + "<label style='font-size: 15px; color: #1b5e20; font-weight: 600;'>Δεύτερο Έτος:</label>"
+          + "<label style='font-size: 15px; color: #1b5e20; "
+          + "font-weight: 600;'>Δεύτερο Έτος:</label>"
           + "<input type='text' name='year2' placeholder='π.χ. 2024' required "
-          + "style='width: 100%; padding: 14px; border: 2px solid #a5d6a7; border-radius: 6px; font-size: 16px; background-color: #fafafa; transition: border-color 0.3s;'>"
+          + "style='width: 100%; padding: 14px; border: 2px solid #a5d6a7; "
+          + "border-radius: 6px; font-size: 16px; background-color: #fafafa; "
+          + "transition: border-color 0.3s;'>"
           + "</div>"
           + "</div>"
           + "<button type='submit' "
-          + "style='width: 100%; padding: 15px; background: linear-gradient(135deg, #0d4f1c 0%, #1b5e20 100%); color: #ffffff; text-align: center; text-decoration: none; font-size: 17px; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 6px 18px rgba(13, 79, 28, 0.4);'>Σύγκριση</button>"
+          + "style='width: 100%; padding: 15px; background: linear-gradient(135deg, "
+          + "#0d4f1c 0%, #1b5e20 100%); color: #ffffff; text-align: center; "
+          + "text-decoration: none; font-size: 17px; font-weight: 600; "
+          + "border-radius: 8px; border: none; cursor: pointer; "
+          + "box-shadow: 0 6px 18px rgba(13, 79, 28, 0.4);'>Σύγκριση</button>"
           + "</form>";
       
       String html = template.replace(
@@ -1860,7 +1989,9 @@ public final class LoginWebServer {
   /**
    * Handles POST request for year comparison.
    */
-  private static void handleYearComparisonPost(HttpExchange exchange, String frontendPath) throws IOException {
+  private static void handleYearComparisonPost(
+      HttpExchange exchange,
+      String frontendPath) throws IOException {
     try {
       java.util.Map<String, String> formDataMap = parseFormData(exchange);
       String year1 = formDataMap.get("year1");
@@ -1884,7 +2015,11 @@ public final class LoginWebServer {
       if (baseYear == null || compareYear == null) {
         String errorHtml = buildStyledChangePage(
             "<h2 class='section-title'>Σφάλμα</h2>"
-            + "<p class='description'>Τα έτη " + year1 + " και " + year2 + " δεν βρέθηκαν στα δεδομένα.</p>"
+            + "<p class='description'>Τα έτη "
+            + year1
+            + " και "
+            + year2
+            + " δεν βρέθηκαν στα δεδομένα.</p>"
             + "<a class='primary-btn' href='/year-comparison.html' "
             + "style='text-decoration:none; margin-top:18px;'>Επιστροφή</a>",
             "");
@@ -1902,8 +2037,12 @@ public final class LoginWebServer {
       java.util.Map<String, Double> totalBudgets = envBudgetData.getEnvMinistryTotalBudget();
       gr.det.spinnovators.web.YearComparisonWebDisplay yearComparisonDisplay = 
           new gr.det.spinnovators.web.YearComparisonWebDisplay(translator);
-      String content = yearComparisonDisplay.generateComparisonContent(baseYear, compareYear, totalBudgets);
-      
+      String content =
+          yearComparisonDisplay.generateComparisonContent(
+          baseYear,
+          compareYear,
+          totalBudgets);
+    
       String html = template.replace(
           "<!-- Content will be generated dynamically by Java -->",
           content
