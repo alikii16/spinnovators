@@ -75,7 +75,7 @@ public class YearToYearBudgetComparison {
     // 3. Print table header
     System.out.printf(HELLENIC_LOCALE, "%-45s | %12s | %12s | %12s | %8s%n",
         "Τομέας / Sector", baseYear, compareYear, "Διαφορά", "%");
-    System.out.println("---------------------------------------------------------------------------------------------------------");
+    System.out.println("------------------------------------------------------");
 
     // 4. Print rows
     for (String sectorKey : allSectors) {
@@ -85,7 +85,9 @@ public class YearToYearBudgetComparison {
       double pct = (val1 == 0) ? (val2 == 0 ? 0 : 100.0) : (diff / val1) * 100.0;
 
       String name = translator.translateCategory(sectorKey);
-      if (name.length() > 45) name = truncate(name, 42);
+      if (name.length() > 45) {
+        name = truncate(name, 42);
+      }
 
       System.out.printf(HELLENIC_LOCALE, "%-45s | %,12.0f | %,12.0f | %+,.0f | %+7.1f%%%n",
           name, val1, val2, diff, pct);
@@ -149,7 +151,7 @@ public class YearToYearBudgetComparison {
     System.out.println(" Συνολική Αλλαγή Προϋπολογισμού:");
     System.out.printf(HELLENIC_LOCALE, " Διαφορά: %+,.2f €%n%n", compareSum - baseSum);
   }
-    /**
+  /**
    * Prints the comparison header.
    *
    * @param baseYear Base year string.
@@ -161,7 +163,7 @@ public class YearToYearBudgetComparison {
     System.out.println(" Σύγκριση Προϋπολογισμού: " + baseYear + " vs " + compareYear);
     System.out.println("══════════════════════════════════════════════════════\n");
   }
-    /**
+  /**
    * Prints the comparison footer.
    */
   private void printFooter() {
@@ -177,7 +179,9 @@ public class YearToYearBudgetComparison {
    * @return Truncated string with "..." suffix if needed.
    */
   private String truncate(String value, int maxLength) {
-    if (value.length() <= maxLength) return value;
+    if (value.length() <= maxLength) {
+    return value;
+   }
     return value.substring(0, maxLength - 3) + "...";
   }
 }

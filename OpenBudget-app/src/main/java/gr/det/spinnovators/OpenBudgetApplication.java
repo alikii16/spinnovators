@@ -102,7 +102,9 @@ public class OpenBudgetApplication {
         System.out.println("3. Έξοδος");
         System.out.print("Επιλογή: ");
         
-        if (!scanner.hasNextLine()) break;
+        if (!scanner.hasNextLine()) {
+          break;
+        }
         String mainChoice = scanner.nextLine();
 
         if (mainChoice.equals("1")) {
@@ -114,14 +116,16 @@ public class OpenBudgetApplication {
             System.out.println("2. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
             
-            if (!scanner.hasNextLine()) break;
+            if (!scanner.hasNextLine()) {
+              break;
+            }
             String subChoice = scanner.nextLine();
 
             if (subChoice.equals("1")) {
               System.out.print("Δώστε έτος (2023, 2024, 2025, 2026): ");
               if (scanner.hasNextLine()) {
-                  String yr = scanner.nextLine();
-                  fullPrinter.showBudget(yr);
+                String yr = scanner.nextLine();
+                fullPrinter.showBudget(yr);
               }
             } else if (subChoice.equalsIgnoreCase("2")) {
               backToMain = true;
@@ -140,20 +144,22 @@ public class OpenBudgetApplication {
             System.out.println("5. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
             
-            if (!scanner.hasNextLine()) break;
+            if (!scanner.hasNextLine()) {
+              break;
+            }
             String subChoice = scanner.nextLine();
 
             if (subChoice.equals("1")) {
               System.out.print("Δώστε έτος για το Υπ. Περιβάλλοντος: ");
               if (scanner.hasNextLine()) {
-                  String yr = scanner.nextLine();
-                  try {
-                      int selectedYearInt = Integer.parseInt(yr);
-                      percentageService.displayEnvironmentPercentage(selectedYearInt);
-                      envPrinter.printYearlyBudget(yr);
-                  } catch (NumberFormatException e) {
-                      System.out.println("Λάθος έτος.");
-                  }
+                String yr = scanner.nextLine();
+                try {
+                  int selectedYearInt = Integer.parseInt(yr);
+                  percentageService.displayEnvironmentPercentage(selectedYearInt);
+                  envPrinter.printYearlyBudget(yr);
+                } catch (NumberFormatException e) {
+                  System.out.println("Λάθος έτος.");
+                }
               }
 
             } else if (subChoice.equals("2")) {
@@ -171,10 +177,12 @@ public class OpenBudgetApplication {
 
               if (baseYear != null && compareYear != null) {
                 YearToYearBudgetComparison comparisonService = new YearToYearBudgetComparison(
-                  translator, envBudgetData.getEnvMinistryTotalBudget());
+                translator, envBudgetData.getEnvMinistryTotalBudget());
                 comparisonService.compareYears(baseYear, compareYear);
               } else {
-                System.out.println("Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα.");
+                System.out.println(
+                  "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
+                );
               }
 
             } else if (subChoice.equalsIgnoreCase("4")) {
@@ -227,7 +235,9 @@ public class OpenBudgetApplication {
         System.out.println("3. Έξοδος");
         System.out.print("Επιλογή: ");
         
-        if (!scanner.hasNextLine()) break;
+        if (!scanner.hasNextLine()) {
+          break;
+        }
         String mainChoice = scanner.nextLine();
 
         if (mainChoice.equals("1")) {
@@ -239,12 +249,16 @@ public class OpenBudgetApplication {
             System.out.println("2. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
             
-            if (!scanner.hasNextLine()) break;
+            if (!scanner.hasNextLine()) {
+              break;
+            }
             String subChoice = scanner.nextLine();
 
             if (subChoice.equals("1")) {
               System.out.print("Δώστε έτος (2023, 2024, 2025, 2026): ");
-              if (scanner.hasNextLine()) fullPrinter.showBudget(scanner.nextLine());
+              if (scanner.hasNextLine()) {
+                fullPrinter.showBudget(scanner.nextLine());
+              }
             } else if (subChoice.equalsIgnoreCase("2")) {
               backToMain = true;
             }
@@ -260,20 +274,22 @@ public class OpenBudgetApplication {
             System.out.println("4. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
             
-            if (!scanner.hasNextLine()) break;
+            if (!scanner.hasNextLine()) {
+              break;
+            }
             String subChoice = scanner.nextLine();
 
             if (subChoice.equals("1")) {
               System.out.print("Δώστε έτος για το Υπουργείο Περιβάλλοντος: ");
               if (scanner.hasNextLine()) {
-                  String yr = scanner.nextLine();
-                  try {
-                      int selectedYearInt = Integer.parseInt(yr);
-                      percentageService.displayEnvironmentPercentage(selectedYearInt);
-                      envPrinter.printYearlyBudget(yr);
-                  } catch (NumberFormatException e) {
-                      System.out.println("Λάθος έτος.");
-                  }
+                String yr = scanner.nextLine();
+                try {
+                  int selectedYearInt = Integer.parseInt(yr);
+                  percentageService.displayEnvironmentPercentage(selectedYearInt);
+                  envPrinter.printYearlyBudget(yr);
+                } catch (NumberFormatException e) {
+                  System.out.println("Λάθος έτος.");
+                }
               }
 
             } else if (subChoice.equals("2")) {
@@ -287,10 +303,12 @@ public class OpenBudgetApplication {
 
               if (baseYear != null && compareYear != null) {
                 YearToYearBudgetComparison comparisonService = new YearToYearBudgetComparison(
-                  translator, envBudgetData.getEnvMinistryTotalBudget());
+                translator, envBudgetData.getEnvMinistryTotalBudget());
                 comparisonService.compareYears(baseYear, compareYear);
               } else {
-                System.out.println("Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα.");
+                System.out.println(
+                "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
+                );
               }
 
             } else if (subChoice.equalsIgnoreCase("3")) {

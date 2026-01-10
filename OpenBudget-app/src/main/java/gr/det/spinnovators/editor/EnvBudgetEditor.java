@@ -19,7 +19,7 @@ public class EnvBudgetEditor {
   private final EnvBudgetTranslator translator;
   private final Scanner scanner;
 
-/**
+  /**
  * Constructs an EnvBudgetEditor with the necessary data sources and translators.
  *
  * @param data The environmental budget data repository to be edited.
