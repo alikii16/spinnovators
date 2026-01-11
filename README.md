@@ -332,6 +332,8 @@ OpenBudget-app/
 │  |         └── [HTML files]                                   # Built HTML files
 |  ├── pom.xml                                                  # Maven configuration
 ├── .gitignore
+├── images                                                      # Visual Documentation Assets Folder - Useful for UML diagram display
+│  | └── uml.diagram.png                                      
 └── README.md                                                   # Project documentation - This file
 
 ```
@@ -654,10 +656,11 @@ Type: 0000
 
 ## UML Diagram
 
-### Class Diagram
-```
-[]
-```
+**This is our UML class diagram illustrating the application's structure, including core classes, attributes, methods, and their relationships.**
+
+
+![This is our UML Diagram](images/uml.diagram.png)
+
 
 **Key Relationships:**
 - `OpenBudgetApplication` → `FirstLogin`, `MinistryDataInput`, `FullBudgetPrinter`, `LoginWebServer`
