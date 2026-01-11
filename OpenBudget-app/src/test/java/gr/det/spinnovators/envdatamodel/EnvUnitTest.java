@@ -1,16 +1,30 @@
 package gr.det.spinnovators.envdatamodel;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import java.util.Collections;
 import java.util.List;
 
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for EnvUnit class.
+ * Unit tests for the {@link EnvUnit} class.
+ *
+ * <p>This test class verifies the getter methods and the entry lookup
+ * functionality, ensuring correct retrieval of unit data and nested
+ * budget entries by their keys.</p>
+ *
+ * <p>The test suite covers:
+ * <ul>
+ *   <li>Basic getter methods (getJsonKey, getEntries)</li>
+ *   <li>Successful entry lookup by key using getEntryByKey</li>
+ *   <li>Null handling for non-existent entry keys</li>
+ *   <li>Edge case with null key parameter</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class EnvUnitTest {
 

@@ -1,19 +1,30 @@
 package gr.det.spinnovators.envdatamodel;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-
-
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for EnvBudgetData class.
- * These tests verify basic behavior of getting budgets per year
- * and retrieving the total ministry budget map.
+ * Unit tests for the {@link EnvBudgetData} class.
+ *
+ * <p>This test class verifies budget retrieval operations and access
+ * to the total ministry budget map, ensuring correct handling of both
+ * valid data and edge cases.</p>
+ *
+ * <p>The test suite covers:
+ * <ul>
+ *   <li>Retrieving budgets for existing years</li>
+ *   <li>Handling non-existent years (returning null)</li>
+ *   <li>Defensive handling when the data map is null</li>
+ *   <li>Accessing the complete ministry total budget map</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class EnvBudgetDataTest {
 
