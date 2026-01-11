@@ -3,16 +3,27 @@ package gr.det.spinnovators.data;
 import java.util.ArrayList;
 import java.util.List;
 
-/** 
+/**
  * Handles the storage and retrieval of national budget data for various ministries.
- * This class serves as a data repository for budget allocations spanning 
+ * This class serves as a data repository for budget allocations spanning
  * from the year 2023 to 2026.
+ *
+ * <p>Budget data is stored in separate lists for each fiscal year, allowing
+ * for historical comparisons and multi-year analysis. The data is initialized
+ * automatically upon construction with hardcoded values representing official
+ * Greek government budget allocations.</p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class MinistryDataInput {
 
-  /** 
+  /**
    * Represents a single ministry budget record.
    * Associates a ministry's name with its corresponding budget amount.
+   *
+   * <p>This is a simple data container class with public fields for
+   * ease of access and manipulation within the parent class.</p>
    */
   public static class MinistryEntry {
     public String name;
@@ -22,7 +33,6 @@ public class MinistryDataInput {
      * Constructs a new MinistryEntry.
      *
      * @param name The name of the ministry.
-     * 
      * @param amount The budget amount assigned to the ministry.
      */
     public MinistryEntry(String name, double amount) {
@@ -38,7 +48,7 @@ public class MinistryDataInput {
 
   /**
    * Initializes the MinistryDataInput object.
-   * Automatically populates the data lists for the years 2023-2026 
+   * Automatically populates the data lists for the years 2023-2026
    * by calling the internal initialization method.
    */
   public MinistryDataInput() {
@@ -47,8 +57,20 @@ public class MinistryDataInput {
 
   /**
    * Populates the internal data structures with hardcoded budget values.
-   * This method organizes data for each year using parallel arrays for names 
-   * and amounts before converting them into MinistryEntry objects.
+   * This private helper method organizes data for each year using parallel arrays
+   * for ministry names and budget amounts before converting them into MinistryEntry objects.
+   *
+   * <p>The initialization process:
+   * <ul>
+   *   <li>Defines ministry names (mostly consistent across years)</li>
+   *   <li>Defines corresponding budget amounts for each year</li>
+   *   <li>Creates MinistryEntry objects by pairing names with amounts</li>
+   *   <li>Stores entries in year-specific lists (data23, data24, data25, data26)</li>
+   * </ul>
+   * </p>
+   *
+   * <p>Note: The ministry names for 2023 differ slightly from other years due to
+   * government restructuring and departmental name changes.</p>
    */
   private void initializeData() {
     String[] namesCommon = {
@@ -78,7 +100,7 @@ public class MinistryDataInput {
         237992000.00, 1391403000.00, 536133000.00, 2603285000.00, 1438115000.00, 14380000.00,
         11142000.00, 10981000.00, 15556000.00, 7149000.00, 7311000.00, 19640000.00
     };
-    
+
     double[] amounts25 = {
         4638000.00, 171950000.00, 41689000.00, 3830276000.00, 420237000.00, 6130000000.00,
         7177424000.00, 650803000.00, 6606000000.00, 575419000.00, 1246518464000.00, 1281403000.00,
@@ -112,7 +134,7 @@ public class MinistryDataInput {
         "Αποκεντρωμένη Διοίκηση Αιγαίου", "Αποκεντρωμένη Διοίκηση Κρήτης",
         "Αποκεντρωμένη Διοίκηση Μακεδονίας - Θράκης"
     };
-    
+
     double[] amounts23 = {
         4263000.00, 149900000.00, 40679000.00, 3548748000.00, 282175000.00, 5707800000.00,
         5202388000.00, 566374000.00, 6080504000.00, 458563000.00, 748592323000.00, 1547980000.00,
@@ -125,7 +147,7 @@ public class MinistryDataInput {
       data26.add(new MinistryEntry(namesCommon[i], amounts26[i]));
       data25.add(new MinistryEntry(namesCommon[i], amounts25[i]));
       data24.add(new MinistryEntry(namesCommon[i], amounts24[i]));
-    } 
+    }
 
     for (int i = 0; i < names23.length; i++) {
       data23.add(new MinistryEntry(names23[i], amounts23[i]));

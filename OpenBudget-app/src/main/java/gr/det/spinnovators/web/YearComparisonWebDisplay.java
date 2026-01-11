@@ -1,5 +1,11 @@
 package gr.det.spinnovators.web;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
@@ -7,17 +13,26 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.service.EsgScoreCalculator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Handles the generation of year-to-year budget comparison content for the web interface.
  *
  * <p>This class compares budgets of two different years and formats them into HTML fragments
- * to be displayed in the web application's year comparison page.
+ * to be displayed in the web application's year comparison page. It provides comprehensive
+ * analysis of budget evolution over time, including sector-level changes and ESG score
+ * comparisons.</p>
+ *
+ * <p>The year-to-year comparison includes:
+ * <ul>
+ *   <li>Sector-by-sector budget comparison across years</li>
+ *   <li>Total budget change analysis</li>
+ *   <li>ESG score evolution between years</li>
+ *   <li>Category-level ESG changes</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class YearComparisonWebDisplay {
   private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
@@ -89,6 +104,17 @@ public class YearComparisonWebDisplay {
     return html.toString();
   }
 
+  /**
+   * Calculates total budget amount for each sector in a given year.
+   *
+   * <p>Iterates through all sectors, units, and entries to sum up the total
+   * budget allocated to each sector. Returns an ordered map to preserve
+   * sector ordering.</p>
+   *
+   * @param year The budget year to calculate sector totals for
+   * @return LinkedHashMap mapping sector keys to their total amounts,
+   *         or empty map if year is null
+   */
   private Map<String, Double> calculateSectorTotals(EnvYear year) {
     Map<String, Double> totals = new LinkedHashMap<>();
     if (year == null || year.getSectors() == null) return totals;
@@ -110,6 +136,20 @@ public class YearComparisonWebDisplay {
     return totals;
   }
 
+  /**
+   * Builds HTML comparison table showing sector budgets across two years.
+   *
+   * <p>Creates a detailed table with columns for each year, absolute difference,
+   * and percentage change. Sectors are color-coded based on whether they
+   * increased (green), decreased (red), or remained unchanged (gray).</p>
+   *
+   * @param baseSectors Map of sector totals for the base year
+   * @param compareSectors Map of sector totals for the comparison year
+   * @param baseYear Base year label for table header
+   * @param compareYear Comparison year label for table header
+   * @param allSectors Set of all unique sector keys from both years
+   * @return HTML string containing the formatted comparison table
+   */
   private String buildComparisonTable(
       Map<String, Double> baseSectors,
       Map<String, Double> compareSectors,
@@ -192,6 +232,16 @@ public class YearComparisonWebDisplay {
     return html.toString();
   }
 
+  /**
+   * Builds HTML showing total budget change between years.
+   *
+   * <p>Calculates and displays the overall budget difference with appropriate
+   * color coding (green for increase, red for decrease).</p>
+   *
+   * @param baseSectors Map of sector totals for the base year
+   * @param compareSectors Map of sector totals for the comparison year
+   * @return HTML string containing the total budget change summary
+   */
   private String buildTotalChange(
       Map<String, Double> baseSectors,
       Map<String, Double> compareSectors) {
@@ -212,6 +262,17 @@ public class YearComparisonWebDisplay {
         + "</div></div>";
   }
 
+  /**
+   * Builds HTML for ESG score comparison between two years.
+   *
+   * @param baseYear Base year budget data
+   * @param compareYear Comparison year budget data
+   * @param baseTotal Total budget for base year
+   * @param compareTotal Total budget for comparison year
+   * @param baseYearStr Base year label
+   * @param compareYearStr Comparison year label
+   * @return HTML string containing ESG comparison analysis
+   */
   private String buildEsgComparison(
       EnvYear baseYear,
       EnvYear compareYear,
@@ -289,10 +350,29 @@ public class YearComparisonWebDisplay {
     return html.toString();
   }
 
+  /**
+   * Builds an ESG score display box with optional message.
+   *
+   * @param label Display label for the score box
+   * @param value The score value to display
+   * @param bgColor Background color CSS value
+   * @param borderColor Border color CSS value
+   * @param message Optional message to display below score (can be null)
+   * @return HTML string containing the formatted score box
+   */
   private String buildEsgScoreBox(String label, double value, String bgColor, String borderColor) {
     return buildEsgScoreBox(label, value, bgColor, borderColor, null);
   }
 
+  /**
+   * Builds an ESG score display box without additional message.
+   *
+   * @param label Display label for the score box
+   * @param value The score value to display
+   * @param bgColor Background color CSS value
+   * @param borderColor Border color CSS value
+   * @return HTML string containing the formatted score box
+   */
   private String buildEsgScoreBox(
       String label,
       double value,
@@ -332,6 +412,17 @@ public class YearComparisonWebDisplay {
     return html.toString();
   }
 
+  /**
+   * Builds HTML row showing ESG category score changes.
+   *
+   * <p>Creates a row displaying before/after scores for a single ESG category
+   * (E, S, or G) with color-coded difference indicator.</p>
+   *
+   * @param label Category label (e.g., "Environmental (E)")
+   * @param baseScore Score in base year
+   * @param compareScore Score in comparison year
+   * @return HTML string containing the formatted category row
+   */
   private String buildEsgCategoryRow(String label, double baseScore, double compareScore) {
     double diff = compareScore - baseScore;
     String[] diffInfo = getDiffInfo(diff);
@@ -371,6 +462,16 @@ public class YearComparisonWebDisplay {
         + "</div></div>";
   }
 
+  /**
+   * Determines display information for a score difference.
+   *
+   * <p>Returns an array containing CSS class name and arrow symbol based on
+   * whether the difference is positive, negative, or neutral.</p>
+   *
+   * @param diff The score difference value
+   * @return String array: [0] = class ("positive"/"negative"/"neutral"),
+   *         [1] = arrow symbol ("↑"/"↓"/"→")
+   */
   private String[] getDiffInfo(double diff) {
     return new String[]{
       diff > 0 ? "positive" : (diff < 0 ? "negative" : "neutral"),

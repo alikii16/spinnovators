@@ -15,12 +15,19 @@ import gr.det.spinnovators.printer.EsgPrinter;
 /**
  * Analyzes and compares budget data before and after changes.
  *
- * <p>Provides comprehensive comparison including:
- * - Sector-by-sector breakdown
- * - Percentage changes
- * - Visual pie charts
- * - ESG impact analysis
- * - Recommendations based on changes
+ * <p>This service provides comprehensive comparison including:
+ * <ul>
+ *   <li>Sector-by-sector breakdown with percentage changes</li>
+ *   <li>Top changes analysis (biggest increases and decreases)</li>
+ *   <li>ESG (Environmental, Social, Governance) impact analysis</li>
+ *   <li>Visual pie charts</li>
+ *   <li>Budget balance verification</li>
+ *   <li>Strategic recommendations based on changes</li>
+ * </ul>
+ * </p>
+ *
+ * <p>The comparison is displayed in a formatted console report with
+ * visual indicators (arrows, percentages) and structured sections.</p>
  *
  * @author Spinnovators Team
  * @version 1.0
@@ -32,9 +39,11 @@ public class InitialBudgetComparison {
   private final EsgPrinter esgPrinter;
 
   /**
-   * Constructs a budget comparison analyzer.
+   * Constructs a budget comparison analyzer with the specified translator.
    *
-   * @param translator Translator for Greek text
+   * <p>Initializes the ESG calculator and printer for sustainability analysis.</p>
+   *
+   * @param translator the translator service for converting keys to Greek text
    */
   public InitialBudgetComparison(EnvBudgetTranslator translator) {
     this.translator = translator;
@@ -61,14 +70,14 @@ public class InitialBudgetComparison {
     // 2. Side-by-side sector comparison
     printSectorComparison(originalTotals, modifiedTotals, totalBudget);
 
-    // 3. Pie charts (ASCII)
-    printPieChartComparison(originalTotals, modifiedTotals, totalBudget);
-
-    // 4. Top changes analysis
+    // 3. Top changes analysis
     printTopChanges(originalTotals, modifiedTotals);
 
-    // 5. ESG comparison
+    // 4. ESG comparison
     printEsgComparison(originalYear, modifiedYear, totalBudget);
+
+    // 5. Pie charts (ASCII)
+    printPieChartComparison(originalTotals, modifiedTotals, totalBudget);
 
     // 6. Conclusions and recommendations
     printConclusions(originalTotals, modifiedTotals, totalBudget,
@@ -78,10 +87,14 @@ public class InitialBudgetComparison {
   }
 
   /**
-   * Calculates total budget amount for each sector.
+   * Calculates the total budget amount for each sector.
    *
-   * @param year The budget year to analyze
-   * @return Map of sector keys to total amounts
+   * <p>This private helper method traverses the hierarchical budget structure
+   * (Sector → Unit → Entry) and sums all entry amounts within each sector.
+   * Results are stored in a LinkedHashMap to preserve insertion order.</p>
+   *
+   * @param year the budget year to analyze
+   * @return a map of sector JSON keys to their total budget amounts
    */
   private Map<String, Double> calculateSectorTotals(EnvYear year) {
     Map<String, Double> totals = new LinkedHashMap<>();
@@ -102,9 +115,12 @@ public class InitialBudgetComparison {
   }
 
   /**
-   * Prints the comparison header.
+   * Prints a formatted comparison header with the budget year.
    *
-   * @param year The budget year
+   * <p>This private helper method displays a decorative box header
+   * using Unicode box-drawing characters.</p>
+   *
+   * @param year the fiscal year being compared
    */
   private void printComparisonHeader(String year) {
     System.out.println("%n");
@@ -118,11 +134,22 @@ public class InitialBudgetComparison {
   }
 
   /**
-   * Prints side-by-side sector comparison.
+   * Prints a side-by-side comparison table of all sectors.
    *
-   * @param original Original sector totals
-   * @param modified Modified sector totals
-   * @param totalBudget Total ministry budget
+   * <p>This private helper method displays a formatted table showing:
+   * <ul>
+   *   <li>Sector name (translated to Greek)</li>
+   *   <li>Percentage of total budget before changes</li>
+   *   <li>Percentage of total budget after changes</li>
+   *   <li>Percentage change with directional arrow (⬆⬇→)</li>
+   * </ul>
+   * </p>
+   *
+   * <p>Arrows indicate: ⬆ increase, ⬇ decrease, → no change.</p>
+   *
+   * @param original the map of original sector totals
+   * @param modified the map of modified sector totals
+   * @param totalBudget the total ministry budget for percentage calculations
    */
   private void printSectorComparison(Map<String, Double> original,
                                      Map<String, Double> modified,
@@ -249,10 +276,21 @@ public class InitialBudgetComparison {
   }
 
   /**
-   * Prints top changes (biggest increases/decreases).
+   * Prints analysis of the top changes (biggest increases and decreases).
    *
-   * @param original Original sector totals
-   * @param modified Modified sector totals
+   * <p>This private helper method:
+   * <ol>
+   *   <li>Calculates absolute and percentage changes for all sectors</li>
+   *   <li>Sorts sectors by absolute change magnitude</li>
+   *   <li>Displays up to 3 biggest increases</li>
+   *   <li>Displays up to 3 biggest decreases</li>
+   * </ol>
+   * </p>
+   *
+   * <p>If no increases or decreases exist, appropriate messages are displayed.</p>
+   *
+   * @param original the map of original sector totals
+   * @param modified the map of modified sector totals
    */
   private void printTopChanges(Map<String, Double> original,
                                Map<String, Double> modified) {
@@ -313,11 +351,21 @@ public class InitialBudgetComparison {
   }
 
   /**
-   * Prints ESG comparison.
+   * Prints ESG (Environmental, Social, Governance) score comparison.
    *
-   * @param original Original budget year
-   * @param modified Modified budget year
-   * @param totalBudget Total ministry budget
+   * <p>This private helper method:
+   * <ul>
+   *   <li>Calculates ESG reports for both original and modified budgets</li>
+   *   <li>Displays the comparison using the EsgPrinter</li>
+   * </ul>
+   * </p>
+   *
+   * <p>The comparison shows how budget changes affect sustainability scores
+   * in each ESG category and overall.</p>
+   *
+   * @param original the original budget year
+   * @param modified the modified budget year
+   * @param totalBudget the total ministry budget
    */
   private void printEsgComparison(EnvYear original, EnvYear modified,
                                  double totalBudget) {
@@ -333,13 +381,25 @@ public class InitialBudgetComparison {
   }
 
   /**
-   * Prints conclusions and recommendations.
+   * Prints conclusions, recommendations, and overall assessment.
    *
-   * @param original Original sector totals
-   * @param modified Modified sector totals
-   * @param totalBudget Total ministry budget
-   * @param originalYear Original budget year
-   * @param modifiedYear Modified budget year
+   * <p>This private helper method generates a comprehensive analysis including:
+   * <ul>
+   *   <li>Budget balance verification</li>
+   *   <li>Change focus analysis (which sectors changed most)</li>
+   *   <li>ESG-based recommendations</li>
+   *   <li>Overall assessment based on ESG scores</li>
+   * </ul>
+   * </p>
+   *
+   * <p>Recommendations are tailored based on ESG scores and help guide
+   * future budget decisions toward sustainability goals.</p>
+   *
+   * @param original the map of original sector totals
+   * @param modified the map of modified sector totals
+   * @param totalBudget the total ministry budget
+   * @param originalYear the original budget year
+   * @param modifiedYear the modified budget year
    */
   private void printConclusions(Map<String, Double> original,
                                Map<String, Double> modified,
@@ -452,7 +512,10 @@ public class InitialBudgetComparison {
   }
 
   /**
-   * Prints the comparison footer.
+   * Prints a formatted comparison footer.
+   *
+   * <p>This private helper method displays a decorative box footer
+   * using Unicode box-drawing characters to mark the end of the comparison.</p>
    */
   private void printComparisonFooter() {
     System.out.println("╔════════════════════════════════════════════════════════════════════╗");
@@ -464,11 +527,15 @@ public class InitialBudgetComparison {
   }
 
   /**
-   * Truncates a string to a maximum length.
+   * Truncates a string to a maximum length with ellipsis if needed.
    *
-   * @param str String to truncate
-   * @param maxLength Maximum length
-   * @return Truncated string with "..." suffix if needed
+   * <p>This private helper method ensures that long sector names fit
+   * within the formatted table columns. If the string exceeds the maximum
+   * length, it is cut and "..." is appended.</p>
+   *
+   * @param str the string to potentially truncate
+   * @param maxLength the maximum allowed length including the ellipsis
+   * @return the truncated string with "..." suffix if needed, or the original string
    */
   private String truncate(String str, int maxLength) {
     if (str.length() <= maxLength) {
@@ -478,7 +545,11 @@ public class InitialBudgetComparison {
   }
 
   /**
-   * Helper class to store sector change information.
+   * Constructs a SectorChange record.
+   *
+   * @param key the sector's JSON key
+   * @param absChange the absolute change in euros
+   * @param pctChange the percentage change
    */
   private static class SectorChange {
     String sectorKey;

@@ -4,16 +4,44 @@ import gr.det.spinnovators.envdatamodel.EsgCategory;
 
 /**
  * Service for validating budget changes with Smart ESG Logic.
- * Enforces policies that naturally steer the budget towards higher ESG scores.
+ * Enforces sustainability-oriented policies that naturally steer the budget
+ * towards higher ESG (Environmental, Social, Governance) scores.
+ *
+ * <p>This validator implements a dual-tier warning system:
+ * <ul>
+ *   <li><b>Yellow Card</b>: Generic warnings for extreme deviations (over 30%)</li>
+ *   <li><b>Red Card</b>: Category-specific restrictions based on ESG principles</li>
+ * </ul>
+ * </p>
+ *
+ * <p>The ESG-based validation rules are:
+ * <ul>
+ *   <li><b>Environmental (E)</b>: Protects green investments, blocks cuts over 5%</li>
+ *   <li><b>Social (S)</b>: Protects personnel welfare, blocks cuts over 10%</li>
+ *   <li><b>Governance (G)</b>: Prevents bureaucracy expansion, blocks increases over 10%</li>
+ *   <li><b>Neutral</b>: Standard 30% deviation limit applies</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class BudgetValidator {
 
-  // Standard threshold for generic warnings (Yellow Card)
+  /** Standard threshold percentage for generic warnings (Yellow Card). */
   private static final double STANDARD_LIMIT = 30.0;
   private final EsgClassifier classifier;
 
   /**
-   * Possible validation outcomes including specific ESG warnings.
+   * Enumeration of possible validation outcomes including specific ESG warnings.
+   *
+   * <p>The outcomes are categorized as:
+   * <ul>
+   *   <li>Basic validations: OK, NEGATIVE_VALUE, EXCEEDS_TOTAL_BUDGET</li>
+   *   <li>Yellow Card: EXTREME_DEVIATION (generic high deviation warning)</li>
+   *   <li>Red Cards: ESG_ENV_PROTECTION, ESG_GOV_RESTRICTION, ESG_SOCIAL_PROTECTION</li>
+   * </ul>
+   * </p>
    */
   public enum ValidationResult {
     OK,
@@ -25,13 +53,19 @@ public class BudgetValidator {
     ESG_SOCIAL_PROTECTION   // Red Card: Preventing cuts to social salaries/benefits
   }
 
+  /**
+   * Constructs a BudgetValidator with an initialized ESG classifier.
+   *
+   * <p>The classifier is used to categorize budget entries into
+   * Environmental, Social, Governance, or Neutral categories.</p>
+   */
   public BudgetValidator() {
     this.classifier = new EsgClassifier();
   }
 
   /**
    * Validates the proposed budget value considering ESG rules.
-
+   *
    * @param totalBudget The max budget cap.
    * @param oldValue The current amount.
    * @param newValue The new amount proposed.
@@ -39,9 +73,9 @@ public class BudgetValidator {
    * @param entryKey The entry ID (needed for classification).
    * @return The validation result.
    */
-  public ValidationResult validate(double totalBudget, double oldValue, double newValue, 
+  public ValidationResult validate(double totalBudget, double oldValue, double newValue,
                                    String sectorKey, String entryKey) {
-    
+
     // 1. Basic Checks
     if (newValue < 0) {
       return ValidationResult.NEGATIVE_VALUE;
@@ -80,7 +114,7 @@ public class BudgetValidator {
           return ValidationResult.ESG_SOCIAL_PROTECTION;
         }
         break;
-        
+
       default:
         break;
     }
@@ -94,7 +128,21 @@ public class BudgetValidator {
   }
 
   /**
-   * Helper to calculate percentage deviation.
+   * Calculates the percentage deviation between old and new budget values.
+   *
+   * <p>This helper method computes the absolute percentage change.
+   * Special handling is provided for the edge case where the old value is zero:
+   * <ul>
+   *   <li>If oldValue is 0 and newValue is positive, returns 100%</li>
+   *   <li>If both are 0, returns 0%</li>
+   * </ul>
+   * </p>
+   *
+   * <p>Formula: |newValue - oldValue| / oldValue × 100</p>
+   *
+   * @param oldValue the original budget amount
+   * @param newValue the proposed new budget amount
+   * @return the absolute percentage deviation between the two values
    */
   public double calculateDeviationPercentage(double oldValue, double newValue) {
     if (oldValue == 0) {

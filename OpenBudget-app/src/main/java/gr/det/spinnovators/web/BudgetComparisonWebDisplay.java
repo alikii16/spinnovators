@@ -1,26 +1,45 @@
 package gr.det.spinnovators.web;
 
-import gr.det.spinnovators.envdatamodel.EnvEntry;
-import gr.det.spinnovators.envdatamodel.EnvSector;
-import gr.det.spinnovators.envdatamodel.EnvUnit;
-import gr.det.spinnovators.envdatamodel.EnvYear;
-import gr.det.spinnovators.service.EnvBudgetTranslator;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import gr.det.spinnovators.envdatamodel.EnvEntry;
+import gr.det.spinnovators.envdatamodel.EnvSector;
+import gr.det.spinnovators.envdatamodel.EnvUnit;
+import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.service.EnvBudgetTranslator;
+
 /**
  * Handles the generation of budget comparison content for the web interface.
  *
  * <p>This class compares original and modified budgets and formats them into HTML fragments
- * to be displayed in the web application's comparison page.
+ * to be displayed in the web application's comparison page. It generates comprehensive
+ * comparison visualizations including tables, bar charts, top changes analysis, and conclusions.</p>
+ *
+ * <p>The comparison content includes:
+ * <ul>
+ *   <li>Sector-by-sector comparison tables with percentage changes</li>
+ *   <li>Side-by-side bar charts showing budget distribution</li>
+ *   <li>Analysis of top increases and decreases</li>
+ *   <li>Conclusions about budget balance and focus areas</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class BudgetComparisonWebDisplay {
   private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
   private final EnvBudgetTranslator translator;
 
+  /**
+   * Constructs a new BudgetComparisonWebDisplay with the specified translator.
+   *
+   * @param translator The translator used to convert category keys to Greek display names
+   */
   public BudgetComparisonWebDisplay(EnvBudgetTranslator translator) {
     this.translator = translator;
   }
@@ -76,7 +95,15 @@ public class BudgetComparisonWebDisplay {
   }
 
   /**
-   * Calculates total budget amount for each sector.
+   * Calculates total budget amount for each sector in a given year.
+   *
+   * <p>This method iterates through all sectors, units, and entries to sum up
+   * the total budget allocated to each sector. It handles null values gracefully
+   * and returns an ordered map preserving the sector order.</p>
+   *
+   * @param year The budget year to calculate sector totals for
+   * @return LinkedHashMap mapping sector keys to their total budget amounts,
+   *         or empty map if year is null
    */
   private Map<String, Double> calculateSectorTotals(EnvYear year) {
     Map<String, Double> totals = new LinkedHashMap<>();
@@ -111,7 +138,17 @@ public class BudgetComparisonWebDisplay {
   }
 
   /**
-   * Builds HTML table for sector comparison.
+   * Builds HTML table for sector-by-sector budget comparison.
+   *
+   * <p>Creates a detailed comparison table showing original vs modified amounts
+   * for each sector, including absolute and percentage changes. The table uses
+   * color coding to indicate increases (green) and decreases (red).</p>
+   *
+   * @param original Map of original sector totals
+   * @param modified Map of modified sector totals
+   * @param originalTotalBudget Total original budget for percentage calculations
+   * @param modifiedTotalBudget Total modified budget for percentage calculations
+   * @return HTML string containing the formatted comparison table
    */
   private String buildSectorComparisonTable(
       Map<String, Double> original,
@@ -218,7 +255,17 @@ public class BudgetComparisonWebDisplay {
   }
 
   /**
-   * Builds side-by-side bar charts for before/after comparison.
+   * Builds side-by-side bar charts for before/after budget comparison.
+   *
+   * <p>Generates two horizontal bar charts showing budget distribution across
+   * sectors before and after changes. Each sector is assigned a distinct color
+   * for visual clarity.</p>
+   *
+   * @param original Map of original sector totals
+   * @param modified Map of modified sector totals
+   * @param originalTotalBudget Total original budget for percentage calculations
+   * @param modifiedTotalBudget Total modified budget for percentage calculations
+   * @return HTML string containing the side-by-side bar charts
    */
   private String buildBarChartsComparison(
       Map<String, Double> original,
@@ -268,7 +315,14 @@ public class BudgetComparisonWebDisplay {
   }
 
   /**
-   * Builds HTML for top changes section.
+   * Builds HTML for the top changes section showing largest increases and decreases.
+   *
+   * <p>Analyzes all sector changes and presents the top 3 increases and top 3
+   * decreases in separate panels. Changes are sorted by absolute magnitude.</p>
+   *
+   * @param original Map of original sector totals
+   * @param modified Map of modified sector totals
+   * @return HTML string containing the top changes analysis
    */
   private String buildTopChanges(Map<String, Double> original, Map<String, Double> modified) {
     StringBuilder html = new StringBuilder();
@@ -375,7 +429,20 @@ public class BudgetComparisonWebDisplay {
   }
 
   /**
-   * Builds HTML for conclusions section.
+   * Builds HTML for the conclusions section summarizing budget changes.
+   *
+   * <p>Provides a summary analysis including:
+   * <ul>
+   *   <li>Budget balance status (balanced or needs adjustment)</li>
+   *   <li>Main focus areas (sectors with largest increases)</li>
+   *   <li>Count of sectors with increases and decreases</li>
+   * </ul>
+   * </p>
+   *
+   * @param original Map of original sector totals
+   * @param modified Map of modified sector totals
+   * @param totalBudget Total ministry budget
+   * @return HTML string containing the conclusions section
    */
   private String buildConclusions(
       Map<String, Double> original,
@@ -480,6 +547,17 @@ public class BudgetComparisonWebDisplay {
     return html.toString();
   }
 
+  /**
+   * Calculates adjusted percentages that sum to exactly 100%.
+   *
+   * <p>Computes percentage of total budget for each sector and applies rounding
+   * adjustment to ensure the sum equals 100.0%. The adjustment is applied to
+   * the sector with the largest amount to minimize distortion.</p>
+   *
+   * @param totals Map of sector totals to convert to percentages
+   * @param totalBudget Total budget for percentage calculations
+   * @return Map of sector keys to their adjusted percentage values
+   */
   private Map<String, Double> calculateAdjustedPercentages(
       Map<String, Double> totals,
       double totalBudget
@@ -515,6 +593,16 @@ public class BudgetComparisonWebDisplay {
     return percentages;
   }
 
+  /**
+   * Formats a percentage value for display with appropriate precision.
+   *
+   * <p>Uses integer format (0%) for whole numbers and one decimal place (0.0%)
+   * for fractional percentages to avoid unnecessary precision.</p>
+   *
+   * @param percent The percentage value to format
+   * @param color CSS color code for the formatted text
+   * @return HTML string with formatted percentage in specified color
+   */
   private String formatPercent(double percent, String color) {
     String format = Math.abs(percent - Math.round(percent)) < 0.01 ? "%.0f%%" : "%.1f%%";
     return String.format(
@@ -526,12 +614,34 @@ public class BudgetComparisonWebDisplay {
     percent
 );
   }
+
+  /**
+   * Formats a percentage change with appropriate sign and precision.
+   *
+   * <p>Always includes the sign (+/-) to indicate direction of change.
+   * Uses integer format for whole numbers, one decimal for fractions.</p>
+   *
+   * @param change The percentage change value to format
+   * @return Formatted percentage change string with sign (e.g., "+5.2%" or "-3%")
+   */
   private String formatPercentChange(double change) {
-    return Math.abs(change - Math.round(change)) < 0.01 
+    return Math.abs(change - Math.round(change)) < 0.01
         ? String.format(HELLENIC_LOCALE, "%+.0f%%", change)
         : String.format(HELLENIC_LOCALE, "%+.1f%%", change);
   }
 
+  /**
+   * Builds a single bar chart showing budget distribution across sectors.
+   *
+   * <p>Creates horizontal bars for each sector with width proportional to
+   * their budget percentage. Each sector uses a distinct color from the
+   * provided color array.</p>
+   *
+   * @param totals Map of sector totals to visualize
+   * @param totalBudget Total budget for percentage calculations
+   * @param colors Array of CSS color codes to use for sectors
+   * @return HTML string containing the bar chart visualization
+   */
   private String buildBarChartSide(
       Map<String, Double> totals,
       double totalBudget,
@@ -561,7 +671,7 @@ public class BudgetComparisonWebDisplay {
           + "%.1f%%</span>",
           percent
       )
-      );     
+      );
       html.append("</div>");
       html.append(
           "<div style='background: #e8e8e8; border-radius: 4px; "
@@ -581,6 +691,12 @@ public class BudgetComparisonWebDisplay {
     return html.toString();
   }
 
+  /**
+   * Internal class representing a change in a sector's budget.
+   *
+   * <p>Stores both absolute and percentage change values for sorting
+   * and display purposes in the top changes analysis.</p>
+   */
   private static class SectorChange {
     String sectorKey;
     double absoluteChange;

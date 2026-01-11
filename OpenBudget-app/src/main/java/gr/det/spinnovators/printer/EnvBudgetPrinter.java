@@ -1,18 +1,35 @@
 package gr.det.spinnovators.printer;
 
 
+import java.util.Locale;
+
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
-import java.util.Locale;
 
 /**
  * Responsible for formatting and printing the detailed environmental budget to the console.
- * This class processes the hierarchical structure of the budget (Sector > Unit > Entry)
- * and displays localized financial data for a specific year.
+ * This class processes the hierarchical structure of the budget (Year → Sector → Unit → Entry)
+ * and displays localized financial data for a specific year in a structured report format.
+ *
+ * <p>The printer generates a comprehensive report that includes:
+ * <ul>
+ *   <li>Ministry header with year identification</li>
+ *   <li>Policy sectors with visual separators</li>
+ *   <li>Administrative units within each sector</li>
+ *   <li>Individual budget entries with amounts</li>
+ *   <li>Running totals at unit and sector levels</li>
+ * </ul>
+ * </p>
+ *
+ * <p>All amounts are formatted using the Greek locale for proper number formatting
+ * with thousand separators and decimal notation.</p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class EnvBudgetPrinter {
 
@@ -33,10 +50,24 @@ public class EnvBudgetPrinter {
 
   /**
    * Generates and prints a structured report of the budget for the specified year.
-   * The report includes breakdown by policy sectors, administrative units, 
-   * and individual expense entries, including totals for each level.
    *
-   * @param year The fiscal year to be printed.
+   * <p>The report includes a complete breakdown by:
+   * <ul>
+   *   <li>Policy sectors (e.g., energy management, environmental protection)</li>
+   *   <li>Administrative units within each sector</li>
+   *   <li>Individual expense entries with translated category names</li>
+   *   <li>Subtotals for each unit</li>
+   *   <li>Total amounts for each sector</li>
+   * </ul>
+   * </p>
+   *
+   * <p>If no data exists for the requested year, an error message is displayed
+   * instead of the report.</p>
+   *
+   * <p>All monetary values are formatted with the Greek locale using thousand
+   * separators and two decimal places.</p>
+   *
+   * @param year the fiscal year to be printed (e.g., "2025", "2026")
    */
   public void printYearlyBudget(String year) {
     EnvYear yearlyBudget = data.getBudgetForYear(year);
