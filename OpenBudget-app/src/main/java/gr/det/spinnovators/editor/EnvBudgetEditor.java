@@ -17,7 +17,6 @@ public class EnvBudgetEditor {
 
   private final EnvBudgetData data;
   private final EnvBudgetTranslator translator;
-  private final Scanner scanner;
 
   /**
  * Constructs an EnvBudgetEditor with the necessary data sources and translators.
@@ -27,10 +26,9 @@ public class EnvBudgetEditor {
  * @param translator The service used to translate or format budget categories.
  */
 
-  public EnvBudgetEditor(EnvBudgetData data, EnvBudgetTranslator translator, Scanner scanner) {
+  public EnvBudgetEditor(EnvBudgetData data, EnvBudgetTranslator translator) {
     this.data = data;
     this.translator = translator;
-    this.scanner = scanner;
   }
 
   /**
@@ -38,8 +36,8 @@ public class EnvBudgetEditor {
    * The method prompts the user for confirmation, validates the selected fiscal year,
    * triggers the editing logic, and finally displays the updated results.
    */
-  public void startEditingSession() {
-    System.out.println("%n------------------------------------------------");
+  public void startEditingSession(Scanner scanner) {
+    System.out.printf("%n------------------------------------------------%n");
     System.out.print("Θέλετε να προχωρήσετε σε τροποποίηση του προϋπολογισμού; (ΝΑΙ/ΟΧΙ): ");
     if (!scanner.hasNextLine()) {
       return;
@@ -65,7 +63,7 @@ public class EnvBudgetEditor {
       return;
     }
 
-    EditsApplier applier = new EditsApplier(translator, this.scanner);
+    EditsApplier applier = new EditsApplier(translator, scanner);
     applier.applyEditsToYear(selectedYear);
   }
 }
