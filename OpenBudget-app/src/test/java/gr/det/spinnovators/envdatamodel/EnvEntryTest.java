@@ -1,15 +1,24 @@
 package gr.det.spinnovators.envdatamodel;
 
-
-
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for EnvEntry class.
- * These tests verify the getter, setter, and toString methods.
+ * Unit tests for the {@link EnvEntry} class.
+ *
+ * <p>This test class verifies the basic functionality of budget entries,
+ * including getter and setter methods and the string representation format.</p>
+ *
+ * <p>The test suite covers:
+ * <ul>
+ *   <li>Getter methods (getJsonKey, getAmount)</li>
+ *   <li>Setter method (setAmount) for updating budget values</li>
+ *   <li>String representation (toString) formatting</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class EnvEntryTest {
 

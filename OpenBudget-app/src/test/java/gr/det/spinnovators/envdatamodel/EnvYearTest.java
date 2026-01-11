@@ -1,16 +1,30 @@
 package gr.det.spinnovators.envdatamodel;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import java.util.Collections;
 import java.util.List;
 
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for EnvYear class.
+ * Unit tests for the {@link EnvYear} class.
+ *
+ * <p>This test class verifies the getter methods and the findEntry
+ * helper method, ensuring correct retrieval of year data and nested
+ * budget entries across the sector-unit-entry hierarchy.</p>
+ *
+ * <p>The test suite covers:
+ * <ul>
+ *   <li>Basic getter methods (getYear, getSectors)</li>
+ *   <li>Successful entry lookup through the three-level hierarchy</li>
+ *   <li>Null handling for non-existent sectors, units, and entries</li>
+ *   <li>Edge cases with null keys at each level</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class EnvYearTest {
 

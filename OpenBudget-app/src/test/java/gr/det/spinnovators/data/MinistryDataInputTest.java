@@ -1,16 +1,38 @@
 package gr.det.spinnovators.data;
 
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
+/**
+ * Unit tests for the {@link MinistryDataInput} class.
+ *
+ * <p>This test class verifies the integrity and correctness of ministry
+ * budget data across multiple fiscal years (2023-2026), ensuring that
+ * all data arrays are properly populated and contain valid values.</p>
+ *
+ * <p>The test suite covers:
+ * <ul>
+ *   <li>Data consistency for year 2026 (names, amounts, sizes)</li>
+ *   <li>Data consistency for year 2025 (names, amounts, sizes)</li>
+ *   <li>Data consistency for year 2024 (names, amounts, sizes)</li>
+ *   <li>Data consistency for year 2023 (names, amounts, sizes)</li>
+ *   <li>Validation of specific ministry entries at known positions</li>
+ *   <li>Verification that all arrays have the expected length</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
+ */
 public class MinistryDataInputTest {
 
   private static final int MINISTRIES_COUNT_COMMON = 30;
   private static final int MINISTRIES_COUNT_2023 = 29;
 
+  // Verifies the integrity of 2026 ministry data
   @Test
   public void testData2026() {
     MinistryDataInput data = new MinistryDataInput();
@@ -28,6 +50,7 @@ public class MinistryDataInputTest {
     assertTrue(data.getBudgetAmount26()[last] > 0, "last 2026 amount should be > 0");
   }
 
+  // Verifies the integrity of 2025 ministry data
   @Test
   public void testData2025() {
     MinistryDataInput data = new MinistryDataInput();
@@ -45,6 +68,7 @@ public class MinistryDataInputTest {
     assertTrue(data.getBudgetAmount25()[last] > 0, "last 2025 amount should be > 0");
   }
 
+  // Verifies the integrity of 2024 ministry data
   @Test
   public void testData2024() {
     MinistryDataInput data = new MinistryDataInput();
@@ -62,6 +86,7 @@ public class MinistryDataInputTest {
     assertTrue(data.getBudgetAmount24()[last] > 0, "last 2024 amount should be > 0");
   }
 
+  // Verifies the integrity of 2023 ministry data
   @Test
   public void testData2023() {
     MinistryDataInput data = new MinistryDataInput();
