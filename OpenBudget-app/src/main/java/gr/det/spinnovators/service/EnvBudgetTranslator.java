@@ -5,12 +5,20 @@ import java.util.ResourceBundle;
 
 /**
  * Provides translation services for budget categories and keys.
- * 
- * <p>This class is responsible for converting English-based JSON keys into their 
- * official Greek descriptions by reading from a properties resource file. 
  *
- * <p>It ensures that the user interface displays readable Greek terminology 
- * instead of technical identifiers.</p>
+ * <p>This class is responsible for converting English-based JSON keys into their
+ * official Greek descriptions by reading from a properties resource file
+ * (env_budget_translations.properties).</p>
+ *
+ * <p>It ensures that the user interface displays readable Greek terminology
+ * instead of technical identifiers. For example, "personnel_costs" becomes
+ * "Δαπάνες Προσωπικού".</p>
+ *
+ * <p>If the properties file is missing or a key is not found, the class provides
+ * a fallback mechanism that formats the key into a readable string.</p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class EnvBudgetTranslator {
 
@@ -21,9 +29,14 @@ public class EnvBudgetTranslator {
 
   /**
    * Constructs an EnvBudgetTranslator and initializes the resource bundle.
-   * * <p>Attempts to load the 'env_budget_translations.properties' file from 
-   * the resources folder. If the file is missing, the bundle is set to null, 
+   *
+   * <p>Attempts to load the 'env_budget_translations.properties' file from
+   * the resources folder. If the file is missing, the bundle is set to null,
    * and the class provides a fallback display mechanism.</p>
+   *
+   * <p>The constructor uses silent failure handling to prevent application crashes
+   * if the resource file is unavailable, allowing the frontend to continue operating
+   * with fallback translations.</p>
    */
   public EnvBudgetTranslator() {
     try {
@@ -36,8 +49,8 @@ public class EnvBudgetTranslator {
 
   /**
    * Translates a technical JSON key into its Greek equivalent.
-   * * <p>Searches the localized resource bundle for the provided key. If the key 
-   * is null, empty, or not found in the bundle, it returns the key itself 
+   * * <p>Searches the localized resource bundle for the provided key. If the key
+   * is null, empty, or not found in the bundle, it returns the key itself
    * with underscores replaced by spaces as a fallback.</p>
    *
    * @param jsonKey The technical identifier string to be translated.

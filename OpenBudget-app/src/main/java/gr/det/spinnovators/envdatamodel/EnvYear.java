@@ -6,21 +6,40 @@ import java.util.List;
 
 /**
  * Represents the complete environmental budget data for a specific fiscal year.
- * 
- * <p>It serves as the top-level container in the data hierarchy, holding a list 
- * of policy sectors.
+ *
+ * <p>This class serves as the top-level container in the budget data hierarchy,
+ * holding a list of policy sectors ({@link EnvSector}) that collectively represent
+ * the entire environmental ministry budget for the year. It provides the entry point
+ * for all budget operations and data access.</p>
+ *
+ * <p>The complete data hierarchy is: <strong>EnvYear</strong> → EnvSector → EnvUnit → EnvEntry</p>
+ *
+ * <p>Key responsibilities:
+ * <ul>
+ *   <li>Store all sector-level budget data for the year</li>
+ *   <li>Provide navigation methods to locate specific entries</li>
+ *   <li>Serve as the root for budget calculations and modifications</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
+ * @see EnvSector
+ * @see EnvBudgetData
  */
-
 public class EnvYear {
 
   private final String year;
   private final List<EnvSector> sectors;
 
   /**
-   * Constructs an EnvYear instance.
+   * Constructs an EnvYear instance with the specified year and sectors.
    *
-   * @param year The fiscal year string (e.g., "2025").
-   * @param sectors A list of EnvSector objects associated with this year.
+   * <p>A defensive copy of the sectors list is created to prevent external modification.
+   * If a null list is provided, an empty list is initialized.</p>
+   *
+   * @param year the fiscal year string (e.g., "2025", "2026")
+   * @param sectors a list of EnvSector objects associated with this year
    */
   public EnvYear(String year, List<EnvSector> sectors) {
     this.year = year;
@@ -46,22 +65,30 @@ public class EnvYear {
   }
 
   /**
-   * Searches for a specific budget entry by traversing the data hierarchy,
-   * starting from the sector level down to the unit and finally to the entry.
-   * 
-   * <p>This method returns the matching EnvEntry object if found, or null if any part
-   * of the path is invalid.
+   * Searches for a specific budget entry by traversing the data hierarchy.
    *
-   * @param sectorKey The unique key of the sector.
-   * @param unitKey The unique key of the administrative unit.
-   * @param entryKey The unique key of the specific budget entry.
-   * @return The matching EnvEntry object, or null if any part of the path is invalid.
+   * <p>This method navigates through the three-level hierarchy:
+   * <ol>
+   *   <li>Locates the sector using the sectorKey</li>
+   *   <li>Locates the unit within that sector using the unitKey</li>
+   *   <li>Locates the entry within that unit using the entryKey</li>
+   * </ol>
+   * </p>
+   *
+   * <p>The method returns null if any part of the path is invalid, including
+   * when any of the provided keys are null, or when the sector, unit, or entry
+   * cannot be found at their respective levels.</p>
+   *
+   * @param sectorKey the unique key of the sector to search in
+   * @param unitKey the unique key of the administrative unit within the sector
+   * @param entryKey the unique key of the specific budget entry within the unit
+   * @return the matching EnvEntry object, or null if any part of the path is invalid
+   *         or if any of the parameters are null
    */
-  
   public EnvEntry findEntry(String sectorKey, String unitKey, String entryKey) {
     if (sectorKey == null || unitKey == null || entryKey == null) {
       return null;
-    } // Might cause NullPointerException
+    }
 
     // Finds the sector or returns null
     EnvSector sector = getSectorByKey(sectorKey);
@@ -75,16 +102,18 @@ public class EnvYear {
       return null;
     }
 
-    // Sector and unit were found successfully, returns final EnvEntry object (the entry)
+    // Sector and unit were found successfully, returns final EnvEntry object
     return unit.getEntryByKey(entryKey);
   }
 
-  // Helper method: Searches Sector
   /**
    * Internal helper method to locate a sector by its unique JSON key.
    *
-   * @param key The unique identifier for the sector.
-   * @return The matching EnvSector object, or null if not found.
+   * <p>This private method performs a linear search through all sectors
+   * in this year's budget to find a matching key.</p>
+   *
+   * @param key the unique identifier for the sector to find
+   * @return the matching EnvSector object, or null if not found
    */
   private EnvSector getSectorByKey(String key) {
     for (EnvSector sector : sectors) {
@@ -92,6 +121,6 @@ public class EnvYear {
         return sector;
       }
     }
-    return null; // No match found
+    return null;
   }
 }

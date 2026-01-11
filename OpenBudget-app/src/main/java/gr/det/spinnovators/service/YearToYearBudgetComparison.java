@@ -23,7 +23,6 @@ import gr.det.spinnovators.printer.EsgPrinter;
  * @author Spinnovators Team
  * @version 2.0
  */
-
 public class YearToYearBudgetComparison {
 
   private final EnvBudgetTranslator translator;

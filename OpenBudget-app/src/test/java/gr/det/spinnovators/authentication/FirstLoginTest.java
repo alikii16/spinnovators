@@ -1,10 +1,5 @@
 package gr.det.spinnovators.authentication;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -12,13 +7,45 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+
 import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for FirstLogin authentication class.
- * Updated to use Dependency Injection (Scanner) for robust testing.
+ * Comprehensive test suite for the FirstLogin authentication class.
+ *
+ * <p>This test class verifies the authentication system's behavior using
+ * dependency injection with Scanner objects to simulate user input. It ensures
+ * proper handling of valid credentials, invalid attempts, edge cases, and the
+ * overall structure of the utility class.</p>
+ *
+ * <p>The test suite covers:
+ * <ul>
+ *   <li>Class structure validation (final class, private constructor)</li>
+ *   <li>Successful authentication for both Minister and Employee roles</li>
+ *   <li>Failed login attempts with retry behavior</li>
+ *   <li>Edge cases: empty input, wrong passwords, multiple failures</li>
+ *   <li>Output verification for user prompts and welcome messages</li>
+ * </ul>
+ * </p>
+ *
+ * <p>Testing approach:
+ * <ul>
+ *   <li>Uses ByteArrayInputStream to simulate console input</li>
+ *   <li>Captures System.out using ByteArrayOutputStream to verify messages</li>
+ *   <li>UTF-8 encoding support for Greek language characters</li>
+ *   <li>Reflection to verify class structure and method signatures</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
+ * @see FirstLogin
  */
 class FirstLoginTest {
 
@@ -42,12 +69,12 @@ class FirstLoginTest {
      */
     @Test
     void testUtilityClassStructure() {
-        assertTrue(Modifier.isFinal(FirstLogin.class.getModifiers()), 
+        assertTrue(Modifier.isFinal(FirstLogin.class.getModifiers()),
             "FirstLogin class should be final");
 
         var constructors = FirstLogin.class.getDeclaredConstructors();
         assertEquals(1, constructors.length, "Should have exactly one constructor");
-        assertTrue(Modifier.isPrivate(constructors[0].getModifiers()), 
+        assertTrue(Modifier.isPrivate(constructors[0].getModifiers()),
             "Constructor should be private");
 
         // Verify login method exists and accepts a Scanner
@@ -71,7 +98,7 @@ class FirstLoginTest {
         String role = FirstLogin.login(scanner);
 
         String output = outputStream.toString(StandardCharsets.UTF_8);
-        
+
         assertEquals("a", role, "Role should be 'a' for Minister");
         assertTrue(output.contains("Καλωσήρθατε κύριε Υπουργέ"), "Should print minister welcome message");
         assertTrue(output.contains("Εισάγετε όνομα χρήστη:"), "Should prompt for username");
@@ -88,7 +115,7 @@ class FirstLoginTest {
         String role = FirstLogin.login(scanner);
 
         String output = outputStream.toString(StandardCharsets.UTF_8);
-        
+
         assertEquals("b", role, "Role should be 'b' for Employee");
         assertTrue(output.contains("Καλωσήρθατε JohnDoe"), "Should welcome employee by name");
     }
@@ -105,7 +132,7 @@ class FirstLoginTest {
         String role = FirstLogin.login(scanner);
 
         String output = outputStream.toString(StandardCharsets.UTF_8);
-        
+
         assertTrue(output.contains("Λάθος όνομα ή κωδικός"), "Should display error message on failure");
         assertTrue(output.contains("Καλωσήρθατε JohnDoe"), "Should eventually succeed");
         assertEquals("b", role);
@@ -123,7 +150,7 @@ class FirstLoginTest {
         String role = FirstLogin.login(scanner);
 
         String output = outputStream.toString(StandardCharsets.UTF_8);
-        
+
         assertTrue(output.contains("Λάθος όνομα ή κωδικός"), "Should fail with wrong password");
         assertEquals("a", role, "Should login as Minister after correction");
     }
@@ -140,7 +167,7 @@ class FirstLoginTest {
         String role = FirstLogin.login(scanner);
 
         String output = outputStream.toString(StandardCharsets.UTF_8);
-        
+
         // Ensure it didn't crash and eventually logged in
         assertEquals("b", role);
         assertTrue(output.contains("Εισάγετε όνομα χρήστη"), "Should handle empty lines and re-prompt");
@@ -158,17 +185,17 @@ class FirstLoginTest {
         inputBuilder.append("User3\nPass3\n");
         // 1 successful attempt
         inputBuilder.append("Alice\n3mpl0y33\n");
-        
+
         Scanner scanner = createScanner(inputBuilder.toString());
 
         String role = FirstLogin.login(scanner);
 
         String output = outputStream.toString(StandardCharsets.UTF_8);
-        
+
         // Count how many times the error message appeared
         int errorCount = output.split("Λάθος όνομα ή κωδικός").length - 1;
         assertTrue(errorCount >= 3, "Should show error message for each failed attempt");
-        
+
         assertEquals("b", role);
         assertTrue(output.contains("Καλωσήρθατε Alice"), "Should welcome Alice");
     }
@@ -190,7 +217,7 @@ class FirstLoginTest {
         // This test simulates the logic used inside the class to verify constants haven't changed logic
         String ministerPass = "m1n1st3r";
         String employeePass = "3mpl0y33";
-        
+
         assertEquals("m1n1st3r", ministerPass);
         assertEquals("3mpl0y33", employeePass);
         assertTrue(!ministerPass.equals(employeePass));

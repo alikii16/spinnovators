@@ -1,15 +1,29 @@
 package gr.det.spinnovators.web;
 
+import java.util.Locale;
+
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.service.EsgScoreCalculator;
-import java.util.Locale;
 
 /**
  * Handles the generation of ESG report components for the web interface.
  *
- * <p>This class calculates ESG metrics and formats them into HTML fragments
- * to be displayed in the web application's comparison dashboard.
+ * <p>This class calculates ESG (Environmental, Social, Governance) metrics
+ * and formats them into HTML fragments to be displayed in the web application's
+ * comparison dashboard. It provides before/after ESG score comparison and
+ * detailed category-level analysis.</p>
+ *
+ * <p>ESG scoring evaluates budget sustainability across three dimensions:
+ * <ul>
+ *   <li>Environmental (E): Climate action, resource management, pollution control</li>
+ *   <li>Social (S): Personnel welfare, public health, education, social services</li>
+ *   <li>Governance (G): Administrative efficiency, transparency, institutional capacity</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
  */
 public class EsgWebDisplay {
 
@@ -20,15 +34,24 @@ public class EsgWebDisplay {
     this.calculator = new EsgScoreCalculator();
   }
 
-  /**
-   * Generates only the content HTML for ESG comparison (without full page structure).
+   /**
+   * Generates the content HTML for ESG comparison without full page structure.
+   *
+   * <p>Creates a comprehensive ESG comparison showing:
+   * <ul>
+   *   <li>Overall ESG scores before and after changes</li>
+   *   <li>Score difference and its interpretation (improvement/decline)</li>
+   *   <li>Category-level breakdown (E, S, G)</li>
+   *   <li>Feedback message based on score change magnitude</li>
+   * </ul>
+   * </p>
    *
    * @param originalYear Original budget year (before changes)
    * @param modifiedYear Modified budget year (after changes)
-   * @param totalBudget Total ministry budget
-   * @return Content HTML for ESG comparison
+   * @param totalBudget Total ministry budget for score calculations
+   * @return Content HTML for ESG comparison as a formatted string
    */
-  public String generateEsgComparisonContent(EnvYear originalYear, 
+  public String generateEsgComparisonContent(EnvYear originalYear,
                                              EnvYear modifiedYear,
                                              double totalBudget) {
     EsgReport originalReport = calculator.calculateReport(originalYear, totalBudget);
@@ -37,21 +60,33 @@ public class EsgWebDisplay {
     return buildComparisonContent(originalReport, modifiedReport, originalYear.getYear());
   }
 
-  private String buildComparisonContent(EsgReport original, 
+   /**
+   * Builds the ESG comparison content with detailed analysis.
+   *
+   * <p>Generates HTML showing ESG score changes across all categories with
+   * color-coded indicators for positive (green), negative (red), or neutral
+   * (gray) changes. Includes interpretive feedback based on score magnitude.</p>
+   *
+   * @param original Original ESG report (before changes)
+   * @param modified Modified ESG report (after changes)
+   * @param year The budget year being analyzed
+   * @return Formatted HTML string with complete ESG comparison content
+   */
+  private String buildComparisonContent(EsgReport original,
                                        EsgReport modified,
                                        String year) {
     double scoreDiff = modified.getOverallScore() - original.getOverallScore();
     String message = scoreDiff > 0 ? "ΒΕΛΤΙΩΣΗ" :
         (scoreDiff < 0 ? "ΕΠΙΔΕΙΝΩΣΗ" : "ΚΑΜΙΑ ΑΛΛΑΓΗ");
-    
+
     double envDiff = modified.getEnvironmentalScore() - original.getEnvironmentalScore();
     double socDiff = modified.getSocialScore() - original.getSocialScore();
     double govDiff = modified.getGovernanceScore() - original.getGovernanceScore();
-    
+
     String envClass = envDiff > 0 ? "positive" : (envDiff < 0 ? "negative" : "neutral");
     String socClass = socDiff > 0 ? "positive" : (socDiff < 0 ? "negative" : "neutral");
     String govClass = govDiff > 0 ? "positive" : (govDiff < 0 ? "negative" : "neutral");
-    
+
     String feedbackMsg;
     if (scoreDiff > 2.0) {
       feedbackMsg = "Εξαιρετικά! Η αλλαγή βελτιώνει σημαντικά τη βιωσιμότητα!";
@@ -64,7 +99,7 @@ public class EsgWebDisplay {
     } else {
       feedbackMsg = "Η αλλαγή δεν επηρεάζει το ESG score.";
     }
-    
+
     return String.format(HELLENIC_LOCALE, """
             <h2 class='section-title'>ESG Αξιολόγηση - Έτος %s</h2>
             <p class='description'>Σύγκριση Πριν & Μετά τις Αλλαγές</p>
@@ -138,4 +173,3 @@ public class EsgWebDisplay {
     );
   }
 }
-

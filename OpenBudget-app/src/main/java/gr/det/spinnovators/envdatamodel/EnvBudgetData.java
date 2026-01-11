@@ -5,53 +5,77 @@ import java.util.Map;
 
 /**
  * Model class that stores all environmental budget data grouped by year.
- * This class acts as a data container, mapping fiscal years to their 
+ *
+ * <p>This class acts as a data container, mapping fiscal years to their
  * respective environmental budget details and total ministry allocations.
+ * It serves as the root data structure for the entire environmental budget
+ * system, providing access to both detailed budget breakdowns and high-level
+ * totals.</p>
+ *
+ * <p>The class provides immutable access to budget data through unmodifiable
+ * maps to ensure data integrity. While the maps themselves are unmodifiable,
+ * the underlying EnvYear objects contain mutable EnvEntry amounts to support
+ * budget editing operations.</p>
+ *
+ * <p>Data structure:
+ * <ul>
+ *   <li>dataByYear: Detailed hierarchical budget data per year</li>
+ *   <li>envMinistryTotalBudget: Total ministry budget amounts per year</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
+ * @see EnvYear
  */
-
 public class EnvBudgetData {
 
   private final Map<String, EnvYear> dataByYear;
 
   // Total budget per year (env_ministry_total_budget)
   private final Map<String, Double> envMinistryTotalBudget;
-  // Constructor
 
   /**
    * Constructs an EnvBudgetData instance with the specified budget mappings.
    *
-   * @param dataByYear A map containing detailed budget data per year.
-   * @param envMinistryTotalBudget A map containing the total budget amounts per year.
+   * <p>Defensive copies are created for both maps to prevent external modification.
+   * If null maps are provided, empty maps are initialized instead.</p>
+   *
+   * @param dataByYear a map containing detailed budget data per year,
+   *                   where keys are year strings (e.g., "2025") and values are EnvYear objects
+   * @param envMinistryTotalBudget a map containing the total budget amounts per year,
+   *                               where keys are year strings and values are total budget amounts
    */
-  
   public EnvBudgetData(Map<String, EnvYear> dataByYear,
                        Map<String, Double> envMinistryTotalBudget) {
-    this.dataByYear = (dataByYear != null) 
-        ? new java.util.HashMap<>(dataByYear) 
+    this.dataByYear = (dataByYear != null)
+        ? new java.util.HashMap<>(dataByYear)
         : new java.util.HashMap<>();
-    
-    this.envMinistryTotalBudget = (envMinistryTotalBudget != null) 
-        ? new java.util.HashMap<>(envMinistryTotalBudget) 
+
+    this.envMinistryTotalBudget = (envMinistryTotalBudget != null)
+        ? new java.util.HashMap<>(envMinistryTotalBudget)
         : new java.util.HashMap<>();
   }
-  
-  /**
-   *  Retrieves the detailed environmental budget for a specific year.
-   *
-   * @param year The fiscal year to search for (e.g., "2025").
-   * @return The EnvYear object containing the year's data, or null if not found.
-   */
 
+  /**
+   * Retrieves the detailed environmental budget for a specific year.
+   *
+   * @param year the fiscal year to search for (e.g., "2025")
+   * @return the EnvYear object containing the year's data, or null if not found
+   */
   public EnvYear getBudgetForYear(String year) {
     return dataByYear.get(year);
-  } // Returns EnvYear object for a specific year
+  }
 
   /**
    * Retrieves the map of total ministry budgets for all available years.
    *
-   * @return A map where keys are years and values are the total budget amounts.
+   * <p>The returned map is unmodifiable to preserve data integrity.</p>
+   *
+   * @return an unmodifiable map where keys are years (e.g., "2025")
+   *         and values are the total budget amounts for the environmental ministry
    */
   public Map<String, Double> getEnvMinistryTotalBudget() {
     return Collections.unmodifiableMap(envMinistryTotalBudget);
-  } // Getter for total budget per year
+  }
 }
