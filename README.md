@@ -390,7 +390,6 @@ Comprehensive unit tests organized by functionality:
 4. Multi-year budget tracking
 5. Data export capabilities
 6. Greek language support
-```
 
 ---
 
