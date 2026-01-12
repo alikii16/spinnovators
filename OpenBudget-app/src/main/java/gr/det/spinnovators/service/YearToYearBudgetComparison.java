@@ -83,9 +83,7 @@ public class YearToYearBudgetComparison {
       double pct = (val1 == 0) ? (val2 == 0 ? 0 : 100.0) : (diff / val1) * 100.0;
 
       String name = translator.translateCategory(sectorKey);
-      if (name.length() > 45) {
-        name = truncate(name, 42);
-      }
+      name = truncate(name, 45);
 
       System.out.printf(HELLENIC_LOCALE, "%-45s | %,12.0f | %,12.0f | %+,.0f | %+7.1f%%%n",
           name, val1, val2, diff, pct);

@@ -23,7 +23,7 @@ The system supports:
 ---
 
 ## Table of Contents
-- [Main Features](#main-features)
+- [Functionality](#functionality)
 - [Purpose](#purpose)
 - [Technical Architecture](#technical-architecture-and-components)
 - [Repository Structure](#repository-structure)
@@ -32,19 +32,23 @@ The system supports:
 - [Running the Application](#running-the-application)
 - [Usage Guide](#usage-guide)
 - [UML Diagram](#uml-diagram)
-- [Data Structures & Algorithms](#data-structures--algorithms)
+- [Data Structures & Algorithms](#data-structures-and-algorithms)
 - [Testing](#testing-and-code-coverage)
 - [Troubleshooting](#troubleshooting)
 - [System Capabilities and Limitations](#system-capabilities-and-limitations)
+- [Risks and Usage Warnings](#risks-and-usage-warnings)
+- [AI Assistance and Prompts](#ai-assistance-and-prompts)
 - [FAQ](#faq)
 - [Contributing](#contributing)
+- [Third-Party Code Licensing](#third-party-code-licensing)
 - [License](#license)
 - [Team](#team---spinnovators)
 
 ---
 
-## Main Features
+## Functionality
 
+**The OpenBudget system supports the following core functionalities:**
 ### 1. Budget Overview:
 Displays all main categories of the national budget (e.g. Education, Health, Defense, Infrastructure, etc.) for years 2023-2026.
 ### 2. Data Editing and Updates
@@ -1012,16 +1016,257 @@ mvn clean package -DskipTests
 
 ###  Known Limitations
 
+**Despite its rich functionality, the OpenBudget system has the following limitations:**
 | Limitation | Impact | Workaround |
 |------------|--------|-----------|
-| **No Persistence** | Changes lost on restart | Export to CSV before closing |
-| **Single Ministry Editing** | Only Environment Ministry editable | Full state budget view-only |
-| **Session Isolation** | No collaboration | Use export/import for team work |
-| **Budget Balance Required** | Cannot exit until balanced | Track balance carefully |
-| **Locale Dependency** | Greek-language UI only | Translations file extensible |
+| **No Persistence** | Budget changes are stored **in-memory only** and are lost after application shutdown | Export to CSV before closing |
+| **Single Ministry Editing** | Only **Environment and Energy Ministry** budget editing; other ministries are view-only | Full state budget view-only |
+| **Session Isolation** | No collaborative editing or real-time synchronization between users | Use export/import for team work |
+| **Budget Balance Required** | Budget editing requires strict balance equilibrium before exit | Track balance carefully |
+| **Locale Dependency** | The user interface is primarily localized in Greek | Translations file extensible |
 
 ---
 
+## Risks and Usage Warnings
+
+### Security Considerations
+
+---
+
+**Authentication**
+- The system uses hardcoded credentials for demonstration purposes only
+- Credentials are not encrypted in transmission
+- Warning: Never use this authentication system in production environments
+- Recommendation: Implement proper authentication (OAuth2, JWT) for real-world deployment
+
+**Data Security**
+- Budget data is stored unencrypted in JSON files
+- No audit logging of modifications
+- Session data stored in ThreadLocal without persistence
+- Risk: Data tampering without detection
+
+**Web Server**
+- Embedded HTTP server runs without HTTPS
+- No CORS protection
+- No input sanitization for XSS attacks
+- Warning: Suitable for local/educational use only
+
+### Data Integrity Warnings
+
+---
+
+**In-Memory Storage**
+- All changes are volatile and lost on application restart
+- No backup mechanism exists
+- Concurrent edits in CLI not supported
+- Risk: Data loss on crash or unexpected termination
+
+**Validation Limitations**
+- ESG rules are simplified models of real-world constraints
+- Percentage-based validations may not reflect actual policy requirements
+- No verification of cross-ministry budget impacts
+- Warning: Not suitable for actual government budget planning
+
+---
+
+## AI Assistance and Prompts
+
+### Generative AI Usage
+This project benefited from **generative AI assistance** during development. Below are the key areas where AI tools (such as Claude, ChatGPT) were consulted:
+
+---
+
+### Code Documentation Enhancement
+
+**Prompt Used:**
+```
+Review the following Java class and enhance JavaDoc comments to include:
+- Detailed class-level descriptions
+- Complete parameter documentation with @param tags
+- Return value descriptions with @return tags
+- Exception documentation with @throws tags
+- Usage examples where appropriate
+- Cross-references to related classes
+```
+
+**AI Recommendation:**
+> "Add comprehensive JavaDoc comments to all public APIs, including detailed descriptions of parameters, return values, and potential exceptions. Use @see tags to link related classes and methods."
+
+**Implementation:**
+- Enhanced JavaDoc coverage
+- Added usage examples to complex service classes
+- Documented all validation rules in `BudgetValidator.java`
+- Improved method documentation in ESG calculation classes
+
+---
+
+### Test Coverage Improvement
+
+**Prompt Used:**
+```
+Analyze the following service class and suggest comprehensive unit tests covering:
+- Happy path scenarios
+- Edge cases
+- Error handling
+- Boundary conditions
+- Mock dependencies where appropriate
+
+```
+
+**AI Recommendation:**
+> "Create comprehensive test suites with at least 80% code coverage. Focus on testing edge cases like empty datasets, null values, extreme budget amounts, and concurrent access scenarios."
+
+**Implementation:**
+- Developed 50+ comprehensive test classes
+- Added parameterized tests for validation rules
+- Implemented mock-based testing for external dependencies
+
+---
+
+### Code Quality Improvements
+
+**Prompt Used:**
+```
+Review this code for potential improvements in:
+- Error handling
+- Resource management
+- Code readability
+- Performance optimization
+- Design patterns
+```
+
+**AI Recommendations Implemented:**
+- Implemented try-with-resources for file operations
+- Added input validation in all public methods
+- Refactored nested loops for better readability
+- Applied Strategy pattern for export functionality
+- Enhanced exception messages with actionable information
+
+---
+
+### ESG Classification Logic
+
+**Prompt Used:**
+```
+Design an ESG (Environmental, Social, Governance) classification system for government budget entries. Consider:
+- Budget categories (personnel, infrastructure, operations)
+- Ministry sectors (environment, energy, water)
+- Weighted scoring algorithm
+- Validation rules for sustainability
+```
+
+**AI Output:**
+Generated the initial structure for `esg_mappings.json` and the weighted scoring formula implemented in `EsgScoreCalculator.java`.
+
+---
+
+### Validation Rules Design
+
+**Prompt Used:**
+```
+Design validation rules for a government budget editing system that should:
+- Prevent negative values
+- Enforce budget ceilings
+- Warn about extreme changes (>30%)
+- Protect environmental budget cuts
+- Limit bureaucracy increases
+- Safeguard social welfare spending
+
+```
+
+**AI Output:**
+Provided the logic framework implemented in `BudgetValidator.java`, including the tiered validation approach and ESG-specific rules.
+
+---
+
+### AI Tools Acknowledgment
+
+The following AI tools were consulted during development:
+- **Claude (Anthropic)**: Code review, documentation, architecture design
+- **Gemini**: Test case generation, algorithm optimization
+- **ChatGPT (OpenAI)**: Code completion and boilerplate generation
+
+**Note:** All AI-generated code was reviewed, tested, and modified by human developers before integration. AI assistance was used as a productivity tool, not as a replacement for human judgment and expertise.
+
+---
+## Third-Party Code Licensing
+
+### Project License
+
+**MIT License**
+
+Copyright (c) 2026 Aliki Galeridou
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+### Third-Party Dependencies
+
+This project uses the following open-source libraries:
+
+#### **1. Gson (Google)**
+- **Version:** 2.10.1
+- **License:** Apache License 2.0
+- **Purpose:** JSON parsing and serialization
+- **Maven Coordinates:** `com.google.code.gson:gson:2.10.1`
+- **License URL:** https://www.apache.org/licenses/LICENSE-2.0
+- **Copyright:** Copyright 2008 Google Inc.
+
+**Usage in Project:**
+- `EnvBudgetLoader.java`: Loading budget data from JSON
+- `EsgLoader.java`: Loading ESG configuration
+
+---
+
+#### **2. JUnit 5**
+- **Version:** 5.10.0
+- **License:** Eclipse Public License 2.0
+- **Purpose:** Unit testing framework
+- **Maven Coordinates:** 
+  - `org.junit.jupiter:junit-jupiter-api:5.10.0`
+  - `org.junit.jupiter:junit-jupiter-engine:5.10.0`
+- **License URL:** https://www.eclipse.org/legal/epl-2.0/
+- **Copyright:** Copyright (c) Contributors to the Eclipse Foundation
+
+**Usage in Project:**
+- All test classes in `src/test/java/`
+
+---
+
+#### **3. Java Standard Library**
+- **Version:** OpenJDK 21
+- **License:** GNU General Public License v2.0 with Classpath Exception
+- **Components Used:**
+  - `com.sun.net.httpserver.HttpServer`: Embedded web server
+  - `java.util.*`: Collections framework
+  - `java.io.*`: File I/O operations
+- **License URL:** https://openjdk.org/legal/gplv2+ce.html
+
+**Usage in Project:**
+- `LoginWebServer.java`: HTTP server functionality
+- All I/O operations throughout the project
+
+---
+
+### License Compatibility
+
+All third-party dependencies use **permissive licenses** (Apache 2.0, EPL 2.0, GPL with Classpath Exception) that are compatible with the project's MIT License. These licenses allow:
+- Commercial use  
+- Modification  
+- Distribution  
+- Private use  
+
+**Requirements:**
+- Include original license text (fulfilled via Maven dependencies)
+- Include copyright notice (fulfilled via Maven dependencies)
+- State changes (documented in this README)
+
+---
 ## FAQ
 
 **Q: Can I add new ministries to edit?**  
@@ -1063,17 +1308,31 @@ This is an educational project, but we welcome feedback!
 
 ---
 
-##  License
+## License 
+This project is licensed under the **MIT License** - see above for full license text.
 
-This project is developed for **educational purposes** as part of the **Java Programming course** at the Department of Management Science and Technology.
+**Educational Use:** This project is developed for educational purposes as part of the Java Programming course at the Department of Management Science and Technology.
 
-**Academic Use Only** - Not for commercial distribution.
+**Commercial Use:** Permitted under MIT License terms, but note that this is an educational prototype not suitable for production use without significant enhancements.
 
 ---
 
-##  Team - Spinnovators
+## Team - Spinnovators
 
 Developed by the **Spinnovators** team for academic coursework.
+
+**Institution:** Department of Management Science and Technology  
+**Course:** Programming 2 
+**Year:** 2026
+
+---
+
+## Acknowledgments
+
+- **Greek Ministry of Environment and Energy**: Budget structure inspiration
+- **Open Source Community**: For the excellent tools and libraries used in this project
+- **Anthropic Claude, Gemini & OpenAI ChatGPT**: AI assistance in code review and documentation
+
 
 ---
 
