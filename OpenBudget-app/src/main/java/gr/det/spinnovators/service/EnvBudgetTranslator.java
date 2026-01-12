@@ -25,7 +25,7 @@ public class EnvBudgetTranslator {
   // The name of the properties file located in src/main/resources
   private static final String BUNDLE_NAME = "env_budget_translations";
   // ResourceBundle holds the key-translations
-  private ResourceBundle categoryBundle;
+  private final ResourceBundle categoryBundle;
 
   /**
    * Constructs an EnvBudgetTranslator and initializes the resource bundle.
@@ -39,11 +39,30 @@ public class EnvBudgetTranslator {
    * with fallback translations.</p>
    */
   public EnvBudgetTranslator() {
+   // Pass the real bundle name
+    this(loadBundleSafely(BUNDLE_NAME));
+  }
+  
+  /**
+   * Protected constructor for testing purposes.
+   * Allows injecting a specific bundle or null to simulate failure scenarios.
+   * * @param bundle The ResourceBundle to use, or null to simulate missing file.
+   */
+  protected EnvBudgetTranslator(ResourceBundle bundle) {
+    this.categoryBundle = bundle;
+  }
+
+  /**
+   * Helper method to load the bundle safely and handle exceptions.
+   * Used by the default constructor.
+   * * @param bundleName The name of the properties file to load.
+   */
+  static ResourceBundle loadBundleSafely(String bundleName) {
     try {
-      this.categoryBundle = ResourceBundle.getBundle(BUNDLE_NAME);
+      return ResourceBundle.getBundle(bundleName);
     } catch (MissingResourceException e) {
-      // Silent failure cause of frontend
-      this.categoryBundle = null;
+      // Silent failure cause of frontend logic requirement
+      return null;
     }
   }
 
