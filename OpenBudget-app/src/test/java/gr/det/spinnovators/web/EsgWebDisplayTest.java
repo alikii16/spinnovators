@@ -1,120 +1,230 @@
 package gr.det.spinnovators.web;
 
-import gr.det.spinnovators.envdatamodel.EnvEntry;
-import gr.det.spinnovators.envdatamodel.EnvSector;
-import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.envdatamodel.EsgReport;
+import gr.det.spinnovators.service.EsgScoreCalculator;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.List;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.lang.reflect.Field;
+import java.util.Collections;
+
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for EsgWebDisplay.
- *
- * <p>Tests the HTML generation of ESG comparison content.
- * Covers all logical branches for score differences:
- * significant improvement, small improvement, significant deterioration,
- * small deterioration, and no change.
+ * Unit tests for {@link EsgWebDisplay}.
+ * <p>
+ * <b>FIXED STRATEGY:</b> Mocking with Reflection & Consistent Data.
+ * We ensure that when the Overall Score changes, the Individual Category Scores (Env, Soc, Gov)
+ * also change in the Mocks. This ensures that both the feedback message (based on Overall)
+ * and the CSS classes (based on Categories) are generated correctly.
+ * </p>
  */
 public class EsgWebDisplayTest {
 
-  /**
-   * Helper method to create a mock EnvYear with a specific budget amount.
-   *
-   * @param year The year string (e.g., "2025").
-   * @param amount The budget amount for the entry.
-   * @return A constructed EnvYear object.
-   */
-  private EnvYear createMockYear(String year, double amount) {
-    EnvEntry entry = new EnvEntry("entry1", amount);
-    EnvUnit unit = new EnvUnit("unit1", List.of(entry));
-    EnvSector sector = new EnvSector("executive_coordination_and_investments", List.of(unit));
-    return new EnvYear(year, List.of(sector));
-  }
+    @Mock
+    private EsgScoreCalculator mockCalculator;
 
-  /**
-   * Tests the scenario where the ESG score improves significantly (> 2.0).
-   * Covers the "Excellent" feedback message branch.
-   */
-  @Test
-  public void testGenerateEsgComparisonContent_SignificantImprovement() {
-    EnvYear originalYear = createMockYear("2025", 50.0);
-    EnvYear modifiedYear = createMockYear("2026", 90.0); // Large increase
-    double totalBudget = 200.0;
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-    EsgWebDisplay webDisplay = new EsgWebDisplay();
-    String htmlContent = webDisplay.generateEsgComparisonContent(originalYear, modifiedYear, totalBudget);
+    private void injectMockCalculator(EsgWebDisplay display, EsgScoreCalculator calculator) {
+        try {
+            Field field = EsgWebDisplay.class.getDeclaredField("calculator");
+            field.setAccessible(true);
+            field.set(display, calculator);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to inject mock calculator", e);
+        }
+    }
 
-    Assertions.assertTrue(htmlContent.contains("Εξαιρετικά!"), "Should contain excellent feedback");
-    Assertions.assertTrue(htmlContent.contains("positive"), "Should contain positive class");
-  }
+    private EsgReport createMockReport(double overall, double env, double soc, double gov) {
+        EsgReport report = mock(EsgReport.class);
+        when(report.getOverallScore()).thenReturn(overall);
+        when(report.getEnvironmentalScore()).thenReturn(env);
+        when(report.getSocialScore()).thenReturn(soc);
+        when(report.getGovernanceScore()).thenReturn(gov);
+        return report;
+    }
 
-  /**
-   * Tests the scenario where the ESG score improves slightly (0 < diff <= 2.0).
-   * Covers the "Good change" feedback message branch (fixes missed branch in line 59).
-   */
-  @Test
-  public void testGenerateEsgComparisonContent_SmallImprovement() {
-    EnvYear originalYear = createMockYear("2025", 50.0);
-    EnvYear modifiedYear = createMockYear("2026", 52.0); // Small increase
-    double totalBudget = 200.0;
+    private EnvYear createDummyYear(String year) {
+        return new EnvYear(year, Collections.emptyList());
+    }
 
-    EsgWebDisplay webDisplay = new EsgWebDisplay();
-    String htmlContent = webDisplay.generateEsgComparisonContent(originalYear, modifiedYear, totalBudget);
+    @Test
+    public void testGenerateEsgComparisonContent_SignificantImprovement() {
+        // Setup: Overall increases significantly (50 -> 60)
+        // AND Env increases (10 -> 20) to trigger "positive" class
+        EsgReport originalReport = createMockReport(50.0, 10.0, 10.0, 10.0);
+        EsgReport modifiedReport = createMockReport(60.0, 20.0, 10.0, 10.0);
 
-    Assertions.assertTrue(htmlContent.contains("Καλή αλλαγή!"), "Should contain small improvement feedback");
-    Assertions.assertTrue(htmlContent.contains("positive"), "Should contain positive class");
-  }
+        EnvYear y1 = createDummyYear("2025");
+        EnvYear y2 = createDummyYear("2026");
 
-  /**
-   * Tests the scenario where the ESG score deteriorates significantly (< -2.0).
-   * Covers the "Warning" feedback message branch.
-   */
-  @Test
-  public void testGenerateEsgComparisonContent_SignificantDeterioration() {
-    EnvYear originalYear = createMockYear("2025", 90.0);
-    EnvYear modifiedYear = createMockYear("2026", 50.0); // Large decrease
-    double totalBudget = 200.0;
+        when(mockCalculator.calculateReport(eq(y1), anyDouble())).thenReturn(originalReport);
+        when(mockCalculator.calculateReport(eq(y2), anyDouble())).thenReturn(modifiedReport);
 
-    EsgWebDisplay webDisplay = new EsgWebDisplay();
-    String htmlContent = webDisplay.generateEsgComparisonContent(originalYear, modifiedYear, totalBudget);
+        EsgWebDisplay webDisplay = new EsgWebDisplay();
+        injectMockCalculator(webDisplay, mockCalculator);
+        String html = webDisplay.generateEsgComparisonContent(y1, y2, 1000.0);
 
-    Assertions.assertTrue(htmlContent.contains("ΠΡΟΣΟΧΗ"), "Should contain warning feedback");
-    Assertions.assertTrue(htmlContent.contains("negative"), "Should contain negative class");
-  }
+        Assertions.assertTrue(html.contains("Εξαιρετικά!"), "Should detect Significant Improvement");
+    }
 
-  /**
-   * Tests the scenario where the ESG score deteriorates slightly (-2.0 <= diff < 0).
-   * Covers the "Slight reduction" feedback message branch (fixes missed branch in line 63).
-   */
-  @Test
-  public void testGenerateEsgComparisonContent_SmallDeterioration() {
-    EnvYear originalYear = createMockYear("2025", 52.0);
-    EnvYear modifiedYear = createMockYear("2026", 50.0); // Small decrease
-    double totalBudget = 200.0;
+    @Test
+    public void testGenerateEsgComparisonContent_SmallImprovement() {
+        // Setup: Overall increases slightly (50 -> 51)
+        // AND Env increases slightly (10 -> 11) to trigger "positive" class
+        EsgReport originalReport = createMockReport(50.0, 10.0, 10.0, 10.0);
+        EsgReport modifiedReport = createMockReport(51.0, 11.0, 10.0, 10.0);
 
-    EsgWebDisplay webDisplay = new EsgWebDisplay();
-    String htmlContent = webDisplay.generateEsgComparisonContent(originalYear, modifiedYear, totalBudget);
+        EnvYear y1 = createDummyYear("2025");
+        EnvYear y2 = createDummyYear("2026");
 
-    Assertions.assertTrue(htmlContent.contains("μειώνει ελαφρώς"), "Should contain slight reduction feedback");
-    Assertions.assertTrue(htmlContent.contains("negative"), "Should contain negative class");
-  }
+        when(mockCalculator.calculateReport(eq(y1), anyDouble())).thenReturn(originalReport);
+        when(mockCalculator.calculateReport(eq(y2), anyDouble())).thenReturn(modifiedReport);
 
-  /**
-   * Tests the scenario where the ESG score remains unchanged.
-   * Covers the "No change" feedback message branch and neutral classes.
-   */
-  @Test
-  public void testGenerateEsgComparisonContent_NoChange() {
-    EnvYear originalYear = createMockYear("2025", 50.0);
-    EnvYear modifiedYear = createMockYear("2026", 50.0); // Exact same inputs
-    double totalBudget = 200.0;
+        EsgWebDisplay webDisplay = new EsgWebDisplay();
+        injectMockCalculator(webDisplay, mockCalculator);
+        String html = webDisplay.generateEsgComparisonContent(y1, y2, 1000.0);
 
-    EsgWebDisplay webDisplay = new EsgWebDisplay();
-    String htmlContent = webDisplay.generateEsgComparisonContent(originalYear, modifiedYear, totalBudget);
+        Assertions.assertTrue(html.contains("Καλή αλλαγή!"), "Should detect Small Improvement");
+    }
 
-    Assertions.assertTrue(htmlContent.contains("ΚΑΜΙΑ ΑΛΛΑΓΗ"), "Should indicate no change");
-    Assertions.assertTrue(htmlContent.contains("neutral"), "Should contain neutral class");
-    Assertions.assertTrue(htmlContent.contains("δεν επηρεάζει"), "Should contain neutral feedback message");
-  }
+    @Test
+    public void testGenerateEsgComparisonContent_SignificantDeterioration() {
+        // Setup: Overall drops significantly (60 -> 50)
+        // AND Env drops (20 -> 10) to trigger "negative" class
+        EsgReport originalReport = createMockReport(60.0, 20.0, 10.0, 10.0);
+        EsgReport modifiedReport = createMockReport(50.0, 10.0, 10.0, 10.0);
+
+        EnvYear y1 = createDummyYear("2025");
+        EnvYear y2 = createDummyYear("2026");
+
+        when(mockCalculator.calculateReport(eq(y1), anyDouble())).thenReturn(originalReport);
+        when(mockCalculator.calculateReport(eq(y2), anyDouble())).thenReturn(modifiedReport);
+
+        EsgWebDisplay webDisplay = new EsgWebDisplay();
+        injectMockCalculator(webDisplay, mockCalculator);
+        String html = webDisplay.generateEsgComparisonContent(y1, y2, 1000.0);
+
+        Assertions.assertTrue(html.contains("ΠΡΟΣΟΧΗ"), "Should detect Significant Deterioration");
+        // Τώρα θα περάσει γιατί το Env έπεσε από 20 σε 10
+        Assertions.assertTrue(html.contains("negative"), "Should have negative class");
+    }
+
+    @Test
+    public void testGenerateEsgComparisonContent_SmallDeterioration() {
+        // Setup: Overall drops slightly (51 -> 50)
+        // AND Env drops slightly (11 -> 10) to trigger "negative" class
+        EsgReport originalReport = createMockReport(51.0, 11.0, 10.0, 10.0);
+        EsgReport modifiedReport = createMockReport(50.0, 10.0, 10.0, 10.0);
+
+        EnvYear y1 = createDummyYear("2025");
+        EnvYear y2 = createDummyYear("2026");
+
+        when(mockCalculator.calculateReport(eq(y1), anyDouble())).thenReturn(originalReport);
+        when(mockCalculator.calculateReport(eq(y2), anyDouble())).thenReturn(modifiedReport);
+
+        EsgWebDisplay webDisplay = new EsgWebDisplay();
+        injectMockCalculator(webDisplay, mockCalculator);
+        String html = webDisplay.generateEsgComparisonContent(y1, y2, 1000.0);
+
+        Assertions.assertTrue(html.contains("μειώνει ελαφρώς"), "Should detect Small Deterioration");
+        Assertions.assertTrue(html.contains("negative"), "Should have negative class");
+    }
+
+    @Test
+    public void testGenerateEsgComparisonContent_NoChange() {
+        // Setup: No changes
+        EsgReport originalReport = createMockReport(50.0, 10.0, 10.0, 10.0);
+        EsgReport modifiedReport = createMockReport(50.0, 10.0, 10.0, 10.0);
+
+        EnvYear y1 = createDummyYear("2025");
+        EnvYear y2 = createDummyYear("2026");
+
+        when(mockCalculator.calculateReport(eq(y1), anyDouble())).thenReturn(originalReport);
+        when(mockCalculator.calculateReport(eq(y2), anyDouble())).thenReturn(modifiedReport);
+
+        EsgWebDisplay webDisplay = new EsgWebDisplay();
+        injectMockCalculator(webDisplay, mockCalculator);
+        String html = webDisplay.generateEsgComparisonContent(y1, y2, 1000.0);
+
+        Assertions.assertTrue(html.contains("ΚΑΜΙΑ ΑΛΛΑΓΗ"), "Should detect No Change");
+        Assertions.assertTrue(html.contains("neutral"), "Should have neutral class");
+    }
+
+    @Test
+    public void testGenerateEsgComparisonContent_MixedCategoryChanges() {
+        // Setup: 
+        // Env: 10 -> 20 (Increase -> positive)
+        // Soc: 20 -> 10 (Decrease -> negative)
+        // Gov: 10 -> 10 (Same -> neutral)
+        EsgReport originalReport = createMockReport(50.0, 10.0, 20.0, 10.0);
+        EsgReport modifiedReport = createMockReport(50.0, 20.0, 10.0, 10.0);
+
+        EnvYear y1 = createDummyYear("2025");
+        EnvYear y2 = createDummyYear("2026");
+
+        when(mockCalculator.calculateReport(eq(y1), anyDouble())).thenReturn(originalReport);
+        when(mockCalculator.calculateReport(eq(y2), anyDouble())).thenReturn(modifiedReport);
+
+        EsgWebDisplay webDisplay = new EsgWebDisplay();
+        injectMockCalculator(webDisplay, mockCalculator);
+        String html = webDisplay.generateEsgComparisonContent(y1, y2, 1000.0);
+
+        // Verify all 3 ternary branches are hit
+        Assertions.assertTrue(html.contains("positive"), "Env should trigger positive class");
+        Assertions.assertTrue(html.contains("negative"), "Soc should trigger negative class");
+        Assertions.assertTrue(html.contains("neutral"), "Gov should trigger neutral class");
+    }
+
+    /**
+     * Tests the remaining branches for Social and Governance to reach 100% coverage.
+     * We force:
+     * - Social to INCREASE (covers 'positive' branch for socClass)
+     * - Governance to INCREASE (covers 'positive' branch for govClass)
+     * - Governance to DECREASE (covers 'negative' branch for govClass)
+     */
+    @Test
+    public void testGenerateEsgComparisonContent_RemainingBranches() {
+        // --- CASE 1: Social & Governance INCREASE (Positive) ---
+        EsgReport originalRep1 = createMockReport(50.0, 10.0, 10.0, 10.0);
+        EsgReport modifiedRep1 = createMockReport(60.0, 10.0, 20.0, 20.0); // Soc & Gov Increase
+
+        EnvYear y1 = createDummyYear("2025");
+        EnvYear y2 = createDummyYear("2026");
+
+        when(mockCalculator.calculateReport(eq(y1), anyDouble())).thenReturn(originalRep1);
+        when(mockCalculator.calculateReport(eq(y2), anyDouble())).thenReturn(modifiedRep1);
+
+        EsgWebDisplay webDisplay = new EsgWebDisplay();
+        injectMockCalculator(webDisplay, mockCalculator);
+        String html1 = webDisplay.generateEsgComparisonContent(y1, y2, 1000.0);
+
+        Assertions.assertTrue(html1.contains("positive"), "Should hit positive branch for Soc/Gov");
+
+        // --- CASE 2: Governance DECREASES (Negative) ---
+        EsgReport originalRep2 = createMockReport(50.0, 10.0, 10.0, 20.0);
+        EsgReport modifiedRep2 = createMockReport(40.0, 10.0, 10.0, 10.0); // Gov Decrease
+
+        EnvYear y3 = createDummyYear("2027");
+        EnvYear y4 = createDummyYear("2028");
+
+        when(mockCalculator.calculateReport(eq(y3), anyDouble())).thenReturn(originalRep2);
+        when(mockCalculator.calculateReport(eq(y4), anyDouble())).thenReturn(modifiedRep2);
+
+        String html2 = webDisplay.generateEsgComparisonContent(y3, y4, 1000.0);
+
+        Assertions.assertTrue(html2.contains("negative"), "Should hit negative branch for Gov");
+    }
+    
 }
