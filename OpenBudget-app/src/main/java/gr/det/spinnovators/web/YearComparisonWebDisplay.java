@@ -116,7 +116,7 @@ public class YearComparisonWebDisplay {
    */
   private Map<String, Double> calculateSectorTotals(EnvYear year) {
     Map<String, Double> totals = new LinkedHashMap<>();
-    if (year == null || year.getSectors() == null) {
+    if (year == null) {
       return totals;
     }
     for (EnvSector sector : year.getSectors()) {
@@ -124,15 +124,13 @@ public class YearComparisonWebDisplay {
         continue;
       }
       double sectorTotal = 0.0;
-      if (sector.getUnits() != null) {
-        for (EnvUnit unit : sector.getUnits()) {
-          if (unit == null || unit.getEntries() == null) {
-            continue;
-          }
-          for (EnvEntry entry : unit.getEntries()) {
-            if (entry != null) {
-              sectorTotal += entry.getAmount();
-            }
+      for (EnvUnit unit : sector.getUnits()) {
+        if (unit == null) {
+          continue;
+        }
+        for (EnvEntry entry : unit.getEntries()) {
+          if (entry != null) {
+            sectorTotal += entry.getAmount();
           }
         }
       }

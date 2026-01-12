@@ -107,7 +107,7 @@ public class BudgetComparisonWebDisplay {
    */
   private Map<String, Double> calculateSectorTotals(EnvYear year) {
     Map<String, Double> totals = new LinkedHashMap<>();
-    if (year == null || year.getSectors() == null) {
+    if (year == null) {
       return totals;
     }
 
@@ -118,20 +118,18 @@ public class BudgetComparisonWebDisplay {
 
       double sectorTotal = 0.0;
 
-      if (sector.getUnits() != null) {
-        for (EnvUnit unit : sector.getUnits()) {
-          if (unit == null || unit.getEntries() == null) {
-            continue;
-          }
+      
+      for (EnvUnit unit : sector.getUnits()) {
+        if (unit == null) {
+          continue;
+        }
 
-          for (EnvEntry entry : unit.getEntries()) {
-            if (entry != null) {
-              sectorTotal += entry.getAmount();
-            }
+        for (EnvEntry entry : unit.getEntries()) {
+          if (entry != null) {
+            sectorTotal += entry.getAmount();
           }
         }
       }
-
       totals.put(sector.getJsonKey(), sectorTotal);
     }
     return totals;
@@ -188,8 +186,10 @@ public class BudgetComparisonWebDisplay {
         + "font-weight: 700;'>Αλλαγή</th>"
     );
     html.append("</tr></thead><tbody>");
-    for (String sectorKey : original.keySet()) {
-      double origAmount = original.get(sectorKey);
+
+    for (Map.Entry<String, Double> entry : original.entrySet()) {
+      String sectorKey = entry.getKey();
+      double origAmount = entry.getValue();
       double modAmount = modified.getOrDefault(sectorKey, 0.0);
       double change = modAmount - origAmount;
       double changePercent = (origAmount > 0) ? (change / origAmount) * 100 : 0;
@@ -337,8 +337,10 @@ public class BudgetComparisonWebDisplay {
         + "margin-bottom: 20px; text-align: center;'>Οι Μεγαλύτερες Αλλαγές</h3>"
     );
     List<SectorChange> changes = new ArrayList<>();
-    for (String sectorKey : original.keySet()) {
-      double origAmount = original.get(sectorKey);
+
+    for (Map.Entry<String, Double> entry : original.entrySet()) {
+      String sectorKey = entry.getKey();
+      double origAmount = entry.getValue();
       double modAmount = modified.getOrDefault(sectorKey, 0.0);
       double change = modAmount - origAmount;
       double changePercent = (origAmount > 0) ? (change / origAmount) * 100 : 0;
@@ -493,8 +495,11 @@ public class BudgetComparisonWebDisplay {
     int sectorsDecreased = 0;
     String maxIncreaseSector = "";
     double maxIncrease = 0.0;
-    for (String sectorKey : original.keySet()) {
-      double change = modified.getOrDefault(sectorKey, 0.0) - original.get(sectorKey);
+    for (Map.Entry<String, Double> entry : original.entrySet()) {
+      String sectorKey = entry.getKey();
+      double originalValue = entry.getValue();
+      double modifiedValue = modified.getOrDefault(sectorKey, 0.0);
+      double change = modifiedValue - originalValue;
       if (change > 0.01) {
         sectorsIncreased++;
         if (change > maxIncrease) {

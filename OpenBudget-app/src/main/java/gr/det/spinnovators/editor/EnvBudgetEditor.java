@@ -71,6 +71,6 @@ public class EnvBudgetEditor {
     }
 
     EditsApplier applier = new EditsApplier(translator, scanner);
-    applier.applyEditsToYear(selectedYear);
+    applier.applyEditsToYear(selectedYear, scanner);
   }
 }

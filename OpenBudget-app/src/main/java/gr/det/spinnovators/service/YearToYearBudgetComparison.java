@@ -42,7 +42,7 @@ public class YearToYearBudgetComparison {
     this.translator = translator;
     this.esgCalculator = new EsgScoreCalculator();
     this.esgPrinter = new EsgPrinter();
-    this.totalBudgets = totalBudgets;
+    this.totalBudgets = (totalBudgets != null) ? new java.util.LinkedHashMap<>(totalBudgets) : null;
   }
 
   /**

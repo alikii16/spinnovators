@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Locale;
 /**
  * Loads ESG configuration from JSON file.
  *
@@ -314,7 +315,7 @@ public class EsgLoader {
     String path = "localization.ratings." + rating + "." + language;
 
     // Fallback defaults
-    String defaultText = switch (rating.toLowerCase()) {
+    String defaultText = switch (rating.toLowerCase(Locale.ROOT)) {
       case "excellent" -> language.equals("el") ? "Άριστη" : "Excellent";
       case "good" -> language.equals("el") ? "Καλή" : "Good";
       case "moderate" -> language.equals("el") ? "Μέτρια" : "Moderate";
@@ -449,7 +450,17 @@ public class EsgLoader {
    *
    */
   public JsonObject getConfig() {
-    return config;
+    if (config == null) {
+        return null;
+    }
+    return gson.fromJson(config.toString(), JsonObject.class);
+  }
+
+  /**
+   * Finalizer attack protection.
+   */
+  @Override
+  protected final void finalize() {
+    // Do nothing
   }
 }
-

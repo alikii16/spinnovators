@@ -48,7 +48,6 @@ public class EditsApplier {
       NumberFormat.getNumberInstance(HELLENIC_LOCALE);
 
   private final EnvBudgetTranslator translator;
-  private final Scanner scanner;
   private final EsgScoreCalculator esgCalculator;
   private final EsgPrinter esgPrinter;
   private final InitialBudgetComparison comparisonAnalyzer;
@@ -83,7 +82,6 @@ public class EditsApplier {
    */
   public EditsApplier(EnvBudgetTranslator translator, Scanner scanner) {
     this.translator = translator;
-    this.scanner = scanner;
     this.esgCalculator = new EsgScoreCalculator();
     this.esgPrinter = new EsgPrinter();
     this.comparisonAnalyzer = new InitialBudgetComparison(translator);
@@ -105,7 +103,7 @@ public class EditsApplier {
    *
    * @param year The EnvYear object representing the budget to be modified.
    */
-  public void applyEditsToYear(EnvYear year) {
+  public void applyEditsToYear(EnvYear year, Scanner scanner) {
     System.out.println("%n--- ΕΝΑΡΞΗ ΕΠΕΞΕΡΓΑΣΙΑΣ ΓΙΑ ΤΟ ΕΤΟΣ " + year.getYear() + " ---");
 
     initializeBudgetTracking(year);
@@ -117,19 +115,19 @@ public class EditsApplier {
     while (keepEditing) {
       displayCurrentStatus();
 
-      EnvSector selectedSector = selectSector(year);
+      EnvSector selectedSector = selectSector(year, scanner);
 
       if (selectedSector == null) {
         keepEditing = handleExitRequest();
         continue;
       }
 
-      EnvUnit selectedUnit = selectUnit(selectedSector);
+      EnvUnit selectedUnit = selectUnit(selectedSector, scanner);
       if (selectedUnit == null) {
         continue;
       }
 
-      processUnitEdit(selectedUnit, year);
+      processUnitEdit(selectedUnit, year, scanner);
     }
 
     finalizeEditingSession(year);
@@ -191,7 +189,7 @@ public class EditsApplier {
    * @param unit The selected unit containing entries to edit.
    * @param year The current budget year.
    */
-  private void processUnitEdit(EnvUnit unit, EnvYear year) {
+  private void processUnitEdit(EnvUnit unit, EnvYear year, Scanner scanner) {
     System.out.println("%n------------------------------------------------");
     System.out.println("Μονάδα: " + translator.translateCategory(unit.getJsonKey()));
     System.out.println("Πληκτρολογήστε το όνομα της κατηγορίας που θέλετε να επεξεργαστείτε:");
@@ -200,7 +198,7 @@ public class EditsApplier {
     String searchInput = scanner.nextLine().trim();
 
     if (!searchInput.isEmpty()) {
-      findAndEditEntryInUnit(unit, searchInput, year);
+      findAndEditEntryInUnit(unit, searchInput, year, scanner);
     }
   }
 
@@ -293,7 +291,7 @@ public class EditsApplier {
    * @param year The budget year containing the sectors.
    * @return The chosen EnvSector or null if the user chooses to exit.
    */
-  private EnvSector selectSector(EnvYear year) {
+  private EnvSector selectSector(EnvYear year, Scanner scanner) {
     final List<EnvSector> sectors = year.getSectors();
     System.out.println("%n==========================================");
     System.out.println(" ΕΠΙΛΟΓΗ ΤΟΜΕΑ");
@@ -307,7 +305,7 @@ public class EditsApplier {
     System.out.println("0. ΤΕΛΟΣ / ΕΛΕΓΧΟΣ ΙΣΟΣΚΕΛΙΣΜΟΥ");
     System.out.print("--> Επιλογή: ");
 
-    int choice = readIntegerChoice(sectors.size());
+    int choice = readIntegerChoice(sectors.size(), scanner);
     if (choice <= 0) {
       return null;
     }
@@ -323,7 +321,7 @@ public class EditsApplier {
    * @param sector The parent sector containing units.
    * @return The chosen EnvUnit or null to return to sector selection.
    */
-  private EnvUnit selectUnit(EnvSector sector) {
+  private EnvUnit selectUnit(EnvSector sector, Scanner scanner) {
     List<EnvUnit> units = sector.getUnits();
     System.out.println("%n--- Επιλογή Μονάδας ---");
 
@@ -334,7 +332,7 @@ public class EditsApplier {
     System.out.println("0. Επιστροφή");
     System.out.print("--> Επιλογή: ");
 
-    int choice = readIntegerChoice(units.size());
+    int choice = readIntegerChoice(units.size(), scanner);
     if (choice <= 0) {
       return null;
     }
@@ -352,7 +350,7 @@ public class EditsApplier {
    * @param searchName The category name to search for.
    * @param year The current budget year (needed for ESG context).
    */
-  private void findAndEditEntryInUnit(EnvUnit unit, String searchName, EnvYear year) {
+  private void findAndEditEntryInUnit(EnvUnit unit, String searchName, EnvYear year, Scanner scanner) {
     boolean found = false;
 
     for (EnvEntry entry : unit.getEntries()) {
@@ -360,7 +358,7 @@ public class EditsApplier {
 
       if (entryName.equalsIgnoreCase(searchName)) {
         found = true;
-        editBudgetEntry(entry, unit, year);
+        editBudgetEntry(entry, unit, year, scanner);
         return;
       }
     }
@@ -389,13 +387,13 @@ public class EditsApplier {
    * @param unit The unit containing the entry (for ESG context).
    * @param year The current budget year (for ESG context).
    */
-  private void editBudgetEntry(EnvEntry entry, EnvUnit unit, EnvYear year) {
+  private void editBudgetEntry(EnvEntry entry, EnvUnit unit, EnvYear year, Scanner scanner) {
     String entryName = translator.translateCategory(entry.getJsonKey());
     double oldAmount = entry.getAmount();
 
     System.out.printf("%nΒρέθηκε: %s | Τρέχον Ποσό: %,.2f €%n", entryName, oldAmount);
 
-    Double validatedAmount = promptAndValidateAmount(oldAmount, entry, unit, year);
+    Double validatedAmount = promptAndValidateAmount(oldAmount, entry, unit, year, scanner);
 
     if (validatedAmount != null) {
       applyBudgetChange(entry, oldAmount, validatedAmount, year);
@@ -415,7 +413,7 @@ public class EditsApplier {
    * @return The validated amount, or null if user cancelled.
    */
   private Double promptAndValidateAmount(double oldAmount, EnvEntry entry,
-                                        EnvUnit unit, EnvYear year) {
+                                        EnvUnit unit, EnvYear year, Scanner scanner) {
     while (true) {
       System.out.print("Εισάγετε το νέο ποσό: ");
       String amountInput = scanner.nextLine().trim();
@@ -434,7 +432,7 @@ public class EditsApplier {
                 sectorKey, entry.getJsonKey());
 
         ValidationOutcome outcome = handleValidationResult(result, validator,
-            oldAmount, inputAmount);
+            oldAmount, inputAmount, scanner);
 
         if (outcome == ValidationOutcome.ACCEPTED) {
           return inputAmount;
@@ -509,7 +507,9 @@ public class EditsApplier {
       BudgetValidator.ValidationResult result,
       BudgetValidator validator,
       double oldAmount,
-      double newAmount) {
+      double newAmount,
+      Scanner scanner
+    ) {
 
     if (result == BudgetValidator.ValidationResult.OK) {
       return ValidationOutcome.ACCEPTED;
@@ -545,7 +545,7 @@ public class EditsApplier {
       return ValidationOutcome.REJECTED;
 
     } else if (result == BudgetValidator.ValidationResult.EXTREME_DEVIATION) {
-      return handleExtremeDeviationWarning(validator, oldAmount, newAmount);
+      return handleExtremeDeviationWarning(validator, oldAmount, newAmount, scanner);
     }
 
     return ValidationOutcome.REJECTED;
@@ -562,7 +562,8 @@ public class EditsApplier {
   private ValidationOutcome handleExtremeDeviationWarning(
       BudgetValidator validator,
       double oldAmount,
-      double newAmount) {
+      double newAmount,
+      Scanner scanner) {
 
     double deviation = validator.calculateDeviationPercentage(oldAmount, newAmount);
     System.out.printf(" ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Παρατηρείται μεγάλη απόκλιση (%.2f%%).%n",
@@ -613,7 +614,7 @@ public class EditsApplier {
    * @param maxOption Maximum valid option number.
    * @return User's choice (0 to maxOption), or -1 if invalid.
    */
-  private int readIntegerChoice(int maxOption) {
+  private int readIntegerChoice(int maxOption, Scanner scanner) {
     try {
       String input = scanner.nextLine().trim();
       if (input.isEmpty()) {

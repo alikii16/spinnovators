@@ -150,7 +150,7 @@ public class EsgWebDisplay {
             <div class='feedback-box'>
                 <p>%s</p>
             </div>
-            """,
+            """.replace("\n", "%n"),
         year,
         original.getOverallScore(),
         modified.getOverallScore(),

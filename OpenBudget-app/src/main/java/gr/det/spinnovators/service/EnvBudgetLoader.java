@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ public class EnvBudgetLoader {
   private static final String JSON_FILE_NAME = "env_budget_data.json";
   private static final String FIELD_DATA_BY_YEAR = "data_by_year";
   private static final String FIELD_TOTAL_BUDGET = "env_ministry_total_budget";
+  private static final Type MAP_TYPE = new TypeToken<Map<String, Object>>() {}.getType();
 
   // Logger for structured error reporting
   private static final Logger LOGGER = Logger.getLogger(EnvBudgetLoader.class.getName());
@@ -119,12 +121,10 @@ public class EnvBudgetLoader {
   private Map<String, Object> parseJsonFile(InputStream inputStream)
       throws IOException, JsonSyntaxException {
 
-    try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream,
-        java.nio.charset.StandardCharsets.UTF_8))) {
 
+    try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
       // Using TypeToken for better type safety with Gson
-      Type mapType = new TypeToken<Map<String, Object>>() {}.getType();
-      return gson.fromJson(reader, mapType);
+      return gson.fromJson(reader, MAP_TYPE);  
     }
   }
 
