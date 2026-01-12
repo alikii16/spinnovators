@@ -199,8 +199,8 @@ public class OpenBudgetApplication {
               }
 
             } else if (subChoice.equals("2")) {
-              EnvBudgetEditor editor = new EnvBudgetEditor(envBudgetData, translator, scanner);
-              editor.startEditingSession();
+              EnvBudgetEditor editor = new EnvBudgetEditor(envBudgetData, translator); 
+              editor.startEditingSession(scanner);
 
             } else if (subChoice.equals("3")) {
               System.out.print("Με βάση ποιο έτος θέλετε να γίνει η σύγκριση: ");

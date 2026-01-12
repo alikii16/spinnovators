@@ -870,7 +870,7 @@ public final class LoginWebServer {
         return buildPercentageHtml(year, percentage, ministryAmount, totalSum);
       }
       return "";
-    } catch (Exception e) {
+    } catch (RuntimeException e) { 
       return "";
     }
   }
@@ -960,7 +960,7 @@ public final class LoginWebServer {
       if (totalBudget == 0.0) {
         // Fallback: If not 2025/2026, try to get from map or calculate
         java.util.Map<String, Double> totalBudgets = envBudgetData.getEnvMinistryTotalBudget();
-        if (totalBudgets != null && totalBudgets.containsKey(year)) {
+        if (totalBudgets.containsKey(year)) {
           totalBudget = totalBudgets.get(year);
         } else {
           totalBudget = calculateTotalBudgetFromYear(envYear);
@@ -974,7 +974,7 @@ public final class LoginWebServer {
       String sectorBreakdownHtml = generateSectorBreakdownHtml(envYear, totalBudget, year);
       
       return esgHtml + "\n" + sectorBreakdownHtml;
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       return "";
     }
   }
@@ -1142,7 +1142,7 @@ public final class LoginWebServer {
         </div>
         </div>
         </div>
-        """,
+        """.replace("\n", "%n"),
         report.getOverallScore(),
         report.getRatingGreek(),
         report.getEnvironmentalScore(),
@@ -1497,7 +1497,7 @@ public final class LoginWebServer {
       <h2 class='section-title'>Έλεγχος Ισοσκελισμού</h2>
       <div class='description' style='color:%s; font-weight:700;'>%s</div>
       %s%s
-        """.formatted(color, message, budgetHtml, buttonHtml);
+        """.strip().formatted(color, message, budgetHtml, buttonHtml);
     String html = buildStyledChangePage(inner, "");
     sendResponse(exchange, html, 200, "text/html; charset=UTF-8");
   }
@@ -1756,7 +1756,7 @@ public final class LoginWebServer {
     java.util.Map<String, String> formDataMap = new java.util.HashMap<>();
     try (java.io.InputStream requestBody = exchange.getRequestBody()) {
       String formDataString = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
-      if (formDataString != null && !formDataString.isEmpty()) {
+      if (!formDataString.isEmpty()) {
         try {
           String[] pairs = formDataString.split("&");
           for (String pair : pairs) {
