@@ -1,9 +1,7 @@
 package gr.det.spinnovators;
 
-
 import gr.det.spinnovators.authentication.FirstLogin;
 import gr.det.spinnovators.data.MinistryDataInput;
-import gr.det.spinnovators.editor.EnvBudgetEditor;
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
@@ -15,50 +13,16 @@ import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.service.EsgScoreCalculator;
 import gr.det.spinnovators.service.YearToYearBudgetComparison;
 import gr.det.spinnovators.web.LoginWebServer;
+import gr.det.spinnovators.editor.EnvBudgetEditor;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 /**
  * The main entry point for the OpenBudget application.
- *
- * <p>This class serves as the orchestrator for the entire budget management system,
- * initializing core services, launching the optional web-based interface, and managing
- * the primary terminal-based user interaction flow. It provides a dual-interface
- * approach: a modern web UI and a traditional console interface.</p>
- *
- * <p>The application supports two user roles:
- * <ul>
- *   <li><strong>Minister (Role "a"):</strong> Full access including budget editing,
- *       comparisons, ESG reports, and all viewing capabilities</li>
- *   <li><strong>Employee (Role "b"):</strong> Read-only access to view budgets,
- *       compare years, and generate ESG reports</li>
- * </ul>
- * </p>
- *
- * <p>Main features:
- * <ul>
- *   <li>View state budget data for years 2023-2026</li>
- *   <li>View environmental ministry budget with detailed breakdowns</li>
- *   <li>Edit and modify future budgets (2025-2026) - Minister only</li>
- *   <li>Compare budgets across different years</li>
- *   <li>Generate ESG (Environmental, Social, Governance) sustainability reports</li>
- *   <li>Calculate ministry budget percentage of total state budget</li>
- *   <li>Web-based interface with automatic browser launch</li>
- * </ul>
- * </p>
- *
- * <p>The application attempts to start a web server on port 8080 and automatically
- * opens the default browser. If the web server fails to start, the application
- * gracefully falls back to terminal-only mode.</p>
- *
- * @author Spinnovators Team
- * @version 1.0
- * @see FirstLogin
- * @see LoginWebServer
- * @see EnvBudgetEditor
+ * This class initializes the core services, launches the optional web-based 
+ * login interface, and manages the primary terminal-based user interaction flow.
  */
-
 public class OpenBudgetApplication {
   /**
    * Starts the application and manages the main execution loop.
@@ -66,7 +30,7 @@ public class OpenBudgetApplication {
    * @param args Command-line arguments passed to the application at startup.
    */
   public static void main(String[] args) {
-
+    
     Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
 
     EnvBudgetTranslator translator = new EnvBudgetTranslator();
@@ -93,12 +57,12 @@ public class OpenBudgetApplication {
 
       if (foundPath != null) {
         LoginWebServer.startServer(foundPath);
-
+        
         String url = "http://localhost:8080/login.html";
         System.out.println("==========================================");
         System.out.println("Web interface available at: " + url);
         System.out.println("==========================================");
-
+      
         // (Optional) Open Browser automatically
         try {
           if (java.awt.Desktop.isDesktopSupported()) {
@@ -137,7 +101,7 @@ public class OpenBudgetApplication {
         System.out.println("2. Προϋπολογισμός Υπουργείου Περιβάλλοντος & Ενέργειας");
         System.out.println("3. Έξοδος");
         System.out.print("Επιλογή: ");
-
+        
         if (!scanner.hasNextLine()) {
           break;
         }
@@ -151,7 +115,7 @@ public class OpenBudgetApplication {
             System.out.println("1. Προβολή Προϋπολογισμού (ανά έτος)");
             System.out.println("2. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
-
+            
             if (!scanner.hasNextLine()) {
               break;
             }
@@ -166,7 +130,7 @@ public class OpenBudgetApplication {
             } else if (subChoice.equalsIgnoreCase("2")) {
               backToMain = true;
             }
-          }
+          } 
         } else if (mainChoice.equals("2")) {
           // Ministry Budget Menu for minister
           boolean backToMain = false;
@@ -179,7 +143,7 @@ public class OpenBudgetApplication {
             System.out.println("4. Προβολή Αναφοράς Βιωσιμότητας (ESG Report)");
             System.out.println("5. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
-
+            
             if (!scanner.hasNextLine()) {
               break;
             }
@@ -213,11 +177,11 @@ public class OpenBudgetApplication {
 
               if (baseYear != null && compareYear != null) {
                 YearToYearBudgetComparison comparisonService = new YearToYearBudgetComparison(
-                    translator, envBudgetData.getEnvMinistryTotalBudget());
+                translator, envBudgetData.getEnvMinistryTotalBudget());
                 comparisonService.compareYears(baseYear, compareYear);
               } else {
                 System.out.println(
-                    "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
+                  "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
                 );
               }
 
@@ -230,9 +194,9 @@ public class OpenBudgetApplication {
 
               if (selectedYear != null && totalBudget != null) {
                 System.out.println("\n--- ΥΠΟΛΟΓΙΣΜΟΣ ESG REPORT ---");
-
+        
                 EsgReport report = esgCalculator.calculateReport(selectedYear, totalBudget);
-
+        
                 System.out.println("==========================================");
                 System.out.println("ΑΝΑΦΟΡΑ ΒΙΩΣΙΜΟΤΗΤΑΣ ΕΤΟΥΣ: " + report.getYear());
                 System.out.println("Αξιολόγηση: " + report.getRatingGreek());
@@ -270,7 +234,7 @@ public class OpenBudgetApplication {
         System.out.println("2. Προϋπολογισμός Υπουργείου Περιβάλλοντος & Ενέργειας");
         System.out.println("3. Έξοδος");
         System.out.print("Επιλογή: ");
-
+        
         if (!scanner.hasNextLine()) {
           break;
         }
@@ -284,7 +248,7 @@ public class OpenBudgetApplication {
             System.out.println("1. Προβολή Προϋπολογισμού (ανά έτος)");
             System.out.println("2. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
-
+            
             if (!scanner.hasNextLine()) {
               break;
             }
@@ -298,7 +262,7 @@ public class OpenBudgetApplication {
             } else if (subChoice.equalsIgnoreCase("2")) {
               backToMain = true;
             }
-          }
+          } 
         } else if (mainChoice.equals("2")) {
           // Ministry Budget Menu for employee
           boolean backToMain = false;
@@ -309,7 +273,7 @@ public class OpenBudgetApplication {
             System.out.println("3. Προβολή Αναφοράς Βιωσιμότητας (ESG Report)");
             System.out.println("4. Επιστροφή στο Αρχικό Μενού");
             System.out.print("Επιλογή: ");
-
+            
             if (!scanner.hasNextLine()) {
               break;
             }
@@ -339,11 +303,11 @@ public class OpenBudgetApplication {
 
               if (baseYear != null && compareYear != null) {
                 YearToYearBudgetComparison comparisonService = new YearToYearBudgetComparison(
-                    translator, envBudgetData.getEnvMinistryTotalBudget());
+                translator, envBudgetData.getEnvMinistryTotalBudget());
                 comparisonService.compareYears(baseYear, compareYear);
               } else {
                 System.out.println(
-                    "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
+                "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
                 );
               }
 
@@ -352,18 +316,18 @@ public class OpenBudgetApplication {
               String yrEsg = scanner.hasNextLine() ? scanner.nextLine() : "";
 
               EnvYear selectedYear = envBudgetData.getBudgetForYear(yrEsg);
-
+    
               Double totalBudget = envBudgetData.getEnvMinistryTotalBudget().get(yrEsg);
 
               if (selectedYear != null && totalBudget != null) {
                 System.out.println("\n--- ΥΠΟΛΟΓΙΣΜΟΣ ESG REPORT ---");
-
+        
                 EsgReport report = esgCalculator.calculateReport(selectedYear, totalBudget);
-
+        
                 System.out.println("==========================================");
                 System.out.println("ΑΝΑΦΟΡΑ ΒΙΩΣΙΜΟΤΗΤΑΣ ΕΤΟΥΣ: " + report.getYear());
                 System.out.println("Αξιολόγηση: " + report.getRatingGreek());
-                System.out.println("Συνολικό Score: " + String.format("%.2f",
+                System.out.println("Συνολικό Score: " + String.format("%.2f", 
                                 report.getOverallScore()) + "/100");
                 System.out.println("------------------------------------------");
                 System.out.printf("Περιβαλλοντικό Score: %.2f%% (%,.2f €)\n",
