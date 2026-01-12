@@ -1,16 +1,14 @@
 package gr.det.spinnovators.service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
-
 /**
  * Loads ESG configuration from JSON file.
  *
@@ -21,6 +19,7 @@ import com.google.gson.stream.JsonReader;
  *
  * @version 2.0
  */
+
 public class EsgLoader {
 
   private static final String CONFIG_FILE = "esg_config.json";
@@ -178,8 +177,9 @@ public class EsgLoader {
    * Gets the ESG classification for an entry type.
    *
    * @param entryKey The JSON key of the entry.
+   *
    * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE,
-   * CONTEXT_DEPENDENT, NEUTRAL).
+    * CONTEXT_DEPENDENT, NEUTRAL).
    */
   public String getEntryClassification(String entryKey) {
     if (config == null || !config.has("entries")) {

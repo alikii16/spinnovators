@@ -992,9 +992,9 @@ public final class LoginWebServer {
   }
 
   private static String generateSectorBreakdownHtml(
-    EnvYear year,
-    double totalBudget,
-    String yearStr
+      EnvYear year,
+      double totalBudget,
+      String yearStr
   ) {
     java.util.List<String> names = new java.util.ArrayList<>();
     java.util.List<Double> amounts = new java.util.ArrayList<>();
@@ -1062,7 +1062,7 @@ public final class LoginWebServer {
     html.append("<div style='display: flex; flex-direction: column; gap: 12px;'>");
     
     for (int i = 0; i < names.size(); i++) {
-      double pct = percentages.get(i);
+      
       html.append(
           "<div style='margin-bottom: 8px;'>"
           + "<div style='display: flex; justify-content: space-between; "
@@ -1083,6 +1083,7 @@ public final class LoginWebServer {
             amounts.get(i)
         )
           );
+      double pct = percentages.get(i);    
       html.append(" <span style='color: #2e7d32;'>(")
           .append(
         Math.abs(pct - Math.round(pct)) < 0.01
@@ -1108,13 +1109,16 @@ public final class LoginWebServer {
 
   private static String buildEsgHtml(EsgReport report, String year) {
     return String.format(java.util.Locale.US, """
-        <div style='margin-top: 24px; padding: 16px; background: linear-gradient(135deg, #ffffff 0%%, #f9f9f9 100%%);
+        <div style='margin-top: 24px; padding: 16px; 
+        background: linear-gradient(135deg, #ffffff 0%%, #f9f9f9 100%%);
         border-radius: 8px; border: 1px solid #a5d6a7;'>
-        <h3 style='text-align: center; font-size: 18px; font-weight: 700; color: #0d4f1c; margin-bottom: 12px;'>
+        <h3 style='text-align: center; font-size: 18px; font-weight: 700; color: #0d4f1c; 
+        margin-bottom: 12px;'>
         ΣΥΝΟΛΙΚΟ ESG SCORE
         </h3>
         <div style='text-align: center; margin-bottom: 16px;'>
-        <div style='font-size: 28px; font-weight: 700; color: #1b5e20; margin-bottom: 4px;'>%.2f / 100</div>
+        <div style='font-size: 28px; font-weight: 700; color: #1b5e20; 
+        margin-bottom: 4px;'>%.2f / 100</div>
         <div style='font-size: 14px; color: #2e7d32; font-weight: 600;'>Αξιολόγηση: %s</div>
         </div>
         <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;'>
@@ -1381,15 +1385,14 @@ public final class LoginWebServer {
     );
     
     for (EnvSector sector : envYear.getSectors()) {
-      String translatedSector = translator.translateCategory(sector.getJsonKey());
-      
       budgetHtml.append("<div style='margin-bottom: 24px; border: 1px solid #c8e6c9; ")
-          .append("border-radius: 8px; overflow: hidden;'>");
+                .append("border-radius: 8px; overflow: hidden;'>");
       budgetHtml.append(
           "<div style='background: linear-gradient(135deg, #1b5e20 0%, "
           + "#0d4f1c 100%); "
       );
       budgetHtml.append("padding: 16px; color: #ffffff; font-weight: 600; font-size: 18px;'>");
+      String translatedSector = translator.translateCategory(sector.getJsonKey());
       budgetHtml.append(translatedSector);
       budgetHtml.append("</div><div style='padding: 16px;'>");
       

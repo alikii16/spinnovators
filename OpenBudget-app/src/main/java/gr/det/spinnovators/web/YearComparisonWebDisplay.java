@@ -1,11 +1,5 @@
 package gr.det.spinnovators.web;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
@@ -13,7 +7,11 @@ import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.service.EsgScoreCalculator;
-
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 /**
  * Handles the generation of year-to-year budget comparison content for the web interface.
  *
@@ -34,6 +32,7 @@ import gr.det.spinnovators.service.EsgScoreCalculator;
  * @author Spinnovators Team
  * @version 1.0
  */
+
 public class YearComparisonWebDisplay {
   private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
   private final EnvBudgetTranslator translator;
@@ -117,13 +116,19 @@ public class YearComparisonWebDisplay {
    */
   private Map<String, Double> calculateSectorTotals(EnvYear year) {
     Map<String, Double> totals = new LinkedHashMap<>();
-    if (year == null || year.getSectors() == null) return totals;
+    if (year == null || year.getSectors() == null) {
+      return totals;
+    }
     for (EnvSector sector : year.getSectors()) {
-      if (sector == null || sector.getJsonKey() == null) continue;
+      if (sector == null || sector.getJsonKey() == null) {
+        continue;
+      }
       double sectorTotal = 0.0;
       if (sector.getUnits() != null) {
         for (EnvUnit unit : sector.getUnits()) {
-          if (unit == null || unit.getEntries() == null) continue;
+          if (unit == null || unit.getEntries() == null) {
+            continue;
+          }
           for (EnvEntry entry : unit.getEntries()) {
             if (entry != null) {
               sectorTotal += entry.getAmount();
@@ -182,37 +187,35 @@ public class YearComparisonWebDisplay {
         + "font-weight: 700;'>%</th>");
     html.append("</tr></thead><tbody>");
     for (String sectorKey : allSectors) {
-      double baseAmount = baseSectors.getOrDefault(sectorKey, 0.0);
-      double compareAmount = compareSectors.getOrDefault(sectorKey, 0.0);
-      double diff = compareAmount - baseAmount;
-      double pct =
-          (baseAmount == 0)
-          ? (compareAmount == 0 ? 0 : 100.0)
-          : (diff / baseAmount) * 100.0;
+          
       String sectorName = translator.translateCategory(sectorKey);
       if (sectorName.length() > 45) {
         sectorName = sectorName.substring(0, 42) + "...";
       }
-      String diffColor = diff > 0.01 ? "#1b5e20" : (diff < -0.01 ? "#c62828" : "#616161");
-      String arrow = diff > 0.01 ? "↑" : (diff < -0.01 ? "↓" : "→");
+      
       html.append("<tr style='border-bottom: 1px solid #e8e8e8;'>");
       html.append(
           "<td style='padding: 12px; color: #1b5e20; font-weight: 600;'>")
           .append(sectorName)
           .append("</td>");
       html.append("<td style='padding: 12px; text-align: right;'>");
+      double baseAmount = baseSectors.getOrDefault(sectorKey, 0.0);
       html.append(
           String.format(
           HELLENIC_LOCALE,
           "<span style='color: #2e7d32; font-weight: 600;'>%,.0f €</span>",
           baseAmount));
       html.append("</td><td style='padding: 12px; text-align: right;'>");
+      double compareAmount = compareSectors.getOrDefault(sectorKey, 0.0);
       html.append(
           String.format(
           HELLENIC_LOCALE,
           "<span style='color: #2e7d32; font-weight: 600;'>%,.0f €</span>",
           compareAmount));
+      double diff = compareAmount - baseAmount;    
       html.append("</td><td style='padding: 12px; text-align: right;'>");
+      String diffColor = diff > 0.01 ? "#1b5e20" : (diff < -0.01 ? "#c62828" : "#616161");
+      String arrow = diff > 0.01 ? "↑" : (diff < -0.01 ? "↓" : "→");
       html.append("<span style='color: ")
           .append(diffColor)
           .append("; font-weight: 700;'>")
@@ -220,6 +223,10 @@ public class YearComparisonWebDisplay {
           .append(" ");
       html.append(String.format(HELLENIC_LOCALE, "%,.0f €", Math.abs(diff))).append("</span>");
       html.append("</td><td style='padding: 12px; text-align: right;'>");
+      double pct =
+          (baseAmount == 0)
+          ? (compareAmount == 0 ? 0 : 100.0)
+          : (diff / baseAmount) * 100.0;
       html.append(
           String.format(
           HELLENIC_LOCALE,
@@ -283,15 +290,7 @@ public class YearComparisonWebDisplay {
     EsgReport compareReport = esgCalculator.calculateReport(compareYear, compareTotal);
     double scoreDiff = compareReport.getOverallScore() - baseReport.getOverallScore();
     String message = scoreDiff > 0 ? "ΒΕΛΤΙΩΣΗ" : (scoreDiff < 0 ? "ΕΠΙΔΕΙΝΩΣΗ" : "ΚΑΜΙΑ ΑΛΛΑΓΗ");
-    String feedbackMsg =
-        scoreDiff > 2.0
-        ? "Εξαιρετικά! Η αλλαγή βελτιώνει σημαντικά τη βιωσιμότητα!"
-        :
-        (scoreDiff > 0 ? "Καλή αλλαγή! Μικρή βελτίωση στη βιωσιμότητα." :
-        (scoreDiff < -2.0 ? "ΠΡΟΣΟΧΗ: Η αλλαγή επιδεινώνει σημαντικά τη βιωσιμότητα!" :
-        (scoreDiff < 0
-        ? "Η αλλαγή μειώνει ελαφρώς τη βιωσιμότητα."
-        : "Η αλλαγή δεν επηρεάζει το ESG score.")));
+
     StringBuilder html = new StringBuilder();
     html.append(
         "<div style='margin-top: 32px; padding-top: 24px; "
@@ -342,6 +341,15 @@ public class YearComparisonWebDisplay {
     html.append(
         "<div style='margin-top: 24px; padding: 16px 20px; background: #f1f8e9; "
         + "border: 2px solid #0d4f1c; border-radius: 10px; text-align: center;'>");
+    String feedbackMsg =
+            scoreDiff > 2.0
+            ? "Εξαιρετικά! Η αλλαγή βελτιώνει σημαντικά τη βιωσιμότητα!"
+            :
+            (scoreDiff > 0 ? "Καλή αλλαγή! Μικρή βελτίωση στη βιωσιμότητα." :
+            (scoreDiff < -2.0 ? "ΠΡΟΣΟΧΗ: Η αλλαγή επιδεινώνει σημαντικά τη βιωσιμότητα!" :
+            (scoreDiff < 0
+            ? "Η αλλαγή μειώνει ελαφρώς τη βιωσιμότητα."
+            : "Η αλλαγή δεν επηρεάζει το ESG score.")));
     html.append(
     "<p style='font-size: 16px; font-weight: 600; color: #1b5e20; margin: 0;'>")
     .append(feedbackMsg)

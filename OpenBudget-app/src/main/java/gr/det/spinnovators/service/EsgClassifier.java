@@ -1,10 +1,8 @@
 package gr.det.spinnovators.service;
 
+import gr.det.spinnovators.envdatamodel.EsgCategory;
 import java.util.HashMap;
 import java.util.Map;
-
-import gr.det.spinnovators.envdatamodel.EsgCategory;
-
 /**
  * Classifies budget sectors, units, and entries into ESG categories.
  *
@@ -14,6 +12,7 @@ import gr.det.spinnovators.envdatamodel.EsgCategory;
  * @author Spinnovators Team
  * @version 3.0 (Balanced Classification with Unit support)
  */
+
 public class EsgClassifier {
 
   // Sector-level classifications

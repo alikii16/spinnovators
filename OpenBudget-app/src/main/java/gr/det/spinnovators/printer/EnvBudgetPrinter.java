@@ -1,15 +1,12 @@
 package gr.det.spinnovators.printer;
 
-
-import java.util.Locale;
-
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
-
+import java.util.Locale;
 /**
  * Responsible for formatting and printing the detailed environmental budget to the console.
  * This class processes the hierarchical structure of the budget (Year → Sector → Unit → Entry)
@@ -31,6 +28,7 @@ import gr.det.spinnovators.service.EnvBudgetTranslator;
  * @author Spinnovators Team
  * @version 1.0
  */
+
 public class EnvBudgetPrinter {
 
   private final EnvBudgetData data;

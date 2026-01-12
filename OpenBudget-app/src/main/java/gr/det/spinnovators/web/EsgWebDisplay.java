@@ -1,11 +1,9 @@
 package gr.det.spinnovators.web;
 
-import java.util.Locale;
-
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.service.EsgScoreCalculator;
-
+import java.util.Locale;
 /**
  * Handles the generation of ESG report components for the web interface.
  *
@@ -25,6 +23,7 @@ import gr.det.spinnovators.service.EsgScoreCalculator;
  * @author Spinnovators Team
  * @version 1.0
  */
+
 public class EsgWebDisplay {
 
   private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
@@ -34,7 +33,7 @@ public class EsgWebDisplay {
     this.calculator = new EsgScoreCalculator();
   }
 
-   /**
+  /**
    * Generates the content HTML for ESG comparison without full page structure.
    *
    * <p>Creates a comprehensive ESG comparison showing:
@@ -60,7 +59,7 @@ public class EsgWebDisplay {
     return buildComparisonContent(originalReport, modifiedReport, originalYear.getYear());
   }
 
-   /**
+  /**
    * Builds the ESG comparison content with detailed analysis.
    *
    * <p>Generates HTML showing ESG score changes across all categories with
