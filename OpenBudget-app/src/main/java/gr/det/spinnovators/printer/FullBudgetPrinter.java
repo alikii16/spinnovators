@@ -30,7 +30,7 @@ public final class FullBudgetPrinter {
     this.data = dataToUse;
   }
 
-   /**
+  /**
    * Generates a formatted budget report string for the specified year.
    *
    * <p>The report includes:

@@ -1,18 +1,16 @@
 package gr.det.spinnovators.service;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.printer.EsgPrinter;
-
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 /**
  * Compares budgets of two different years per sector.
  *
@@ -23,6 +21,7 @@ import gr.det.spinnovators.printer.EsgPrinter;
  * @author Spinnovators Team
  * @version 2.0
  */
+
 public class YearToYearBudgetComparison {
 
   private final EnvBudgetTranslator translator;
@@ -156,6 +155,7 @@ public class YearToYearBudgetComparison {
    * @param baseYear Base year string.
    * @param compareYear Comparison year string.
    */
+  
   private void printHeader(String baseYear, String compareYear) {
     System.out.println();
     System.out.println("══════════════════════════════════════════════════════");
@@ -165,6 +165,7 @@ public class YearToYearBudgetComparison {
   /**
    * Prints the comparison footer.
    */
+  
   private void printFooter() {
     System.out.println("══════════════════════════════════════════════════════");
     System.out.println(" Τέλος Ανάλυσης Σύγκρισης\n");
@@ -179,8 +180,8 @@ public class YearToYearBudgetComparison {
    */
   private String truncate(String value, int maxLength) {
     if (value.length() <= maxLength) {
-    return value;
-   }
+      return value;
+    }
     return value.substring(0, maxLength - 3) + "...";
   }
 }

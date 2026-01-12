@@ -1,17 +1,15 @@
 package gr.det.spinnovators.service;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
 import gr.det.spinnovators.printer.EsgPrinter;
-
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 /**
  * Analyzes and compares budget data before and after changes.
  *
@@ -32,6 +30,7 @@ import gr.det.spinnovators.printer.EsgPrinter;
  * @author Spinnovators Team
  * @version 1.0
  */
+
 public class InitialBudgetComparison {
 
   private final EnvBudgetTranslator translator;

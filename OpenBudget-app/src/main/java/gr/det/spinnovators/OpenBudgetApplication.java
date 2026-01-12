@@ -1,8 +1,5 @@
 package gr.det.spinnovators;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
 
 import gr.det.spinnovators.authentication.FirstLogin;
 import gr.det.spinnovators.data.MinistryDataInput;
@@ -18,6 +15,9 @@ import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.service.EsgScoreCalculator;
 import gr.det.spinnovators.service.YearToYearBudgetComparison;
 import gr.det.spinnovators.web.LoginWebServer;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 /**
  * The main entry point for the OpenBudget application.
@@ -58,6 +58,7 @@ import gr.det.spinnovators.web.LoginWebServer;
  * @see LoginWebServer
  * @see EnvBudgetEditor
  */
+
 public class OpenBudgetApplication {
   /**
    * Starts the application and manages the main execution loop.
@@ -212,11 +213,11 @@ public class OpenBudgetApplication {
 
               if (baseYear != null && compareYear != null) {
                 YearToYearBudgetComparison comparisonService = new YearToYearBudgetComparison(
-                translator, envBudgetData.getEnvMinistryTotalBudget());
+                    translator, envBudgetData.getEnvMinistryTotalBudget());
                 comparisonService.compareYears(baseYear, compareYear);
               } else {
                 System.out.println(
-                  "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
+                    "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
                 );
               }
 
@@ -338,11 +339,11 @@ public class OpenBudgetApplication {
 
               if (baseYear != null && compareYear != null) {
                 YearToYearBudgetComparison comparisonService = new YearToYearBudgetComparison(
-                translator, envBudgetData.getEnvMinistryTotalBudget());
+                    translator, envBudgetData.getEnvMinistryTotalBudget());
                 comparisonService.compareYears(baseYear, compareYear);
               } else {
                 System.out.println(
-                "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
+                    "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
                 );
               }
 

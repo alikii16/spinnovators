@@ -1,12 +1,10 @@
 package gr.det.spinnovators.editor;
 
-import java.util.Scanner;
-
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.service.EditsApplier;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
-
+import java.util.Scanner;
 /**
  * Orchestrates the interactive budget editing session for the user.
  * This class manages the user interface logic for selecting a fiscal year
@@ -15,6 +13,7 @@ import gr.det.spinnovators.service.EnvBudgetTranslator;
  * <p>The editor validates user input, ensures data integrity, and delegates
  * the actual editing operations to the {@link EditsApplier} service.</p>
  */
+
 public class EnvBudgetEditor {
 
   private final EnvBudgetData data;

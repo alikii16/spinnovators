@@ -1,23 +1,22 @@
 package gr.det.spinnovators.web;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
-
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 /**
  * Handles the generation of budget comparison content for the web interface.
  *
  * <p>This class compares original and modified budgets and formats them into HTML fragments
  * to be displayed in the web application's comparison page. It generates comprehensive
- * comparison visualizations including tables, bar charts, top changes analysis, and conclusions.</p>
+ * comparison visualizations including tables, bar charts, top changes analysis, 
+ * and conclusions.</p>
  *
  * <p>The comparison content includes:
  * <ul>
@@ -31,6 +30,7 @@ import gr.det.spinnovators.service.EnvBudgetTranslator;
  * @author Spinnovators Team
  * @version 1.0
  */
+
 public class BudgetComparisonWebDisplay {
   private static final Locale HELLENIC_LOCALE = Locale.forLanguageTag("el-GR");
   private final EnvBudgetTranslator translator;
@@ -114,7 +114,7 @@ public class BudgetComparisonWebDisplay {
     for (EnvSector sector : year.getSectors()) {
       if (sector == null || sector.getJsonKey() == null) {
         continue;
-  }
+      }
 
       double sectorTotal = 0.0;
 
@@ -155,8 +155,10 @@ public class BudgetComparisonWebDisplay {
       Map<String, Double> modified,
                                            double originalTotalBudget, double modifiedTotalBudget) {
     Map<String, Double> origPercentages =
-    calculateAdjustedPercentages(original, originalTotalBudget);
-    Map<String, Double> modPercentages = calculateAdjustedPercentages(modified, modifiedTotalBudget);
+        calculateAdjustedPercentages(original, originalTotalBudget);
+    Map<String, Double> modPercentages =
+        calculateAdjustedPercentages(modified, modifiedTotalBudget);
+
     StringBuilder html = new StringBuilder();
     html.append(
         "<div style='margin-top: 32px; padding-top: 24px; "
@@ -192,8 +194,6 @@ public class BudgetComparisonWebDisplay {
       double change = modAmount - origAmount;
       double changePercent = (origAmount > 0) ? (change / origAmount) * 100 : 0;
       String sectorName = translator.translateCategory(sectorKey);
-      double origPercent = origPercentages.getOrDefault(sectorKey, 0.0);
-      double modPercent = modPercentages.getOrDefault(sectorKey, 0.0);
       String arrow = change > 0.01 ? "↑" : (change < -0.01 ? "↓" : "→");
 
       html.append("<tr style='border-bottom: 1px solid #e8e8e8;'>");
@@ -210,6 +210,7 @@ public class BudgetComparisonWebDisplay {
           origAmount
         )
       );
+      double origPercent = origPercentages.getOrDefault(sectorKey, 0.0);
       html.append(formatPercent(origPercent, "#81c784"));
       html.append("</td>");
       html.append("<td style='padding: 12px; text-align: right;'>");
@@ -220,6 +221,7 @@ public class BudgetComparisonWebDisplay {
           modAmount
         )
       );
+      double modPercent = modPercentages.getOrDefault(sectorKey, 0.0);
       html.append(formatPercent(modPercent, "#81c784"));
       html.append("</td>");
       html.append("<td style='padding: 12px; text-align: right;'>");
@@ -280,18 +282,18 @@ public class BudgetComparisonWebDisplay {
         "<h3 style='font-size: 20px; font-weight: 700; color: #0d4f1c; "
         + "margin-bottom: 20px; text-align: center;'>Κατανομή Προϋπολογισμού</h3>"
     );
-        String[] colors = {
-        "#1b5e20",
-        "#2e7d32",
-        "#388e3c",
-        "#43a047",
-        "#66bb6a",
-        "#81c784",
-        "#a5d6a7",
-        "#c8e6c9",
-        "#4caf50",
-        "#558b2f"
-      };
+    String[] colors = {
+      "#1b5e20",
+      "#2e7d32",
+      "#388e3c",
+      "#43a047",
+      "#66bb6a",
+      "#81c784",
+      "#a5d6a7",
+      "#c8e6c9",
+      "#4caf50",
+      "#558b2f"
+        };
     html.append(
         "<div style='display: grid; grid-template-columns: 1fr 1fr; "
         + "gap: 24px; margin-bottom: 20px;'>"
@@ -453,11 +455,11 @@ public class BudgetComparisonWebDisplay {
     html.append(
         "<div style='margin-top: 32px; padding-top: 24px; "
         + "border-top: 2px solid #c8e6c9;'>"
-   );
+    );
     html.append(
         "<h3 style='font-size: 20px; font-weight: 700; color: #0d4f1c; "
         + "margin-bottom: 20px; text-align: center;'>Συμπεράσματα</h3>"
-   );
+    );
     double totalOriginal = original.values().stream().mapToDouble(Double::doubleValue).sum();
     double totalModified = modified.values().stream().mapToDouble(Double::doubleValue).sum();
     double totalChange = totalModified - totalOriginal;
@@ -471,10 +473,10 @@ public class BudgetComparisonWebDisplay {
         + "margin-bottom: 12px;'>Ισοσκέλιση Προϋπολογισμού</h4>"
     );
     if (Math.abs(totalChange) < 0.01) {
-    html.append(
-        "<p style='color: #1b5e20; font-weight: 600;'>"
-        + "Ο προϋπολογισμός είναι πλήρως ισοσκελισμένος!</p>"
-    );
+      html.append(
+          "<p style='color: #1b5e20; font-weight: 600;'>"
+          + "Ο προϋπολογισμός είναι πλήρως ισοσκελισμένος!</p>"
+      );
     } else {
       html.append(
           String.format(
@@ -521,14 +523,14 @@ public class BudgetComparisonWebDisplay {
           + "<strong>Κύρια εστίαση:</strong> %s (+%,.2f €)</p>",
           name,
           maxIncrease
-    )
-   );
+      )
+      );
     }
     html.append(
-      String.format(
-      HELLENIC_LOCALE,
-      "<p style='color: #1b5e20;'><strong>Τομείς με αύξηση:</strong> %d</p>",
-      sectorsIncreased
+        String.format(
+        HELLENIC_LOCALE,
+        "<p style='color: #1b5e20;'><strong>Τομείς με αύξηση:</strong> %d</p>",
+        sectorsIncreased
       )
     );
     html.append(
@@ -539,7 +541,11 @@ public class BudgetComparisonWebDisplay {
     )
     );
     if (sectorsIncreased == 0 && sectorsDecreased == 0) {
-    html.append("<p style='color: #616161; font-style: italic;'>Δεν έγιναν σημαντικές αλλαγές</p>");
+      html.append(
+          "<p style='color: #616161; font-style: italic;'>"
+          + "Δεν έγιναν σημαντικές αλλαγές</p>"
+      );
+
     }
     html.append("</div>");
 
@@ -652,8 +658,7 @@ public class BudgetComparisonWebDisplay {
     int idx = 0;
     for (String sectorKey : totals.keySet()) {
       String sectorName = translator.translateCategory(sectorKey);
-      double percent = percentages.getOrDefault(sectorKey, 0.0);
-      String color = colors[idx % colors.length];
+
       html.append("<div style='margin-bottom: 12px;'>");
       html.append(
           "<div style='display: flex; justify-content: space-between; "
@@ -664,6 +669,7 @@ public class BudgetComparisonWebDisplay {
       )
           .append(sectorName)
           .append("</span>");
+      double percent = percentages.getOrDefault(sectorKey, 0.0);    
       html.append(
           String.format(
           HELLENIC_LOCALE,
@@ -677,6 +683,7 @@ public class BudgetComparisonWebDisplay {
           "<div style='background: #e8e8e8; border-radius: 4px; "
           + "height: 20px; overflow: hidden;'>"
       );
+      String color = colors[idx % colors.length];
       html.append(
           String.format(
           "<div style='background: %s; height: 100%%; width: %.1f%%; "
@@ -701,6 +708,7 @@ public class BudgetComparisonWebDisplay {
     String sectorKey;
     double absoluteChange;
     double percentChange;
+    
     SectorChange(String key, double absChange, double pctChange) {
       this.sectorKey = key;
       this.absoluteChange = absChange;

@@ -31,6 +31,7 @@ public class BudgetPercentageService {
    *
    * @param dataInput the data provider used to retrieve budget information
    */
+  
   public BudgetPercentageService(MinistryDataInput dataInput) {
     this.dataInput = dataInput;
   }
