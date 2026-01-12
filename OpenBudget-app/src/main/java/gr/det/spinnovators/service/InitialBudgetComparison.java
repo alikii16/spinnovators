@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import gr.det.spinnovators.envdatamodel.EnvEntry;
 import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
@@ -133,8 +132,9 @@ public class InitialBudgetComparison {
     System.out.println("│ Τομέας                              │  Πριν  │  Μετά  │  Αλλαγή    │");
     System.out.println("├─────────────────────────────────────┼────────┼────────┼────────────┤");
 
-    for (String sectorKey : original.keySet()) {
-      double origAmount = original.get(sectorKey);
+    for (Map.Entry<String, Double> entry : original.entrySet()) {
+      String sectorKey = entry.getKey();
+      double origAmount = entry.getValue();
       double modAmount = modified.getOrDefault(sectorKey, 0.0);
       double change = modAmount - origAmount;
       double changePercent = (origAmount > 0) ? (change / origAmount) * 100 : 0;
@@ -263,8 +263,9 @@ public class InitialBudgetComparison {
 
     // Calculate all changes
     List<SectorChange> changes = new ArrayList<>();
-    for (String sectorKey : original.keySet()) {
-      double origAmount = original.get(sectorKey);
+    for (Map.Entry<String, Double> entry : original.entrySet()) {
+      String sectorKey = entry.getKey();
+      double origAmount = entry.getValue();
       double modAmount = modified.getOrDefault(sectorKey, 0.0);
       double change = modAmount - origAmount;
       double changePercent = (origAmount > 0) ? (change / origAmount) * 100 : 0;
@@ -423,8 +424,9 @@ public class InitialBudgetComparison {
     String maxIncreaseSector = "";
     double maxIncrease = 0;
 
-    for (String sectorKey : original.keySet()) {
-      double change = modified.getOrDefault(sectorKey, 0.0) - original.get(sectorKey);
+    for (Map.Entry<String, Double> entry : original.entrySet()) {
+      String sectorKey = entry.getKey();
+      double change = modified.getOrDefault(sectorKey, 0.0) - entry.getValue();
 
       if (change > 0.01) {
         sectorsIncreased++;
