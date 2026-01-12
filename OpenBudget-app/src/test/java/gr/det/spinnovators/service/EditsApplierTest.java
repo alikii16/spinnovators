@@ -58,9 +58,11 @@ public class EditsApplierTest {
         );
 
         // --- 3. Run Applier ---
-        EditsApplier applier = new EditsApplier(new DummyTranslator(), mockScanner);
+        // FIX: Constructor now takes only translator (as per your refactoring)
+        EditsApplier applier = new EditsApplier(new DummyTranslator());
         
-        assertDoesNotThrow(() -> applier.applyEditsToYear(year));
+        // FIX: Pass scanner to the method directly
+        assertDoesNotThrow(() -> applier.applyEditsToYear(year, mockScanner));
 
         // --- 4. Assertions ---
         // The value changed to 150 and back to 100, so it should be 100.
@@ -75,8 +77,9 @@ public class EditsApplierTest {
         String simulatedInput = "invalid\n0\n";
         Scanner mockScanner = new Scanner(new ByteArrayInputStream(simulatedInput.getBytes()));
 
-        EditsApplier applier = new EditsApplier(new DummyTranslator(), mockScanner);
+        EditsApplier applier = new EditsApplier(new DummyTranslator());
         
-        assertDoesNotThrow(() -> applier.applyEditsToYear(year));
+        // FIX: Pass scanner to the method
+        assertDoesNotThrow(() -> applier.applyEditsToYear(year, mockScanner));
     }
 }
