@@ -84,20 +84,25 @@ public class TextReportExporter implements EditedBudgetExporter {
             String unit = parts[2];
             String category = parts[3];
 
-            double oldVal = Double.parseDouble(parts[4]);
-            double newVal = Double.parseDouble(parts[5]);
-            double diff = newVal - oldVal;
-            String sign = diff > 0 ? "+" : "";
+            try {
+              double oldVal = Double.parseDouble(parts[4]);
+              double newVal = Double.parseDouble(parts[5]);
+              double diff = newVal - oldVal;
+              String sign = diff > 0 ? "+" : "";
 
-            // Line 1: Hierarchy (Sector > Unit)
-            writer.printf(Locale.US, " %d. %s > %s%n", (i + 1), sector, unit);
+              // Line 1: Hierarchy (Sector > Unit)
+              writer.printf(Locale.US, " %d. %s > %s%n", (i + 1), sector, unit);
 
-            // Line 2: Specific Category change with arrows
-            writer.printf(Locale.US, "     └── %-30s :  %,14.2f €  --->  %,14.2f €  (%s%,.2f €)%n",
-                shorten(category, 30), oldVal, newVal, sign, diff);
+              // Line 2: Specific Category change with arrows
+              writer.printf(Locale.US, "     └── %-30s :  %,14.2f €  --->  %,14.2f €  (%s%,.2f €)%n",
+                  shorten(category, 30), oldVal, newVal, sign, diff);
 
-            writer.println("----------------------------------------------------------------"
-                + "---------");
+              writer.println("----------------------------------------------------------------"
+                  + "---------");
+            } catch (NumberFormatException e) {
+              // Fallback if numbers are malformed (covers catch block)
+              writer.println(" " + entry + " (Error parsing values)");
+            }
           } else if (parts.length >= 3) {
             // Fallback for older data format
             writer.println(" " + entry);
