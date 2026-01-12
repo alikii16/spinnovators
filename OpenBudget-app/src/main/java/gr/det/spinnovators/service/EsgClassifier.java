@@ -226,16 +226,6 @@ public class EsgClassifier {
       return EsgCategory.ENVIRONMENTAL;
     }
 
-    // Personnel in energy sector is Social
-    if (entryKey.equals("personnel_costs")) {
-      return EsgCategory.SOCIAL;
-    }
-
-    // Governance entries
-    if (entryKey.equals("purchase_of_goods_and_services")) {
-      return EsgCategory.GOVERNANCE;
-    }
-
     // Other entries are Governance
     return EsgCategory.GOVERNANCE;
   }
