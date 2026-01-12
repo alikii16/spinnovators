@@ -1,6 +1,7 @@
 package gr.det.spinnovators.envdatamodel;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,20 +13,8 @@ import java.util.Map;
  * system, providing access to both detailed budget breakdowns and high-level
  * totals.</p>
  *
- * <p>The class provides immutable access to budget data through unmodifiable
- * maps to ensure data integrity. While the maps themselves are unmodifiable,
- * the underlying EnvYear objects contain mutable EnvEntry amounts to support
- * budget editing operations.</p>
- *
- * <p>Data structure:
- * <ul>
- *   <li>dataByYear: Detailed hierarchical budget data per year</li>
- *   <li>envMinistryTotalBudget: Total ministry budget amounts per year</li>
- * </ul>
- * </p>
- *
  * @author Spinnovators Team
- * @version 1.0
+ * @version 1.1
  * @see EnvYear
  */
 public class EnvBudgetData {
@@ -42,9 +31,9 @@ public class EnvBudgetData {
    * If null maps are provided, empty maps are initialized instead.</p>
    *
    * @param dataByYear a map containing detailed budget data per year,
-   *                   where keys are year strings (e.g., "2025") and values are EnvYear objects
+   * where keys are year strings (e.g., "2025") and values are EnvYear objects
    * @param envMinistryTotalBudget a map containing the total budget amounts per year,
-   *                               where keys are year strings and values are total budget amounts
+   * where keys are year strings and values are total budget amounts
    */
   public EnvBudgetData(Map<String, EnvYear> dataByYear,
                        Map<String, Double> envMinistryTotalBudget) {
@@ -55,6 +44,24 @@ public class EnvBudgetData {
     this.envMinistryTotalBudget = (envMinistryTotalBudget != null)
         ? new java.util.HashMap<>(envMinistryTotalBudget)
         : new java.util.HashMap<>();
+  }
+
+  /**
+   * Auxiliary Constructor for Lists (Required for Testing).
+   * * <p>This constructor allows initializing the data directly from a List of EnvYear objects.
+   * It automatically converts the list into the required Map structure using the year string as the key.
+   * It is particularly useful for unit tests or simple data loading scenarios.</p>
+   * * @param yearsList The list of EnvYear objects to load.
+   */
+  public EnvBudgetData(List<EnvYear> yearsList) {
+      this.dataByYear = new java.util.HashMap<>();
+      if (yearsList != null) {
+          for (EnvYear y : yearsList) {
+              this.dataByYear.put(y.getYear(), y);
+          }
+      }
+      // Initialize empty map for totals to avoid NullPointerException
+      this.envMinistryTotalBudget = new java.util.HashMap<>();
   }
 
   /**
@@ -73,7 +80,7 @@ public class EnvBudgetData {
    * <p>The returned map is unmodifiable to preserve data integrity.</p>
    *
    * @return an unmodifiable map where keys are years (e.g., "2025")
-   *         and values are the total budget amounts for the environmental ministry
+   * and values are the total budget amounts for the environmental ministry
    */
   public Map<String, Double> getEnvMinistryTotalBudget() {
     return Collections.unmodifiableMap(envMinistryTotalBudget);

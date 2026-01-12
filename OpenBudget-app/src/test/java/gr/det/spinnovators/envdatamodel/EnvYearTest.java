@@ -4,32 +4,31 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for the {@link EnvYear} class.
  *
- * <p>This test class verifies the getter methods and the findEntry
- * helper method, ensuring correct retrieval of year data and nested
- * budget entries across the sector-unit-entry hierarchy.</p>
- *
- * <p>The test suite covers:
+ * <p>This test suite ensures 100% code coverage by verifying:
  * <ul>
- *   <li>Basic getter methods (getYear, getSectors)</li>
- *   <li>Successful entry lookup through the three-level hierarchy</li>
- *   <li>Null handling for non-existent sectors, units, and entries</li>
- *   <li>Edge cases with null keys at each level</li>
+ * <li>Constructor logic, including null handling.</li>
+ * <li>Getter methods.</li>
+ * <li>Hierarchical entry lookup (findEntry).</li>
+ * <li>Edge cases for null keys and non-existent elements.</li>
  * </ul>
  * </p>
- *
- * @author Spinnovators Team
- * @version 1.0
  */
-public class EnvYearTest {
+class EnvYearTest {
 
+    /**
+     * Test Case: Constructor with Valid List.
+     * Verifies correct initialization.
+     */
     @Test
-    public void testGetters() {
+    void testConstructorWithValidSectors() {
         EnvEntry entry = new EnvEntry("personnel_costs", 1000.0);
         EnvUnit unit = new EnvUnit("unit1", Collections.singletonList(entry));
         EnvSector sector = new EnvSector("sector1", Collections.singletonList(unit));
@@ -37,14 +36,25 @@ public class EnvYearTest {
 
         EnvYear year = new EnvYear("2025", sectors);
 
-        assertEquals("2025", year.getYear(),
-            "getYear should return the correct year");
-        assertEquals(sectors, year.getSectors(),
-            "getSectors should return the correct list of sectors");
+        assertEquals("2025", year.getYear());
+        assertEquals(sectors, year.getSectors());
+    }
+
+    /**
+     * Test Case: Constructor with NULL List.
+     * <p>Covers the defensive logic: <code>sectors != null ? ... : new ArrayList<>()</code></p>
+     */
+    @Test
+    void testConstructorWithNullSectors() {
+        // Pass null to trigger the ternary operator's else branch
+        EnvYear year = new EnvYear("2025", null);
+
+        assertNotNull(year.getSectors(), "Sectors list should not be null even if constructor arg was null");
+        assertTrue(year.getSectors().isEmpty(), "Sectors list should be initialized as empty");
     }
 
     @Test
-    public void testFindEntryExisting() {
+    void testFindEntryExisting() {
         EnvEntry entry = new EnvEntry("personnel_costs", 1000.0);
         EnvUnit unit = new EnvUnit("unit1", Collections.singletonList(entry));
         EnvSector sector = new EnvSector("sector1", Collections.singletonList(unit));
@@ -55,7 +65,7 @@ public class EnvYearTest {
     }
 
     @Test
-    public void testFindEntryNonExistingSector() {
+    void testFindEntryNonExistingSector() {
         EnvEntry entry = new EnvEntry("personnel_costs", 1000.0);
         EnvUnit unit = new EnvUnit("unit1", Collections.singletonList(entry));
         EnvSector sector = new EnvSector("sector1", Collections.singletonList(unit));
@@ -66,7 +76,7 @@ public class EnvYearTest {
     }
 
     @Test
-    public void testFindEntryNonExistingUnit() {
+    void testFindEntryNonExistingUnit() {
         EnvEntry entry = new EnvEntry("personnel_costs", 1000.0);
         EnvUnit unit = new EnvUnit("unit1", Collections.singletonList(entry));
         EnvSector sector = new EnvSector("sector1", Collections.singletonList(unit));
@@ -77,7 +87,7 @@ public class EnvYearTest {
     }
 
     @Test
-    public void testFindEntryNonExistingEntry() {
+    void testFindEntryNonExistingEntry() {
         EnvEntry entry = new EnvEntry("personnel_costs", 1000.0);
         EnvUnit unit = new EnvUnit("unit1", Collections.singletonList(entry));
         EnvSector sector = new EnvSector("sector1", Collections.singletonList(unit));
@@ -88,7 +98,7 @@ public class EnvYearTest {
     }
 
     @Test
-    public void testFindEntryNullKeys() {
+    void testFindEntryNullKeys() {
         EnvYear year = new EnvYear("2025", Collections.emptyList());
 
         assertNull(year.findEntry(null, "unit1", "entry"),
