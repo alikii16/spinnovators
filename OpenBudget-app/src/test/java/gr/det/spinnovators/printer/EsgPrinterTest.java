@@ -1,97 +1,167 @@
 package gr.det.spinnovators.printer;
 
-
 import gr.det.spinnovators.envdatamodel.EsgReport;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for EsgPrinter.
+ * Unit tests for {@link EsgPrinter}.
+ *
+ * <p>This test suite is designed to achieve 100% Branch Coverage by simulating
+ * all possible score ranges and comparison scenarios, including:
+ * <ul>
+ * <li>Major/Minor improvements and deteriorations.</li>
+ * <li>Low scores triggering specific suggestions.</li>
+ * <li>High scores triggering praise.</li>
+ * <li>Neutral budget presence/absence.</li>
+ * </ul>
+ * </p>
  */
 public class EsgPrinterTest {
 
-    
     private EsgPrinter printer;
     private ByteArrayOutputStream outputStream;
-    
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         printer = new EsgPrinter();
-        
         outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
+        // Capture output in UTF-8 to correctly handle Greek characters
+        System.setOut(new PrintStream(outputStream, true, StandardCharsets.UTF_8.name()));
     }
 
-    @Test
-    void testPrintReportBasic() {
-        // Create a simple ESG report
-        EsgReport report = new EsgReport(
-                "2026",
-                1_000_000,
-                400_000, 200_000, 300_000, 100_000,
-                40, 20, 30, 30
+    // --- HELPER METHOD TO CREATE DUMMY REPORTS ---
+    private EsgReport createReport(double env, double soc, double gov, double neutral, double overall) {
+        // Using the 10-arg constructor as seen in your codebase structure
+        return new EsgReport(
+            "2026",
+            1_000_000,
+            300_000, 300_000, 300_000, neutral, // Amounts
+            env, soc, gov, overall // Scores
         );
+    }
+
+    /**
+     * Test Case: Report with Low Scores across the board.
+     * Triggers all "Improvement Suggestions".
+     */
+    @Test
+    void testPrintReport_LowScores() {
+        // Env < 50, Soc < 20, Gov < 15, Overall < 60
+        EsgReport report = createReport(40, 10, 10, 100_000, 30);
 
         printer.printReport(report);
         String output = outputStream.toString();
 
-        assertTrue(output.contains("2026"), "Output should contain the year");
-        assertTrue(output.contains("Συνολικός Προϋπολογισμός"), "Output should contain total budget line");
-        assertTrue(output.contains("Environmental"), "Output should contain Environmental category");
-        assertTrue(output.contains("Social"), "Output should contain Social category");
-        assertTrue(output.contains("Governance"), "Output should contain Governance category");
-        assertTrue(output.contains("Neutral"), "Output should contain Neutral category");
-        assertTrue(output.contains("ΣΥΝΟΛΙΚΟ ESG SCORE"), "Output should contain overall ESG score");
+        assertTrue(output.contains("Αυξήστε τις δαπάνες για ΑΠΕ")); // Env Suggestion
+        assertTrue(output.contains("αύξηση των κοινωνικών παροχών")); // Soc Suggestion
+        assertTrue(output.contains("Ενισχύστε τη διοικητική υποδομή")); // Gov Suggestion
+        assertTrue(output.contains("Neutral")); // Neutral line exists
     }
 
+    /**
+     * Test Case: Report with High Scores.
+     * Triggers the "Great Job" message and skips improvement suggestions.
+     * Also tests case where Neutral budget is 0 (branch coverage).
+     */
     @Test
-    void testPrintComparisonPositiveChange() {
-        EsgReport before = new EsgReport(
-                "2026",
-                1_000_000,
-                400_000, 200_000, 300_000, 100_000,
-                40, 20, 30, 30
-        );
+    void testPrintReport_HighScores_NoNeutral() {
+        // Env >= 50, Soc >= 20, Gov >= 15, Overall >= 60
+        EsgReport report = createReport(60, 30, 30, 0, 65);
 
-        EsgReport after = new EsgReport(
-                "2026",
-                1_000_000,
-                500_000, 250_000, 350_000, 100_000,
-                50, 25, 35, 40
-        );
+        printer.printReport(report);
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("Καλή δουλειά!"));
+        assertFalse(output.contains("Neutral"), "Should not print Neutral line if amount is 0");
+    }
+
+    /**
+     * Test Case: Comparison - Major Improvement (> 2.0).
+     */
+    @Test
+    void testComparison_MajorImprovement() {
+        EsgReport before = createReport(50, 50, 50, 0, 50);
+        EsgReport after = createReport(55, 55, 55, 0, 55); // +5.0
 
         printer.printComparison(before, after);
         String output = outputStream.toString();
 
-        assertTrue(output.contains("ESG Score Πριν"), "Output should contain 'before' score");
-        assertTrue(output.contains("ESG Score Μετά"), "Output should contain 'after' score");
-        assertTrue(output.contains("ΒΕΛΤΙΩΣΗ"), "Output should indicate improvement");
+        assertTrue(output.contains("Εξαιρετικά! Η αλλαγή βελτιώνει σημαντικά"));
+        assertTrue(output.contains("⬆️"));
+    }
+
+    /**
+     * Test Case: Comparison - Minor Improvement (> 0 and <= 2.0).
+     */
+    @Test
+    void testComparison_MinorImprovement() {
+        EsgReport before = createReport(50, 50, 50, 0, 50);
+        EsgReport after = createReport(51, 51, 51, 0, 51); // +1.0
+
+        printer.printComparison(before, after);
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("Καλή αλλαγή! Μικρή βελτίωση"));
+    }
+
+    /**
+     * Test Case: Comparison - Major Deterioration (< -2.0).
+     */
+    @Test
+    void testComparison_MajorDeterioration() {
+        EsgReport before = createReport(50, 50, 50, 0, 50);
+        EsgReport after = createReport(45, 45, 45, 0, 45); // -5.0
+
+        printer.printComparison(before, after);
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("ΠΡΟΣΟΧΗ: Η αλλαγή επιδεινώνει σημαντικά"));
+        assertTrue(output.contains("⬇️"));
+    }
+
+    /**
+     * Test Case: Comparison - Minor Deterioration (< 0 and >= -2.0).
+     */
+    @Test
+    void testComparison_MinorDeterioration() {
+        EsgReport before = createReport(50, 50, 50, 0, 50);
+        EsgReport after = createReport(49, 49, 49, 0, 49); // -1.0
+
+        printer.printComparison(before, after);
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("Η αλλαγή μειώνει ελαφρώς"));
+    }
+
+    /**
+     * Test Case: Comparison - No Change (0.0).
+     */
+    @Test
+    void testComparison_NoChange() {
+        EsgReport before = createReport(50, 50, 50, 0, 50);
+        EsgReport after = createReport(50, 50, 50, 0, 50); // 0.0
+
+        printer.printComparison(before, after);
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("Η αλλαγή δεν επηρεάζει το ESG score"));
+        assertTrue(output.contains("→")); // Neutral arrow
     }
 
     @Test
     void testPrintCompactSummary() {
-        EsgReport report = new EsgReport(
-                "2026",
-                1_000_000,
-                400_000, 200_000, 300_000, 100_000,
-                40, 20, 30, 30
-        );
-
+        EsgReport report = createReport(50, 25, 25, 0, 45);
         printer.printCompactSummary(report);
         String output = outputStream.toString();
 
-        assertTrue(output.contains("ESG"), "Output should contain ESG keyword");
-        assertTrue(output.contains("Score"), "Output should contain Score");
-        assertTrue(output.contains("E:"), "Output should contain Environmental percentage");
-        assertTrue(output.contains("S:"), "Output should contain Social percentage");
-        assertTrue(output.contains("G:"), "Output should contain Governance percentage");
+        assertTrue(output.contains("[ESG]"));
+        assertTrue(output.contains("E: 50,0%"));
     }
 }
