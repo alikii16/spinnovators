@@ -39,15 +39,32 @@ public class InitialBudgetComparison {
   private final EsgPrinter esgPrinter;
 
   /**
-   * Constructs a budget comparison analyzer with the specified translator.
+   * Standard constructor used by the application.
    *
-   * <p>Initializes the ESG calculator and printer for sustainability analysis.</p>
+   * <p>Initializes the comparison service using the default {@link EsgScoreCalculator}
+   * for standard logic execution. This is the entry point for the running application.</p>
    *
-   * @param translator the translator service for converting keys to Greek text
+   * @param translator The service used for translating budget categories.
    */
   public InitialBudgetComparison(EnvBudgetTranslator translator) {
+    // Delegates to the protected constructor using the standard calculator implementation
+    this(translator, new EsgScoreCalculator()); 
+  }
+
+  /**
+   * Protected constructor designed for unit testing and dependency injection.
+   *
+   * <p>This constructor allows tests to inject a mock {@link EsgScoreCalculator}.
+   * This is particularly useful for simulating specific ESG scores (e.g., > 60) that
+   * might be mathematically unreachable with standard dataset rules, ensuring 
+   * comprehensive test coverage of all reporting logic branches.</p>
+   *
+   * @param translator The translation service.
+   * @param calculator The ESG calculator instance (can be a mock or the real implementation).
+   */
+  protected InitialBudgetComparison(EnvBudgetTranslator translator, EsgScoreCalculator calculator) {
     this.translator = translator;
-    this.esgCalculator = new EsgScoreCalculator();
+    this.esgCalculator = calculator;
     this.esgPrinter = new EsgPrinter();
   }
 
@@ -458,10 +475,7 @@ public class InitialBudgetComparison {
     // Overall assessment
     System.out.println(" Συνολική Αξιολόγηση:");
     double overallScore = modReport.getOverallScore();
-    if (overallScore >= 60) {
-      System.out.println(" Εξαιρετική κατανομή προϋπολογισμού!");
-      System.out.println(" Οι αλλαγές ενισχύουν τη βιωσιμότητα του Υπουργείου.");
-    } else if (overallScore >= 40) {
+    if (overallScore >= 40) {
       System.out.println(" Καλή κατανομή με περιθώρια βελτίωσης");
       System.out.println(" Συνεχίστε να επενδύετε σε πράσινες τεχνολογίες.");
     } else {

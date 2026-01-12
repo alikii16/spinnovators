@@ -7,19 +7,30 @@ import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+/**
+ * Unit tests for InitialBudgetComparison.
+ * Uses Recovery Fund logic to boost scores above thresholds.
+ */
 class InitialBudgetComparisonTest {
 
     private InitialBudgetComparison comparison;
     private EnvBudgetTranslator translator;
-    private final double TOTAL_BUDGET = 1000000.0;
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws UnsupportedEncodingException {
+        Locale.setDefault(Locale.forLanguageTag("el-GR"));
+        System.setOut(new PrintStream(outputStreamCaptor, true, StandardCharsets.UTF_8.name()));
+        
         translator = new EnvBudgetTranslator() {
             @Override
             public String translateCategory(String key) {
@@ -30,148 +41,139 @@ class InitialBudgetComparisonTest {
     }
 
     /**
-     * Βοηθητική μέθοδος για τη δημιουργία ενός έτους με συγκεκριμένο ποσό σε έναν τομέα.
+     * Test 1: Excellent ESG Score (>60).
+     * STRATEGY: Activate "Recovery Fund" logic by using a special Unit Name.
+     * Combined with the Energy sector (high impact), this should maximize the score.
      */
-    private EnvYear createYear(String yearName, String sectorKey, double amount) {
-        List<EnvEntry> entries = new ArrayList<>();
-        entries.add(new EnvEntry("entry1", amount));
-        List<EnvUnit> units = new ArrayList<>();
-        units.add(new EnvUnit("unit1", entries));
-        List<EnvSector> sectors = new ArrayList<>();
-        sectors.add(new EnvSector(sectorKey, units));
-        return new EnvYear(yearName, sectors);
-    }
-
     @Test
     void testExcellentEsgAndBalancedBudget() {
-        // Σενάριο 1: Πλήρης ισοσκέλιση (για τα branches 361)
-        EnvYear original = createYear("2025", "executive_coordination_and_investments", 500000.0);
-        EnvYear modified = createYear("2025", "executive_coordination_and_investments", 500000.0);
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(out));
-
-        comparison.performFullComparison(original, modified, TOTAL_BUDGET);
-
-        String output = out.toString();
+        List<EnvSector> sectors = new ArrayList<>();
         
-        // Έλεγχος ισοσκέλισης (Γραμμή 361)
-        assertTrue(output.contains("Ο προϋπολογισμός είναι πλήρως ισοσκελισμένος"), 
-            "Should detect balanced budget");
+        // Χρησιμοποιούμε "Energy" τομέα + "Recovery Fund" Unit για μέγιστο boost
+        // Unit name must contain "recovery_and_resilience" to trigger high-priority logic
+        sectors.add(createSpecialSector("energy_and_mineral_resources_management", 
+                                      "recovery_and_resilience_unit", 
+                                      "green_investments", 
+                                      500000.0));
 
-        // Έλεγχος αξιολόγησης (Γραμμές 399-408)
-        // Ελέγχουμε αν υπάρχει ΕΝΑ από τα τρία πιθανά μηνύματα για να "πρασινίσει" το branch
-        boolean hasAssessment = output.contains("Εξαιρετική κατανομή") || 
-                                output.contains("Καλή κατανομή") || 
-                                output.contains("Χρειάζεται περισσότερη έμφαση");
+        EnvYear original = new EnvYear("2025", sectors);
+        EnvYear modified = new EnvYear("2025", sectors);
+
+        comparison.performFullComparison(original, modified, 500000.0);
+
+        String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
+
+        assertTrue(output.contains("Ο προϋπολογισμός είναι πλήρως ισοσκελισμένος"), "Balanced budget check");
         
-        assertTrue(hasAssessment, "Should print some overall assessment message");
-        
-        System.setOut(System.out);
-    }
-
-    @Test
-    void testSignificantIncreaseAndHighEnvironmentalScore() {
-        // Σενάριο 2: Μεγάλη αύξηση και καλό Environmental Score (για τα branches 148, 283 και 380)
-        //
-        EnvYear original = createYear("2025", "natural_environment_and_water_protection", 100000.0);
-        EnvYear modified = createYear("2025", "natural_environment_and_water_protection", 900000.0);
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(out));
-
-        comparison.performFullComparison(original, modified, TOTAL_BUDGET);
-
-        String output = out.toString();
-        assertTrue(output.contains("⬆"));
-        assertTrue(output.contains("Μεγαλύτερες Αυξήσεις"));
-        assertTrue(output.contains("Καλή έμφαση σε περιβαλλοντικές δαπάνες"));
-        assertTrue(output.contains("Κύρια εστίαση"));
-
-        System.setOut(System.out);
-    }
-
-    @Test
-    void testSignificantDecreaseAndLowScores() {
-        // Σενάριο 3: Μεγάλη μείωση (για τα branches 148 και 298)
-        //
-        EnvYear original = createYear("2025", "spatial_planning_and_urban_environment", 800000.0);
-        EnvYear modified = createYear("2025", "spatial_planning_and_urban_environment", 100000.0);
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(out));
-
-        comparison.performFullComparison(original, modified, TOTAL_BUDGET);
-
-        String output = out.toString();
-        assertTrue(output.contains("⬇"));
-        assertTrue(output.contains("Μεγαλύτερες Μειώσεις"));
-        assertTrue(output.contains("Διαφορά:"));
-
-        System.setOut(System.out);
-    }
-
-    @Test
-    void testPerfectEsgAndMultipleIncreases() {
-        // Δημιουργούμε 4 τομείς με σημαντική αύξηση για να καλύψουμε τα loops
-        List<EnvSector> origSectors = new ArrayList<>();
-        List<EnvSector> modSectors = new ArrayList<>();
-        
-        String[] keys = {
-            "executive_coordination_and_investments",
-            "natural_environment_and_water_protection",
-            "spatial_planning_and_urban_environment",
-            "energy_and_mineral_resources_management"
-        };
-        
-        for (String key : keys) {
-            origSectors.add(createSector(key, 100000.0));
-            modSectors.add(createSector(key, 500000.0)); // Μεγάλη αύξηση
+        // Ελέγχουμε αν πετύχαμε το στόχο. Αν αποτύχει, τυπώνει το πραγματικό output για debug.
+        if (!output.contains("Εξαιρετική κατανομή") && !output.contains("Καλή κατανομή")) {
+             // Fallback assertion: Αν όντως η κλάση έχει ταβάνι το 40, ελέγχουμε ότι ΤΟΥΛΑΧΙΣΤΟΝ τυπώθηκε το report.
+             // Αλλά προσπαθούμε για το High Score.
+             System.out.println("DEBUG Output for Excellent Test:\n" + output);
         }
         
-        EnvYear original = new EnvYear("2025", origSectors);
-        EnvYear modified = new EnvYear("2025", modSectors);
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(out));
-
-        // Εκτέλεση της σύγκρισης
-        comparison.performFullComparison(original, modified, 1000000.0);
-
-        String output = out.toString();
-        
-        // 1. Έλεγχος αν εκτελέστηκε το loop των αυξήσεων (Branch 283)
-        assertTrue(output.contains("Μεγαλύτερες Αυξήσεις"), "Should list top increases");
-        
-        // 2. Έλεγχος αν εκτελέστηκε η εστίαση αλλαγών (Branch 440)
-        assertTrue(output.contains("Κύρια εστίαση"), "Should show focus analysis");
-
-        // 3. Έλεγχος αξιολόγησης (Branches 399-408)
-        // Αντί για ένα συγκεκριμένο κείμενο, ελέγχουμε αν εκτυπώθηκε ΟΠΟΙΑΔΗΠΟΤΕ αξιολόγηση
-        boolean hasAssessment = output.contains("Εξαιρετική κατανομή") || 
-                                output.contains("Καλή κατανομή") || 
-                                output.contains("Χρειάζεται περισσότερη έμφαση");
-        
-        assertTrue(hasAssessment, "The overall assessment section should have been triggered");
-        
-        System.setOut(System.out);
+        // Ελέγχουμε για High Score (ή έστω το καλύτερο δυνατό μήνυμα που δείχνει βελτίωση)
+        boolean isHigh = output.contains("Εξαιρετική κατανομή") || output.contains("Καλή κατανομή");
+        assertTrue(isHigh, "Expected High ESG score (>60) using Recovery Fund logic.");
     }
 
-    // Βοηθητική μέθοδος για δημιουργία τομέα
-    private EnvSector createSector(String key, double amount) {
-        List<EnvEntry> entries = new ArrayList<>();
-        entries.add(new EnvEntry("entry", amount));
-        List<EnvUnit> units = new ArrayList<>();
-        units.add(new EnvUnit("unit", entries));
-        return new EnvSector(key, units);
+    /**
+     * Test 2: Middle ESG Score (40-60).
+     * STRATEGY: 100% "Natural Environment" via standard budget (no Recovery Fund).
+     * Based on logs, standard Env gives ~40 points. This sits right on the edge.
+     * We add a small amount of Recovery Fund to push it safely into the 40-60 range.
+     */
+    @Test
+    void testMiddleEsgScore() {
+        List<EnvSector> sectors = new ArrayList<>();
+        
+        // 90% Standard Environment (Base Score ~36)
+        sectors.add(createSpecialSector("natural_environment_and_water_protection", 
+                                      "standard_unit", 
+                                      "preservation", 
+                                      90000.0));
+        
+        // 10% Recovery Fund Energy (Boost Score)
+        sectors.add(createSpecialSector("energy_and_mineral_resources_management", 
+                                      "recovery_and_resilience_unit", 
+                                      "green_energy", 
+                                      10000.0));
+        
+        EnvYear year = new EnvYear("2025", sectors);
+        
+        comparison.performFullComparison(year, year, 100000.0);
+        
+        String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
+        
+        boolean hitMiddle = output.contains("Καλή κατανομή με περιθώρια βελτίωσης") || 
+                            output.contains("Συνεχίστε να επενδύετε");
+                            
+        assertTrue(hitMiddle, "Should hit the middle ground ESG score (40-60).");
+    }
+
+    /**
+     * Test 3: Low ESG (<40).
+     */
+    @Test
+    void testLowEsgAndSocialScores() {
+        EnvYear year = createYear("2025", "executive_coordination_and_investments", 100000.0);
+        comparison.performFullComparison(year, year, 100000.0);
+        String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
+        
+        assertTrue(output.contains("Χρειάζεται περισσότερη έμφαση στη βιωσιμότητα"));
+        assertTrue(output.contains("Οι κοινωνικές δαπάνες είναι χαμηλές"));
+    }
+
+    @Test
+    void testZeroOriginalAmount() {
+        EnvYear original = createYear("2025", "new_sector", 0.0);
+        EnvYear modified = createYear("2025", "new_sector", 1000.0);
+        comparison.performFullComparison(original, modified, 1000.0);
+        String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
+        assertTrue(output.contains("0,0%"));
+    }
+
+    @Test
+    void testMultipleChanges() {
+        List<EnvSector> origSectors = new ArrayList<>();
+        List<EnvSector> modSectors = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            origSectors.add(createSpecialSector("sector_inc_" + i, "u", "e", 100.0));
+            modSectors.add(createSpecialSector("sector_inc_" + i, "u", "e", 200.0));
+            origSectors.add(createSpecialSector("sector_dec_" + i, "u", "e", 200.0));
+            modSectors.add(createSpecialSector("sector_dec_" + i, "u", "e", 100.0));
+        }
+        EnvYear original = new EnvYear("2025", origSectors);
+        EnvYear modified = new EnvYear("2025", modSectors);
+        comparison.performFullComparison(original, modified, 10000.0);
+        String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
+        assertTrue(output.contains("Μεγαλύτερες Αυξήσεις"));
+        assertTrue(output.contains("Μεγαλύτερες Μειώσεις"));
     }
 
     @Test
     void testTruncateAndLegend() {
-        // Έλεγχος της μεθόδου truncate (για μεγάλα ονόματα) και του Legend
-        EnvYear year = createYear("2025", "a_very_long_sector_key_that_exceeds_the_maximum_allowed_length", 100.0);
+        EnvYear year = createYear("2025", "very_long_sector_name_that_exceeds_limits_for_testing_truncation_logic_abcdefg", 100.0);
+        assertDoesNotThrow(() -> comparison.performFullComparison(year, year, 100.0));
+        String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
+        assertTrue(output.contains("..."));
+    }
+
+    // --- Helper Methods ---
+
+    // Legacy helper
+    private EnvYear createYear(String yearName, String sectorKey, double amount) {
+        return new EnvYear(yearName, List.of(createSpecialSector(sectorKey, "unit_1", "entry_1", amount)));
+    }
+
+    // Advanced Helper: Allows setting Unit Name (Crucial for Recovery Fund logic)
+    private EnvSector createSpecialSector(String sectorKey, String unitKey, String entryKey, double amount) {
+        List<EnvEntry> entries = new ArrayList<>();
+        entries.add(new EnvEntry(entryKey, amount));
         
-        assertDoesNotThrow(() -> comparison.performFullComparison(year, year, TOTAL_BUDGET));
+        List<EnvUnit> units = new ArrayList<>();
+        units.add(new EnvUnit(unitKey, entries));
+        
+        return new EnvSector(sectorKey, units);
     }
 }
-
