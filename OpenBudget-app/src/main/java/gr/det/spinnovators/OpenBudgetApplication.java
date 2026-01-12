@@ -68,17 +68,17 @@ public class OpenBudgetApplication {
           if (java.awt.Desktop.isDesktopSupported()) {
             java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
           }
-        } catch (Exception ignored) {
+        } catch (java.io.IOException | java.net.URISyntaxException ignored) {
           System.out.println("Please open " + url + " manually in your browser");
         }
         System.out.println("You can also use the terminal interface below:");
         System.out.println("==========================================");
 
       } else {
-        System.out.println("Warning: Frontend directory not found at " + foundPath);
+        System.out.println("Warning: Frontend directory not found at in any of the possible paths.");
         System.out.println("Using terminal mode only.");
       }
-    } catch (Exception e) {
+    } catch (java.io.IOException e) {
       System.out.println("Warning: Could not start web server: " + e.getMessage());
       System.out.println("Continuing with terminal mode only...");
     }
@@ -203,11 +203,11 @@ public class OpenBudgetApplication {
                 System.out.println("Συνολικό Score: " + String.format("%.2f",
                           report.getOverallScore()) + "/100");
                 System.out.println("------------------------------------------");
-                System.out.printf("Περιβαλλοντικό Score: %.2f%% (%,.2f €)\n",
+                System.out.printf("Περιβαλλοντικό Score: %.2f%% (%,.2f €)%n",
                           report.getEnvironmentalScore(), report.getEnvironmentalAmount());
-                System.out.printf("Κοινωνικό Score:      %.2f%% (%,.2f €)\n",
+                System.out.printf("Κοινωνικό Score:      %.2f%% (%,.2f €)%n",
                           report.getSocialScore(), report.getSocialAmount());
-                System.out.printf("Διακυβέρνηση Score:   %.2f%% (%,.2f €)\n",
+                System.out.printf("Διακυβέρνηση Score:   %.2f%% (%,.2f €)%n",
                           report.getGovernanceScore(), report.getGovernanceAmount());
                 System.out.println("==========================================");
               } else {
@@ -330,11 +330,11 @@ public class OpenBudgetApplication {
                 System.out.println("Συνολικό Score: " + String.format("%.2f", 
                                 report.getOverallScore()) + "/100");
                 System.out.println("------------------------------------------");
-                System.out.printf("Περιβαλλοντικό Score: %.2f%% (%,.2f €)\n",
+                System.out.printf("Περιβαλλοντικό Score: %.2f%% (%,.2f €)%n",
                                 report.getEnvironmentalScore(), report.getEnvironmentalAmount());
-                System.out.printf("Κοινωνικό Score:      %.2f%% (%,.2f €)\n",
+                System.out.printf("Κοινωνικό Score:      %.2f%% (%,.2f €)%n",
                                 report.getSocialScore(), report.getSocialAmount());
-                System.out.printf("Διακυβέρνηση Score:   %.2f%% (%,.2f €)\n",
+                System.out.printf("Διακυβέρνηση Score:   %.2f%% (%,.2f €)%n",
                                 report.getGovernanceScore(), report.getGovernanceAmount());
                 System.out.println("==========================================");
               } else {
