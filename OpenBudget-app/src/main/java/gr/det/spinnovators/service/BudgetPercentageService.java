@@ -36,6 +36,13 @@ public class BudgetPercentageService {
     this.dataInput = dataInput;
   }
 
+  /**
+   * Calculates and displays the percentage share of the
+   * Miinistry of Environment and Energy int the total
+   * State Budget for the specified year.
+   * 
+   * @param year
+   */
   public void displayEnvironmentPercentage(int year) {
     String target = "Υπουργείο Περιβάλλοντος και Ενέργειας";
     double[] amounts;
