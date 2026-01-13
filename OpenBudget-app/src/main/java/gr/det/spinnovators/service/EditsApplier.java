@@ -350,7 +350,10 @@ public class EditsApplier {
    * @param searchName The category name to search for.
    * @param year The current budget year (needed for ESG context).
    */
-  private void findAndEditEntryInUnit(EnvUnit unit, String searchName, EnvYear year, Scanner scanner) {
+  private void findAndEditEntryInUnit(EnvUnit unit,
+                                  String searchName,
+                                  EnvYear year,
+                                  Scanner scanner) {
     boolean found = false;
 
     for (EnvEntry entry : unit.getEntries()) {
@@ -509,7 +512,7 @@ public class EditsApplier {
       double oldAmount,
       double newAmount,
       Scanner scanner
-    ) {
+  ) {
 
     if (result == BudgetValidator.ValidationResult.OK) {
       return ValidationOutcome.ACCEPTED;

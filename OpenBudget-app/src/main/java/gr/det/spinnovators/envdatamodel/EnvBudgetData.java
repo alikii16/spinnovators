@@ -8,10 +8,7 @@ import java.util.Map;
  * Model class that stores all environmental budget data grouped by year.
  *
  * <p>This class acts as a data container, mapping fiscal years to their
- * respective environmental budget details and total ministry allocations.
- * It serves as the root data structure for the entire environmental budget
- * system, providing access to both detailed budget breakdowns and high-level
- * totals.</p>
+ * respective environmental budget details and total ministry allocations.</p>
  *
  * @author Spinnovators Team
  * @version 1.1
@@ -27,11 +24,8 @@ public class EnvBudgetData {
   /**
    * Constructs an EnvBudgetData instance with the specified budget mappings.
    *
-   * <p>Defensive copies are created for both maps to prevent external modification.
-   * If null maps are provided, empty maps are initialized instead.</p>
-   *
    * @param dataByYear a map containing detailed budget data per year,
-   * where keys are year strings (e.g., "2025") and values are EnvYear objects
+   * where keys are year strings and values are EnvYear objects
    * @param envMinistryTotalBudget a map containing the total budget amounts per year,
    * where keys are year strings and values are total budget amounts
    */
@@ -49,11 +43,7 @@ public class EnvBudgetData {
   /**
    * Auxiliary Constructor for Lists (Required for Testing).
    *
-   * <p>This constructor allows initializing the data directly from a List of EnvYear objects.
-   * It automatically converts the list into the required Map structure.
-   * It is particularly useful for unit tests or simple data loading scenarios.</p>
-   *
-   * @param yearsList The list of EnvYear objects to load.
+   * @param yearsList The list of EnvYear objects to load into the map.
    */
   public EnvBudgetData(List<EnvYear> yearsList) {
     this.dataByYear = new java.util.HashMap<>();
@@ -77,8 +67,6 @@ public class EnvBudgetData {
 
   /**
    * Retrieves the map of total ministry budgets for all available years.
-   *
-   * <p>The returned map is unmodifiable to preserve data integrity.</p>
    *
    * @return an unmodifiable map where keys are years (e.g., "2025")
    * and values are the total budget amounts for the environmental ministry
