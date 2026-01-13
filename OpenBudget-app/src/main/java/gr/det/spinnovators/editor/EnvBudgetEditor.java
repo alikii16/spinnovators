@@ -27,9 +27,6 @@ public class EnvBudgetEditor {
    * @throws NullPointerException if any parameter is null
    */
   public EnvBudgetEditor(EnvBudgetData data, EnvBudgetTranslator translator) {
-    if (data == null || translator == null) {
-      throw new NullPointerException("Parameters cannot be null");
-    }
     this.data = data;
     this.translator = translator;
   }
