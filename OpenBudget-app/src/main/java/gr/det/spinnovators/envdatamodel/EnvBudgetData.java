@@ -48,20 +48,21 @@ public class EnvBudgetData {
 
   /**
    * Auxiliary Constructor for Lists (Required for Testing).
-   * * <p>This constructor allows initializing the data directly from a List of EnvYear objects.
-   * It automatically converts the list into the required Map structure using the year string as the key.
+   *
+   * <p>This constructor allows initializing the data directly from a List of EnvYear objects.
+   * It automatically converts the list into the required Map structure.
    * It is particularly useful for unit tests or simple data loading scenarios.</p>
-   * * @param yearsList The list of EnvYear objects to load.
+   *
+   * @param yearsList The list of EnvYear objects to load.
    */
   public EnvBudgetData(List<EnvYear> yearsList) {
-      this.dataByYear = new java.util.HashMap<>();
-      if (yearsList != null) {
-          for (EnvYear y : yearsList) {
-              this.dataByYear.put(y.getYear(), y);
-          }
+    this.dataByYear = new java.util.HashMap<>();
+    if (yearsList != null) {
+      for (EnvYear y : yearsList) {
+        this.dataByYear.put(y.getYear(), y);
       }
-      // Initialize empty map for totals to avoid NullPointerException
-      this.envMinistryTotalBudget = new java.util.HashMap<>();
+    }
+    this.envMinistryTotalBudget = new java.util.HashMap<>();
   }
 
   /**
