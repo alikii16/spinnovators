@@ -1,104 +1,129 @@
 package gr.det.spinnovators.service;
 
-import gr.det.spinnovators.envdatamodel.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import java.util.List;
-import java.util.Scanner;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import gr.det.spinnovators.envdatamodel.EnvEntry;
+import gr.det.spinnovators.envdatamodel.EnvSector;
+import gr.det.spinnovators.envdatamodel.EnvUnit;
+import gr.det.spinnovators.envdatamodel.EnvYear;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+import java.util.Scanner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+/**
+ * Unit tests for the EditsApplier class.
+ * This suite focuses on interactive editing cycles, ESG recalculations,
+ * and input validation branches.
+ */
 public class EditsApplierTest {
 
-    private EnvYear year2025;
-    private EnvEntry envEntry;
+  private EnvYear year2025;
+  private EnvEntry envEntry;
 
-    static class DummyTranslator extends EnvBudgetTranslator {
-        @Override
-        public String translateCategory(String key) { return key; }
+  /**
+   * Dummy translator for testing purposes.
+   */
+  static class DummyTranslator extends EnvBudgetTranslator {
+    @Override
+    public String translateCategory(String key) {
+      return key;
     }
+  }
 
-    @BeforeEach
-    void setup() {
-        // Χρησιμοποιούμε κλειδί που ενεργοποιεί ESG κανόνες (π.χ. ENVIRONMENTAL)
-        envEntry = new EnvEntry("env_protection_entry", 1000000.0);
-        EnvUnit unit = new EnvUnit("unit1", List.of(envEntry));
-        EnvSector sector = new EnvSector("sector_environmental", List.of(unit));
-        year2025 = new EnvYear("2025", List.of(sector));
-    }
+  /**
+   * Sets up the test environment with sample budget data.
+   */
+  @BeforeEach
+  void setup() {
+    // Using a key that triggers ESG rules (e.g., ENVIRONMENTAL)
+    envEntry = new EnvEntry("env_protection_entry", 1000000.0);
+    EnvUnit unit = new EnvUnit("unit1", List.of(envEntry));
+    EnvSector sector = new EnvSector("sector_environmental", List.of(unit));
+    year2025 = new EnvYear("2025", List.of(sector));
+  }
 
-    /**
-     * ΤΟ ΜΕΓΑΛΟ ΤΕΣΤ: Καλύπτει επιτυχείς αλλαγές, ESG recalculation και ακυρώσεις.
-     * Στόχος: Πρασίνισμα recalculateEsgScore & applyBudgetChange.
-     */
-    @Test
-    public void testFullInteractiveCycle() {
-        String simulatedInput = 
-            "1\n" +             // Επιλογή Τομέα
-            "1\n" +             // Επιλογή Μονάδας
-            "env_protection_entry\n" + 
-            "1500000\n" +       // Μεγάλη απόκλιση (+50%)
-            "NAI\n" +           // Επιβεβαίωση -> Ενεργοποιεί applyBudgetChange & recalculateEsgScore
-            "1\n" +             // Ξανά στον Τομέα 1
-            "1\n" +             // Μονάδα 1
-            "env_protection_entry\n" + 
-            "1000000\n" +       // Επαναφορά για ισοσκέλιση (Balance = 0)
-            "0\n" +             // Επιστροφή από Μονάδες
-            "0\n";              // Έξοδος από Τομείς (Επιτυχής γιατί balance < 0.01)
+  /**
+   * THE BIG TEST: Covers successful changes, ESG recalculation, and cancellations.
+   * Goal: Coverage for recalculateEsgScore & applyBudgetChange.
+   */
+  @Test
+  public void testFullInteractiveCycle() {
+    String simulatedInput = 
+        "1\n"                       // Select Sector
+        + "1\n"                     // Select Unit
+        + "env_protection_entry\n"  // Select Entry
+        + "1500000\n"               // Large deviation (+50%)
+        + "NAI\n"                   // Confirm -> Triggers apply & recalculate
+        + "1\n"                     // Back to Sector 1
+        + "1\n"                     // Unit 1
+        + "env_protection_entry\n"  // Entry again
+        + "1000000\n"               // Restore for balancing (Balance = 0)
+        + "0\n"                     // Exit from Units
+        + "0\n";                    // Exit from Sectors (Success if balance < 0.01)
 
-        Scanner scanner = createScanner(simulatedInput);
-        EditsApplier applier = new EditsApplier(new DummyTranslator());
-        
-        applier.applyEditsToYear(year2025, scanner);
-        
-        // Έλεγχος αν οι τιμές όντως άλλαξαν και επέστρεψαν
-        assertEquals(1000000.0, envEntry.getAmount(), "Το ποσό πρέπει να έχει επανέλθει στο αρχικό.");
-    }
+    Scanner scanner = createScanner(simulatedInput);
+    EditsApplier applier = new EditsApplier(new DummyTranslator());
+    
+    applier.applyEditsToYear(year2025, scanner);
+    
+    // Verify if values changed and then returned to original
+    assertEquals(1000000.0, envEntry.getAmount(), 
+        "The amount should have returned to the original value.");
+  }
 
-    /**
-     * ΤΕΣΤ ΣΦΑΛΜΑΤΩΝ: Καλύπτει όλα τα "κόκκινα" μηνύματα λάθους και τα catch blocks.
-     * Στόχος: 100% Branch Coverage στην handleValidationResult.
-     */
-    @Test
-    public void testAllErrorBranches() {
-        // Δοκιμή και με το έτος 2026 για κάλυψη του initialization
-        EnvYear year2026 = new EnvYear("2026", year2025.getSectors());
-        
-        String simulatedInput = 
-            "1\n" + "1\n" + "env_protection_entry\n" + 
-            "-100\n" +          // Σφάλμα: Αρνητικό ποσό
-            "99999999999\n" +   // Σφάλμα: Υπέρβαση ορίου
-            "100\n" +           // Σφάλμα: ESG_ENV_PROTECTION (μείωση > 5%)
-            "invalid\n" +       // Σφάλμα: Μη έγκυρη μορφή αριθμού (catch ParseException)
-            " \n" +              // Σφάλμα: Κενή είσοδος -> "Δεν δόθηκε τιμή"
-            "0\n" +             // Προσπάθεια εξόδου με επιστροφή null
-            "0\n";              // Τελική έξοδος
+  /**
+   * ERROR TEST: Covers all error messages and catch blocks.
+   * Goal: 100% Branch Coverage in handleValidationResult.
+   */
+  @Test
+  public void testAllErrorBranches() {
+    // Test with year 2026 for initialization coverage
+    EnvYear year2026 = new EnvYear("2026", year2025.getSectors());
+    
+    String simulatedInput = 
+        "1\n" + "1\n" + "env_protection_entry\n" 
+        + "-100\n"           // Error: Negative amount
+        + "99999999999\n"    // Error: Exceeds limit
+        + "100\n"            // Error: ESG_ENV_PROTECTION (reduction > 5%)
+        + "invalid\n"        // Error: Invalid format (catch ParseException)
+        + " \n"              // Error: Empty input
+        + "0\n"              // Exit attempt
+        + "0\n";             // Final exit
 
-        Scanner scanner = createScanner(simulatedInput);
-        EditsApplier applier = new EditsApplier(new DummyTranslator());
-        applier.applyEditsToYear(year2026, scanner);
-    }
+    Scanner scanner = createScanner(simulatedInput);
+    EditsApplier applier = new EditsApplier(new DummyTranslator());
+    applier.applyEditsToYear(year2026, scanner);
+  }
 
-    /**
-     * ΤΕΣΤ ΑΚΥΡΩΣΗΣ: Καλύπτει την άρνηση στην προειδοποίηση απόκλισης.
-     * Στόχος: Πρασίνισμα του "else" στην handleExtremeDeviationWarning.
-     */
-    @Test
-    public void testDeviationCancellation() {
-        String simulatedInput = 
-            "1\n" + "1\n" + "env_protection_entry\n" + 
-            "2000000\n" +       // Απόκλιση 100%
-            "OXI\n" +           // Άρνηση -> "Η αλλαγή ακυρώθηκε"
-            " \n" +             // Κενή επιλογή στο μενού (choice -1)
-            "0\n" + "0\n";
+  /**
+   * CANCELLATION TEST: Covers declining the deviation warning.
+   * Goal: Coverage for the "else" branch in handleExtremeDeviationWarning.
+   */
+  @Test
+  public void testDeviationCancellation() {
+    String simulatedInput = 
+        "1\n" + "1\n" + "env_protection_entry\n" 
+        + "2000000\n"        // 100% deviation
+        + "OXI\n"            // Decline -> "Change cancelled"
+        + " \n"              // Empty selection (choice -1)
+        + "0\n" + "0\n";
 
-        Scanner scanner = createScanner(simulatedInput);
-        EditsApplier applier = new EditsApplier(new DummyTranslator());
-        applier.applyEditsToYear(year2025, scanner);
-    }
+    Scanner scanner = createScanner(simulatedInput);
+    EditsApplier applier = new EditsApplier(new DummyTranslator());
+    applier.applyEditsToYear(year2025, scanner);
+  }
 
-    private Scanner createScanner(String input) {
-        return new Scanner(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
-    }
+  /**
+   * Helper method to create a Scanner from a String.
+   *
+   * @param input The simulated input string.
+   * @return A scanner object.
+   */
+  private Scanner createScanner(String input) {
+    return new Scanner(new ByteArrayInputStream(
+        input.getBytes(StandardCharsets.UTF_8)));
+  }
 }

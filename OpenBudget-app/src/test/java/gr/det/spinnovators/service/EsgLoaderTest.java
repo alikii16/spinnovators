@@ -1,46 +1,64 @@
 package gr.det.spinnovators.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.gson.JsonObject;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Advanced Unit Tests for EsgLoader to achieve 100% coverage.
- * Covers file missing, malformed JSON, and path traversal logic.
+ * Covers missing files, malformed JSON, and path traversal logic.
  */
 class EsgLoaderTest {
 
   private EsgLoader esgLoader;
 
+  /**
+   * Sets up the test environment before each execution.
+   * Covers the LOGGER.SEVERE branch if the config file is missing.
+   */
   @BeforeEach
   void setUp() {
-    // Καλύπτει το branch LOGGER.SEVERE αν το αρχείο λείπει
     esgLoader = new EsgLoader();
   }
 
+  /**
+   * Verifies that the loader falls back to a default configuration.
+   */
   @Test
   void testDefaultConfigFallback() {
     assertNotNull(esgLoader.getConfig());
     assertEquals(0.40, esgLoader.getEnvironmentalWeight());
     assertEquals(0.30, esgLoader.getSocialWeight());
     assertEquals(0.30, esgLoader.getGovernanceWeight());
-   }
+  }
 
+  /**
+   * Tests threshold values and ESG classifications.
+   */
   @Test
   void testThresholdsAndClassification() {
     assertEquals(80, esgLoader.getExcellentThreshold());
     assertEquals(60, esgLoader.getGoodThreshold());
     assertEquals(40, esgLoader.getModerateThreshold());
-     assertEquals(20, esgLoader.getPoorThreshold());
+    assertEquals(20, esgLoader.getPoorThreshold());
     
     assertEquals("NEUTRAL", esgLoader.getSectorClassification("any"));
     assertEquals("NEUTRAL", esgLoader.getEntryClassification("any"));
     assertEquals("NEUTRAL", esgLoader.getEffectiveCategory("any", "any"));
   }
 
+  /**
+   * Tests display settings and advanced configuration branches.
+   */
   @Test
   void testDisplayAndAdvancedSettings() {
     assertTrue(esgLoader.isEsgEnabled());
@@ -55,13 +73,19 @@ class EsgLoaderTest {
     assertFalse(esgLoader.isCachingEnabled());
   }
 
+  /**
+   * Tests thresholds for sustainability improvement suggestions.
+   */
   @Test
   void testImprovementThresholds() {
     assertEquals(50, esgLoader.getEnvironmentalLowThreshold());
     assertEquals(20, esgLoader.getSocialLowThreshold());
-   assertEquals(15, esgLoader.getGovernanceLowThreshold());
+    assertEquals(15, esgLoader.getGovernanceLowThreshold());
   }
 
+  /**
+   * Tests localization support and rating text fallbacks.
+   */
   @Test
   void testLocalizationAndRatings() {
     assertEquals("el", esgLoader.getDefaultLanguage());
@@ -75,10 +99,11 @@ class EsgLoaderTest {
   }
 
   /**
-   * Targets the private getStringFromPath and Exception handling branches.
-   */
- @Test
-
+   * Targets the private getStringFromPath and Exception handling branches.
+   *
+   * @throws Exception if reflection fails.
+   */
+  @Test
   void testPathTraversalAndErrorHandling() throws Exception {
     JsonObject mockConfig = new JsonObject();
     JsonObject weights = new JsonObject();
@@ -98,13 +123,16 @@ class EsgLoaderTest {
     configField.set(esgLoader, null);
     assertEquals("el", esgLoader.getDefaultLanguage());
     assertEquals("NEUTRAL", esgLoader.getSectorClassification("test"));
-    assertNull(esgLoader.getConfig()); // Καλύπτει το null branch στην getConfig
+    assertNull(esgLoader.getConfig()); // Null branch coverage in getConfig
   }
 
+  /**
+   * Tests complex path navigation and rating fallback logic.
+   *
+   * @throws Exception if reflection fails.
+   */
   @Test
-
   void testComplexPathAndRatingFallback() throws Exception {
-    // Κάλυψη του branch όπου η getStringFromPath επιστρέφει τιμή από το JSON
     JsonObject mockConfig = new JsonObject();
     JsonObject localization = new JsonObject();
     JsonObject ratings = new JsonObject();
@@ -118,15 +146,19 @@ class EsgLoaderTest {
     configField.setAccessible(true);
     configField.set(esgLoader, mockConfig);
 
-// Ελέγχουμε αν όντως διαβάζει από το JSON (πρασινίζει το τέλος της getStringFromPath)
-
     assertEquals("Κρίσιμη Τιμή", esgLoader.getRatingText("critical", "el"));
     mockConfig.addProperty("invalidPath", "not-an-object");
-    Method getString = EsgLoader.class.getDeclaredMethod("getStringFromPath", String.class, String.class);
+    Method getString = EsgLoader.class.getDeclaredMethod("getStringFromPath", 
+        String.class, String.class);
     getString.setAccessible(true);
     assertEquals("fallback", getString.invoke(esgLoader, "invalidPath.subKey", "fallback"));
   }
 
+  /**
+   * Tests effective category inheritance logic.
+   *
+   * @throws Exception if reflection fails.
+   */
   @Test
   void testEffectiveCategoryLogic() throws Exception {
     JsonObject mockConfig = new JsonObject();
@@ -147,9 +179,11 @@ class EsgLoaderTest {
     assertEquals("ENVIRONMENTAL", esgLoader.getEffectiveCategory("direct_entry", "any")); 
   }
 
+  /**
+   * Covers remaining switch cases in the localized rating logic.
+   */
   @Test
   void testRatingTextRemainingSwitchCases() {
-    // Καλύπτει τα κίτρινα branches (good, moderate, poor) στο switch της getRatingText
     assertAll("Check remaining switch cases",
         () -> assertEquals("Καλή", esgLoader.getRatingText("good", "el")),
         () -> assertEquals("Μέτρια", esgLoader.getRatingText("moderate", "el")),
@@ -160,11 +194,15 @@ class EsgLoaderTest {
     );
   }
 
+  /**
+   * Covers the branch where entry classification is missing from the config.
+   *
+   * @throws Exception if reflection fails.
+   */
   @Test
   void testEntryClassificationMissingKeyBranch() throws Exception {
-    // Καλύπτει το branch return "NEUTRAL" όταν το entriesMap δεν έχει το κλειδί
     JsonObject mockConfig = new JsonObject();
-    mockConfig.add("entries", new JsonObject()); // Άδειο entries object
+    mockConfig.add("entries", new JsonObject()); 
 
     Field configField = EsgLoader.class.getDeclaredField("config");
     configField.setAccessible(true);
@@ -173,11 +211,15 @@ class EsgLoaderTest {
     assertEquals("NEUTRAL", esgLoader.getEntryClassification("non_existent_entry"));
   }
 
+  /**
+   * Tests error handling for invalid integer parsing in JSON paths.
+   *
+   * @throws Exception if reflection fails.
+   */
   @Test
   void testIntParsingErrorHandling() throws Exception {
-    // Στοχεύει στο catch (NumberFormatException e) της getIntFromPath
     JsonObject mockConfig = new JsonObject();
-    mockConfig.addProperty("bad_int_key", "85.5"); // Δεκαδικός σε String προκαλεί σφάλμα στο parseInt
+    mockConfig.addProperty("bad_int_key", "85.5"); 
 
     Field configField = EsgLoader.class.getDeclaredField("config");
     configField.setAccessible(true);
@@ -186,15 +228,14 @@ class EsgLoaderTest {
     Method getInt = EsgLoader.class.getDeclaredMethod("getIntFromPath", String.class, int.class);
     getInt.setAccessible(true);
     
-    // Πρέπει να επιστρέψει το defaultValue (50) λόγω του exception
     assertEquals(50, (int) getInt.invoke(esgLoader, "bad_int_key", 50));
   }
 
-  // --- ΤΕΛΙΚΑ ΣΕΝΑΡΙΑ ΓΙΑ 100% COVERAGE ΣΤΟΝ EsgLoader ---
-
+  /**
+   * Ensures 100% coverage for all rating switch branches.
+   */
   @Test
   void testRatingTextAllSwitchBranches() {
-    // Πρασινίζει όλα τα κίτρινα branches του switch στην getRatingText
     assertAll("Check all localized rating branches",
         () -> assertEquals("Καλή", esgLoader.getRatingText("good", "el")),
         () -> assertEquals("Μέτρια", esgLoader.getRatingText("moderate", "el")),
@@ -204,26 +245,32 @@ class EsgLoaderTest {
     );
   }
 
+  /**
+   * Targets cases where the entries map is null or missing.
+   *
+   * @throws Exception if reflection fails.
+   */
   @Test
   void testEntryClassificationMissingBranches() throws Exception {
-    // Στοχεύει στη γραμμή 187: config is null ή missing "entries"
     Field configField = EsgLoader.class.getDeclaredField("config");
     configField.setAccessible(true);
     
-    // Περίπτωση: config is null
     configField.set(esgLoader, null);
     assertEquals("NEUTRAL", esgLoader.getEntryClassification("any"));
     
-    // Περίπτωση: missing "entries" key
     configField.set(esgLoader, new JsonObject());
     assertEquals("NEUTRAL", esgLoader.getEntryClassification("any"));
   }
 
+  /**
+   * Tests fallback logic for integer parsing failures.
+   *
+   * @throws Exception if reflection fails.
+   */
   @Test
   void testIntParsingFullCatchBlock() throws Exception {
-    // Στοχεύει στο catch (NumberFormatException) της getIntFromPath
     JsonObject mockConfig = new JsonObject();
-    mockConfig.addProperty("badInt", "95.5"); // Δεκαδικός String προκαλεί NumberFormatException σε Integer.parseInt
+    mockConfig.addProperty("badInt", "95.5"); 
     
     Field configField = EsgLoader.class.getDeclaredField("config");
     configField.setAccessible(true);
@@ -235,12 +282,13 @@ class EsgLoaderTest {
     assertEquals(50, (int) getInt.invoke(esgLoader, "badInt", 50));
   }
 
+  /**
+   * Covers failure scenarios in config file loading.
+   */
   @Test
   void testLoadConfigFileFailures() {
-    // Καλύπτει τα catch blocks της loadConfigFile μέσω fallback
     EsgLoader malformedLoader = new EsgLoader() {
     };
     assertNotNull(malformedLoader.getConfig());
   }
-
 }
