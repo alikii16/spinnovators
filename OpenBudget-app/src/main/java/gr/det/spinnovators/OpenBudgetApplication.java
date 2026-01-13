@@ -2,6 +2,7 @@ package gr.det.spinnovators;
 
 import gr.det.spinnovators.authentication.FirstLogin;
 import gr.det.spinnovators.data.MinistryDataInput;
+import gr.det.spinnovators.editor.EnvBudgetEditor;
 import gr.det.spinnovators.envdatamodel.EnvBudgetData;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.envdatamodel.EsgReport;
@@ -13,7 +14,6 @@ import gr.det.spinnovators.service.EnvBudgetTranslator;
 import gr.det.spinnovators.service.EsgScoreCalculator;
 import gr.det.spinnovators.service.YearToYearBudgetComparison;
 import gr.det.spinnovators.web.LoginWebServer;
-import gr.det.spinnovators.editor.EnvBudgetEditor;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -75,7 +75,8 @@ public class OpenBudgetApplication {
         System.out.println("==========================================");
 
       } else {
-        System.out.println("Warning: Frontend directory not found at in any of the possible paths.");
+        String msg = "Warning: Frontend directory not found in any of the possible paths.";
+        System.out.println(msg);
         System.out.println("Using terminal mode only.");
       }
     } catch (java.io.IOException e) {
@@ -176,12 +177,13 @@ public class OpenBudgetApplication {
               EnvYear compareYear = envBudgetData.getBudgetForYear(y2);
 
               if (baseYear != null && compareYear != null) {
-                YearToYearBudgetComparison comparisonService = new YearToYearBudgetComparison(
-                translator, envBudgetData.getEnvMinistryTotalBudget());
+                YearToYearBudgetComparison comparisonService = 
+                    new YearToYearBudgetComparison(
+                        translator, envBudgetData.getEnvMinistryTotalBudget());
                 comparisonService.compareYears(baseYear, compareYear);
               } else {
                 System.out.println(
-                  "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
+                    "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν."
                 );
               }
 
@@ -194,7 +196,6 @@ public class OpenBudgetApplication {
 
               if (selectedYear != null && totalBudget != null) {
                 System.out.println("\n--- ΥΠΟΛΟΓΙΣΜΟΣ ESG REPORT ---");
-        
                 EsgReport report = esgCalculator.calculateReport(selectedYear, totalBudget);
         
                 System.out.println("==========================================");
@@ -205,9 +206,9 @@ public class OpenBudgetApplication {
                 System.out.println("------------------------------------------");
                 System.out.printf("Περιβαλλοντικό Score: %.2f%% (%,.2f €)%n",
                           report.getEnvironmentalScore(), report.getEnvironmentalAmount());
-                System.out.printf("Κοινωνικό Score:      %.2f%% (%,.2f €)%n",
+                System.out.printf("Κοινωνικό Score:       %.2f%% (%,.2f €)%n",
                           report.getSocialScore(), report.getSocialAmount());
-                System.out.printf("Διακυβέρνηση Score:   %.2f%% (%,.2f €)%n",
+                System.out.printf("Διακυβέρνηση Score:    %.2f%% (%,.2f €)%n",
                           report.getGovernanceScore(), report.getGovernanceAmount());
                 System.out.println("==========================================");
               } else {
@@ -302,12 +303,13 @@ public class OpenBudgetApplication {
               EnvYear compareYear = envBudgetData.getBudgetForYear(y2);
 
               if (baseYear != null && compareYear != null) {
-                YearToYearBudgetComparison comparisonService = new YearToYearBudgetComparison(
-                translator, envBudgetData.getEnvMinistryTotalBudget());
+                YearToYearBudgetComparison comparisonService = 
+                    new YearToYearBudgetComparison(
+                        translator, envBudgetData.getEnvMinistryTotalBudget());
                 comparisonService.compareYears(baseYear, compareYear);
               } else {
                 System.out.println(
-                "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν στα δεδομένα."
+                    "Σφάλμα: Τα έτη " + y1 + " και " + y2 + " δεν βρέθηκαν."
                 );
               }
 
@@ -316,12 +318,10 @@ public class OpenBudgetApplication {
               String yrEsg = scanner.hasNextLine() ? scanner.nextLine() : "";
 
               EnvYear selectedYear = envBudgetData.getBudgetForYear(yrEsg);
-    
               Double totalBudget = envBudgetData.getEnvMinistryTotalBudget().get(yrEsg);
 
               if (selectedYear != null && totalBudget != null) {
                 System.out.println("\n--- ΥΠΟΛΟΓΙΣΜΟΣ ESG REPORT ---");
-        
                 EsgReport report = esgCalculator.calculateReport(selectedYear, totalBudget);
         
                 System.out.println("==========================================");
@@ -332,9 +332,9 @@ public class OpenBudgetApplication {
                 System.out.println("------------------------------------------");
                 System.out.printf("Περιβαλλοντικό Score: %.2f%% (%,.2f €)%n",
                                 report.getEnvironmentalScore(), report.getEnvironmentalAmount());
-                System.out.printf("Κοινωνικό Score:      %.2f%% (%,.2f €)%n",
+                System.out.printf("Κοινωνικό Score:       %.2f%% (%,.2f €)%n",
                                 report.getSocialScore(), report.getSocialAmount());
-                System.out.printf("Διακυβέρνηση Score:   %.2f%% (%,.2f €)%n",
+                System.out.printf("Διακυβέρνηση Score:    %.2f%% (%,.2f €)%n",
                                 report.getGovernanceScore(), report.getGovernanceAmount());
                 System.out.println("==========================================");
               } else {

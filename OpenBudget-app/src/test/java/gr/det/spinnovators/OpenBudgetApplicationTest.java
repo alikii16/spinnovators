@@ -33,7 +33,7 @@ public class OpenBudgetApplicationTest {
         System.setOut(originalOut);
     }
 
-    // 1️⃣ Minister → Exit immediately
+    //Minister → Exit immediately
     @Test
     void ministerExitImmediately() {
         String input = "Minister\nm1n1st3r\n3\n";
@@ -46,7 +46,7 @@ public class OpenBudgetApplicationTest {
         Assertions.assertTrue(output.contains("Έξοδος"));
     }
 
-    // 2️⃣ Employee → Exit immediately
+    // Employee → Exit immediately
     @Test
     void employeeExitImmediately() {
         String input = "John\n3mpl0y33\n3\n";
@@ -59,7 +59,7 @@ public class OpenBudgetApplicationTest {
         Assertions.assertTrue(output.contains("Έξοδος"));
     }
 
-    // 3️⃣ Minister → General Budget → View
+    // Minister → General Budget → View
     @Test
     void ministerViewGeneralBudget() {
         String input =
@@ -76,7 +76,7 @@ public class OpenBudgetApplicationTest {
         Assertions.assertTrue(outputStreamCaptor.toString().contains("Κρατικός"));
     }
 
-    // 4️⃣ Employee → General Budget → View
+    // Employee → General Budget → View
     @Test
     void employeeViewGeneralBudget() {
         String input =
@@ -93,7 +93,7 @@ public class OpenBudgetApplicationTest {
         Assertions.assertTrue(outputStreamCaptor.toString().contains("Κρατικός"));
     }
 
-    // 5️⃣ Minister → Environment Ministry → View Year (subChoice "1")
+    // Minister → Environment Ministry → View Year (subChoice "1")
     @Test
     void ministerViewEnvBudgetYear() {
         String input =
@@ -111,7 +111,7 @@ public class OpenBudgetApplicationTest {
         Assertions.assertTrue(output.contains("Υπουργείο"));
     }
 
-    // 6️⃣ Minister → ESG Report (subChoice "4") - coverage for else if
+    // Minister → ESG Report (subChoice "4") - coverage for else if
     @Test
     void ministerEsgReport() {
         String input =
@@ -130,7 +130,7 @@ public class OpenBudgetApplicationTest {
         Assertions.assertTrue(output.contains("ΑΝΑΦΟΡΑ ΒΙΩΣΙΜΟΤΗΤΑΣ ΕΤΟΥΣ"));
     }
 
-    // 7️⃣ Minister → Compare Years Invalid
+    // Minister → Compare Years Invalid
     @Test
     void ministerCompareInvalidYears() {
         String input =
@@ -148,7 +148,7 @@ public class OpenBudgetApplicationTest {
         Assertions.assertTrue(outputStreamCaptor.toString().contains("Σφάλμα"));
     }
 
-    // 8️⃣ Employee → Compare Years Valid
+    // Employee → Compare Years Valid
     @Test
     void employeeCompareYears() {
         String input =
@@ -166,7 +166,7 @@ public class OpenBudgetApplicationTest {
         Assertions.assertTrue(outputStreamCaptor.toString().length() > 0);
     }
 
-    // 9️⃣ Invalid menu choice
+    // Invalid menu choice
     @Test
     void invalidMenuChoice() {
         String input =

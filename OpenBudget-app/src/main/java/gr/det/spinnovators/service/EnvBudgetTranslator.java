@@ -39,7 +39,7 @@ public class EnvBudgetTranslator {
    * with fallback translations.</p>
    */
   public EnvBudgetTranslator() {
-   // Pass the real bundle name
+    // Pass the real bundle name
     this(loadBundleSafely(BUNDLE_NAME));
   }
   
