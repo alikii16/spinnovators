@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,12 +22,12 @@ import java.util.logging.Logger;
  *
  * @version 2.0
  */
-public class EsgLoader {
+public final class EsgLoader {
 
   private static final String CONFIG_FILE = "esg_config.json";
   private static final Logger LOGGER = Logger.getLogger(EsgLoader.class.getName());
 
-  private JsonObject config;
+  private final JsonObject config;
   private final Gson gson;
 
   /**
@@ -34,7 +35,8 @@ public class EsgLoader {
    */
   public EsgLoader() {
     this.gson = new Gson();
-    this.config = loadConfigFile();
+    JsonObject loadedConfig = loadConfigFile();
+    this.config = (loadedConfig != null) ? loadedConfig : createDefaultConfig();
   }
 
   /**
@@ -43,26 +45,24 @@ public class EsgLoader {
    * @return JsonObject containing configuration, or null on failure.
    */
   private JsonObject loadConfigFile() {
-    InputStream inputStream = getClass().getClassLoader()
+  InputStream inputStream = getClass().getClassLoader()
         .getResourceAsStream(CONFIG_FILE);
 
     if (inputStream == null) {
-      LOGGER.log(Level.SEVERE,
-          "ESG config file not found: {0}", CONFIG_FILE);
-      return createDefaultConfig();
+        LOGGER.log(Level.SEVERE, "ESG config file not found: {0}", CONFIG_FILE);
+        return null; 
     }
-
     try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream,
-        java.nio.charset.StandardCharsets.UTF_8))) {
-      return gson.fromJson(reader, JsonObject.class);
+            java.nio.charset.StandardCharsets.UTF_8))) {
+        
+        return gson.fromJson(reader, JsonObject.class);
+
     } catch (JsonSyntaxException e) {
-      LOGGER.log(Level.SEVERE,
-          "Invalid JSON syntax in ESG config file", e);
-      return createDefaultConfig();
+        LOGGER.log(Level.SEVERE, "Invalid JSON syntax in ESG config file", e);
+        return null;
     } catch (IOException e) {
-      LOGGER.log(Level.SEVERE,
-          "Error reading ESG config file", e);
-      return createDefaultConfig();
+        LOGGER.log(Level.SEVERE, "Error reading ESG config file", e);
+        return null;
     }
   }
 

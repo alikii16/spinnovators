@@ -238,8 +238,7 @@ class EsgLoaderTest {
   @Test
   void testLoadConfigFileFailures() {
     // Καλύπτει τα catch blocks της loadConfigFile μέσω fallback
-    EsgLoader malformedLoader = new EsgLoader() {
-    };
+    EsgLoader malformedLoader = new EsgLoader();
     assertNotNull(malformedLoader.getConfig());
   }
 
