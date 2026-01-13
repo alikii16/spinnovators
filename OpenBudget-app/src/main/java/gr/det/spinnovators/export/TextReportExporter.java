@@ -94,7 +94,9 @@ public class TextReportExporter implements EditedBudgetExporter {
               writer.printf(Locale.US, " %d. %s > %s%n", (i + 1), sector, unit);
 
               // Line 2: Specific Category change with arrows
-              writer.printf(Locale.US, "     └── %-30s :  %,14.2f €  --->  %,14.2f €  (%s%,.2f €)%n",
+              writer.printf(
+                      Locale.US,
+                      "     └── %-30s :  %,14.2f €  --->  %,14.2f €  (%s%,.2f €)%n",
                   shorten(category, 30), oldVal, newVal, sign, diff);
 
               writer.println("----------------------------------------------------------------"

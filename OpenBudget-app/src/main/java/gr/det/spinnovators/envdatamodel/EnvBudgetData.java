@@ -25,9 +25,9 @@ public class EnvBudgetData {
    * Constructs an EnvBudgetData instance with the specified budget mappings.
    *
    * @param dataByYear a map containing detailed budget data per year,
-   * where keys are year strings and values are EnvYear objects
+   *        where keys are year strings and values are EnvYear objects
    * @param envMinistryTotalBudget a map containing the total budget amounts per year,
-   * where keys are year strings and values are total budget amounts
+   *        where keys are year strings and values are total budget amounts
    */
   public EnvBudgetData(Map<String, EnvYear> dataByYear,
                        Map<String, Double> envMinistryTotalBudget) {
@@ -69,7 +69,7 @@ public class EnvBudgetData {
    * Retrieves the map of total ministry budgets for all available years.
    *
    * @return an unmodifiable map where keys are years (e.g., "2025")
-   * and values are the total budget amounts for the environmental ministry
+   *         and values are the total budget amounts for the environmental ministry
    */
   public Map<String, Double> getEnvMinistryTotalBudget() {
     return Collections.unmodifiableMap(envMinistryTotalBudget);

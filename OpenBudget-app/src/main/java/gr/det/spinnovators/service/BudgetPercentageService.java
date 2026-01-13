@@ -31,7 +31,7 @@ public class BudgetPercentageService {
    *
    * @param dataInput the data provider used to retrieve budget information
    */
-  
+
   public BudgetPercentageService(MinistryDataInput dataInput) {
     this.dataInput = dataInput;
   }
@@ -40,8 +40,9 @@ public class BudgetPercentageService {
    * Calculates and displays the percentage share of the
    * Miinistry of Environment and Energy int the total
    * State Budget for the specified year.
-   * 
-   * @param year
+   *
+   * @param year The fiscal year (e.g., 2023-2026) for which
+   *             the budget data will be retrieved.
    */
   public void displayEnvironmentPercentage(int year) {
     String target = "Υπουργείο Περιβάλλοντος και Ενέργειας";

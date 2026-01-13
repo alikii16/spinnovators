@@ -1,14 +1,5 @@
 package gr.det.spinnovators.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import gr.det.spinnovators.envdatamodel.EnvBudgetData;
-import gr.det.spinnovators.envdatamodel.EnvEntry;
-import gr.det.spinnovators.envdatamodel.EnvSector;
-import gr.det.spinnovators.envdatamodel.EnvUnit;
-import gr.det.spinnovators.envdatamodel.EnvYear;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,6 +11,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+
+import gr.det.spinnovators.envdatamodel.EnvBudgetData;
+import gr.det.spinnovators.envdatamodel.EnvEntry;
+import gr.det.spinnovators.envdatamodel.EnvSector;
+import gr.det.spinnovators.envdatamodel.EnvUnit;
+import gr.det.spinnovators.envdatamodel.EnvYear;
 
 
 
@@ -119,9 +121,10 @@ public class EnvBudgetLoader {
       throws IOException, JsonSyntaxException {
 
 
-    try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+    try (JsonReader reader =
+        new JsonReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
       // Using TypeToken for better type safety with Gson
-      return gson.fromJson(reader, MAP_TYPE);  
+      return gson.fromJson(reader, MAP_TYPE);
     }
   }
 

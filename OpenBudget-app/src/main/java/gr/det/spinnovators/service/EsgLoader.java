@@ -1,16 +1,16 @@
 package gr.det.spinnovators.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.JsonReader;
 
 /**
  * Loads ESG configuration from JSON file.
@@ -45,24 +45,24 @@ public final class EsgLoader {
    * @return JsonObject containing configuration, or null on failure.
    */
   private JsonObject loadConfigFile() {
-  InputStream inputStream = getClass().getClassLoader()
+    InputStream inputStream = getClass().getClassLoader()
         .getResourceAsStream(CONFIG_FILE);
 
     if (inputStream == null) {
-        LOGGER.log(Level.SEVERE, "ESG config file not found: {0}", CONFIG_FILE);
-        return null; 
+      LOGGER.log(Level.SEVERE, "ESG config file not found: {0}", CONFIG_FILE);
+      return null;
     }
     try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream,
             java.nio.charset.StandardCharsets.UTF_8))) {
-        
-        return gson.fromJson(reader, JsonObject.class);
+
+      return gson.fromJson(reader, JsonObject.class);
 
     } catch (JsonSyntaxException e) {
-        LOGGER.log(Level.SEVERE, "Invalid JSON syntax in ESG config file", e);
-        return null;
+      LOGGER.log(Level.SEVERE, "Invalid JSON syntax in ESG config file", e);
+      return null;
     } catch (IOException e) {
-        LOGGER.log(Level.SEVERE, "Error reading ESG config file", e);
-        return null;
+      LOGGER.log(Level.SEVERE, "Error reading ESG config file", e);
+      return null;
     }
   }
 
@@ -180,7 +180,7 @@ public final class EsgLoader {
    * @param entryKey The JSON key of the entry.
    *
    * @return Classification string (ENVIRONMENTAL, SOCIAL, GOVERNANCE,
-   * CONTEXT_DEPENDENT, NEUTRAL).
+   *         CONTEXT_DEPENDENT, NEUTRAL).
    */
   public String getEntryClassification(String entryKey) {
     if (config == null || !config.has("entries")) {
