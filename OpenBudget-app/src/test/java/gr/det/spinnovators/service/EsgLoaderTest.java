@@ -287,8 +287,9 @@ class EsgLoaderTest {
    */
   @Test
   void testLoadConfigFileFailures() {
-    EsgLoader malformedLoader = new EsgLoader() {
-    };
-    assertNotNull(malformedLoader.getConfig());
+    // Simply instantiate the final class. 
+    // The constructor already calls loadConfigFile() and handles errors.
+    EsgLoader loader = new EsgLoader();
+    assertNotNull(loader.getConfig(), "Config should not be null even on failure due to fallback.");
   }
 }
