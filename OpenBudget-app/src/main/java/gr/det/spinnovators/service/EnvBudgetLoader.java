@@ -80,9 +80,6 @@ public class EnvBudgetLoader {
 
       return buildBudgetDataModel(rootMap);
 
-    } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, "I/O error during file loading", e);
-      return emptyModel;
     } catch (JsonSyntaxException e) {
       LOGGER.log(Level.SEVERE, "JSON syntax error", e);
       return emptyModel;
@@ -106,7 +103,7 @@ public class EnvBudgetLoader {
    *
    * @return InputStream for the resource file, or null if not found.
    */
-  private InputStream locateResourceFile() {
+  protected InputStream locateResourceFile() {
     return getClass().getClassLoader().getResourceAsStream(JSON_FILE_NAME);
   }
 
