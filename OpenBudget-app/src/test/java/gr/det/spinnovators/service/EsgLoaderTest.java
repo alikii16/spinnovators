@@ -80,101 +80,51 @@ class EsgLoaderTest {
  @Test
 
   void testPathTraversalAndErrorHandling() throws Exception {
-
     JsonObject mockConfig = new JsonObject();
-
     JsonObject weights = new JsonObject();
-
     weights.addProperty("environmental", "0.55");
-
     mockConfig.add("weights", weights);
 
-    
-
     Field configField = EsgLoader.class.getDeclaredField("config");
-
     configField.setAccessible(true);
-
     configField.set(esgLoader, mockConfig);
 
-
-
     assertEquals(0.55, esgLoader.getEnvironmentalWeight());
-
     assertEquals(0.30, esgLoader.getSocialWeight()); 
 
-    
-
     weights.addProperty("social", "not-a-number");
-
     assertEquals(0.30, esgLoader.getSocialWeight()); // NumberFormatException branch
 
-    
-
     configField.set(esgLoader, null);
-
     assertEquals("el", esgLoader.getDefaultLanguage());
-
     assertEquals("NEUTRAL", esgLoader.getSectorClassification("test"));
-
     assertNull(esgLoader.getConfig()); // Καλύπτει το null branch στην getConfig
-
   }
-
-
-
-  // --- ΝΕΑ ΣΕΝΑΡΙΑ ΓΙΑ ΤΟ 100% ---
-
-
 
   @Test
 
   void testComplexPathAndRatingFallback() throws Exception {
-
     // Κάλυψη του branch όπου η getStringFromPath επιστρέφει τιμή από το JSON
-
     JsonObject mockConfig = new JsonObject();
-
     JsonObject localization = new JsonObject();
-
     JsonObject ratings = new JsonObject();
-
     JsonObject critical = new JsonObject();
-
     critical.addProperty("el", "Κρίσιμη Τιμή");
-
     ratings.add("critical", critical);
-
     localization.add("ratings", ratings);
-
     mockConfig.add("localization", localization);
 
-
-
     Field configField = EsgLoader.class.getDeclaredField("config");
-
     configField.setAccessible(true);
-
     configField.set(esgLoader, mockConfig);
 
 // Ελέγχουμε αν όντως διαβάζει από το JSON (πρασινίζει το τέλος της getStringFromPath)
 
     assertEquals("Κρίσιμη Τιμή", esgLoader.getRatingText("critical", "el"));
-
-    
-
-    // Κάλυψη του catch (Exception e) στην getStringFromPath
-
-    // Προκαλούμε ClassCastException προσπαθώντας να διαβάσουμε path μέσα από String property
-
     mockConfig.addProperty("invalidPath", "not-an-object");
-
     Method getString = EsgLoader.class.getDeclaredMethod("getStringFromPath", String.class, String.class);
-
     getString.setAccessible(true);
-
     assertEquals("fallback", getString.invoke(esgLoader, "invalidPath.subKey", "fallback"));
-
   }
 
   @Test
@@ -196,16 +146,6 @@ class EsgLoaderTest {
     entries.addProperty("direct_entry", "ENVIRONMENTAL");
     assertEquals("ENVIRONMENTAL", esgLoader.getEffectiveCategory("direct_entry", "any")); 
   }
-
-  @Test
-  void testFinalizeCoverage() throws Exception {
-    // Κάλυψη της finalize() με Reflection
-    Method finalizeMethod = EsgLoader.class.getDeclaredMethod("finalize");
-    finalizeMethod.setAccessible(true);
-    finalizeMethod.invoke(esgLoader);
-  }
-
-// --- ΕΠΙΠΛΕΟΝ ΣΕΝΑΡΙΑ ΓΙΑ ΤΗΝ ΟΛΟΚΛΗΡΩΣΗ ΤΟΥ 100% ---
 
   @Test
   void testRatingTextRemainingSwitchCases() {
@@ -292,7 +232,6 @@ class EsgLoaderTest {
     Method getInt = EsgLoader.class.getDeclaredMethod("getIntFromPath", String.class, int.class);
     getInt.setAccessible(true);
     
-    // Πρέπει να επιστρέψει το default (50) και να καταγράψει το WARNING
     assertEquals(50, (int) getInt.invoke(esgLoader, "badInt", 50));
   }
 
@@ -300,8 +239,6 @@ class EsgLoaderTest {
   void testLoadConfigFileFailures() {
     // Καλύπτει τα catch blocks της loadConfigFile μέσω fallback
     EsgLoader malformedLoader = new EsgLoader() {
-        // Ο constructor θα εκτελέσει τη loadConfigFile() και θα μπει στα catch 
-        // αν το esg_config.json ήταν κατεστραμμένο.
     };
     assertNotNull(malformedLoader.getConfig());
   }

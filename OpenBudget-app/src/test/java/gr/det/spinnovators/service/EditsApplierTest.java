@@ -1,85 +1,104 @@
 package gr.det.spinnovators.service;
 
 import gr.det.spinnovators.envdatamodel.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Scanner;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for the {@link EditsApplier} class.
- *
- * <p>Uses simulated user input (via Scanner injections) to navigate the menus
- * and verify the application logic without requiring actual console interaction.</p>
- */
 public class EditsApplierTest {
 
-    // Dummy translator for predictable output in tests
+    private EnvYear year2025;
+    private EnvEntry envEntry;
+
     static class DummyTranslator extends EnvBudgetTranslator {
         @Override
-        public String translateCategory(String key) {
-            return key; // Return the key as-is for easy searching
-        }
+        public String translateCategory(String key) { return key; }
+    }
+
+    @BeforeEach
+    void setup() {
+        // Χρησιμοποιούμε κλειδί που ενεργοποιεί ESG κανόνες (π.χ. ENVIRONMENTAL)
+        envEntry = new EnvEntry("env_protection_entry", 1000000.0);
+        EnvUnit unit = new EnvUnit("unit1", List.of(envEntry));
+        EnvSector sector = new EnvSector("sector_environmental", List.of(unit));
+        year2025 = new EnvYear("2025", List.of(sector));
     }
 
     /**
-     * Tests a full editing cycle: Select Sector -> Select Unit -> Edit Entry -> Revert -> Exit.
-     * <p>This scenario ensures we enter multiple methods like selectSector, selectUnit,
-     * findAndEditEntryInUnit, and validation logic.</p>
+     * ΤΟ ΜΕΓΑΛΟ ΤΕΣΤ: Καλύπτει επιτυχείς αλλαγές, ESG recalculation και ακυρώσεις.
+     * Στόχος: Πρασίνισμα recalculateEsgScore & applyBudgetChange.
      */
     @Test
-    public void testInteractiveEditCycle() {
-        // --- 1. Setup Data ---
-        // Sector -> Unit -> Entry (Amount: 100.0)
-        EnvEntry entry = new EnvEntry("entry1", 100.0);
-        EnvUnit unit = new EnvUnit("unit1", List.of(entry));
-        EnvSector sector = new EnvSector("sector1", List.of(unit));
-        EnvYear year = new EnvYear("2025", List.of(sector));
-
-        // --- 2. Simulate User Input ---
-        // The sequence of inputs "fake" a user typing in the console.
+    public void testFullInteractiveCycle() {
         String simulatedInput = 
-            "1\n" +       // Select Sector 1
-            "1\n" +       // Select Unit 1
-            "entry1\n" +  // Search for entry name "entry1"
-            "150\n" +     // Change amount to 150 (Budget is now UNBALANCED by +50)
-            "1\n" +       // Select Unit 1 again
-            "entry1\n" +  // Search entry again
-            "100\n" +     // Change back to 100 (Budget is now BALANCED)
-            "0\n" +       // Go back from Unit menu
-            "0\n";        // Exit main menu (Allowed because balance is 0)
+            "1\n" +             // Επιλογή Τομέα
+            "1\n" +             // Επιλογή Μονάδας
+            "env_protection_entry\n" + 
+            "1500000\n" +       // Μεγάλη απόκλιση (+50%)
+            "NAI\n" +           // Επιβεβαίωση -> Ενεργοποιεί applyBudgetChange & recalculateEsgScore
+            "1\n" +             // Ξανά στον Τομέα 1
+            "1\n" +             // Μονάδα 1
+            "env_protection_entry\n" + 
+            "1000000\n" +       // Επαναφορά για ισοσκέλιση (Balance = 0)
+            "0\n" +             // Επιστροφή από Μονάδες
+            "0\n";              // Έξοδος από Τομείς (Επιτυχής γιατί balance < 0.01)
 
-        // Create a Scanner that reads from our string instead of the keyboard
-        Scanner mockScanner = new Scanner(
-            new ByteArrayInputStream(simulatedInput.getBytes(StandardCharsets.UTF_8))
-        );
-
-        // --- 3. Run Applier ---
-        // FIX: Constructor now takes only translator (as per your refactoring)
+        Scanner scanner = createScanner(simulatedInput);
         EditsApplier applier = new EditsApplier(new DummyTranslator());
         
-        // FIX: Pass scanner to the method directly
-        assertDoesNotThrow(() -> applier.applyEditsToYear(year, mockScanner));
-
-        // --- 4. Assertions ---
-        // The value changed to 150 and back to 100, so it should be 100.
-        assertEquals(100.0, entry.getAmount(), 0.001, "Entry amount should be restored to 100.0");
+        applier.applyEditsToYear(year2025, scanner);
+        
+        // Έλεγχος αν οι τιμές όντως άλλαξαν και επέστρεψαν
+        assertEquals(1000000.0, envEntry.getAmount(), "Το ποσό πρέπει να έχει επανέλθει στο αρχικό.");
     }
 
+    /**
+     * ΤΕΣΤ ΣΦΑΛΜΑΤΩΝ: Καλύπτει όλα τα "κόκκινα" μηνύματα λάθους και τα catch blocks.
+     * Στόχος: 100% Branch Coverage στην handleValidationResult.
+     */
     @Test
-    public void testInvalidMenuInput() {
-        EnvYear year = new EnvYear("2025", List.of()); // No sectors
+    public void testAllErrorBranches() {
+        // Δοκιμή και με το έτος 2026 για κάλυψη του initialization
+        EnvYear year2026 = new EnvYear("2026", year2025.getSectors());
         
-        // Input: "invalid" (text instead of number), then "0" to exit
-        String simulatedInput = "invalid\n0\n";
-        Scanner mockScanner = new Scanner(new ByteArrayInputStream(simulatedInput.getBytes()));
+        String simulatedInput = 
+            "1\n" + "1\n" + "env_protection_entry\n" + 
+            "-100\n" +          // Σφάλμα: Αρνητικό ποσό
+            "99999999999\n" +   // Σφάλμα: Υπέρβαση ορίου
+            "100\n" +           // Σφάλμα: ESG_ENV_PROTECTION (μείωση > 5%)
+            "invalid\n" +       // Σφάλμα: Μη έγκυρη μορφή αριθμού (catch ParseException)
+            " \n" +              // Σφάλμα: Κενή είσοδος -> "Δεν δόθηκε τιμή"
+            "0\n" +             // Προσπάθεια εξόδου με επιστροφή null
+            "0\n";              // Τελική έξοδος
 
+        Scanner scanner = createScanner(simulatedInput);
         EditsApplier applier = new EditsApplier(new DummyTranslator());
-        
-        // FIX: Pass scanner to the method
-        assertDoesNotThrow(() -> applier.applyEditsToYear(year, mockScanner));
+        applier.applyEditsToYear(year2026, scanner);
+    }
+
+    /**
+     * ΤΕΣΤ ΑΚΥΡΩΣΗΣ: Καλύπτει την άρνηση στην προειδοποίηση απόκλισης.
+     * Στόχος: Πρασίνισμα του "else" στην handleExtremeDeviationWarning.
+     */
+    @Test
+    public void testDeviationCancellation() {
+        String simulatedInput = 
+            "1\n" + "1\n" + "env_protection_entry\n" + 
+            "2000000\n" +       // Απόκλιση 100%
+            "OXI\n" +           // Άρνηση -> "Η αλλαγή ακυρώθηκε"
+            " \n" +             // Κενή επιλογή στο μενού (choice -1)
+            "0\n" + "0\n";
+
+        Scanner scanner = createScanner(simulatedInput);
+        EditsApplier applier = new EditsApplier(new DummyTranslator());
+        applier.applyEditsToYear(year2025, scanner);
+    }
+
+    private Scanner createScanner(String input) {
+        return new Scanner(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
     }
 }
