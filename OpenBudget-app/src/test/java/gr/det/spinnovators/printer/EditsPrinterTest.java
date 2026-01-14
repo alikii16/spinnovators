@@ -1,24 +1,51 @@
 package gr.det.spinnovators.printer;
 
-import gr.det.spinnovators.envdatamodel.*;
-import org.junit.jupiter.api.Test;
-import gr.det.spinnovators.service.*;
-
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import gr.det.spinnovators.envdatamodel.EnvEntry;
+import gr.det.spinnovators.envdatamodel.EnvSector;
+import gr.det.spinnovators.envdatamodel.EnvUnit;
+import gr.det.spinnovators.envdatamodel.EnvYear;
+import gr.det.spinnovators.service.EnvBudgetTranslator;
 
-// test for EditsPrinter
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * Unit tests for the {@link EditsPrinter} class.
+ *
+ * <p>This test suite verifies the console output and calculation logic when 
+ * displaying budget edits. It uses a dummy translator to ensure that the 
+ * focus remains on the structural correctness of the printed data.</p>
+ *
+ * @author Spinnovators Team
+ * @version 1.0
+ */
 public class EditsPrinterTest {
 
-  // Dummy translator that returns the key as-is
+  /**
+   * A simplified version of EnvBudgetTranslator for testing purposes.
+   * It returns the original key as the translation to simplify assertions.
+   */
   static class DummyTranslator extends EnvBudgetTranslator {
     @Override
     public String translateCategory(String key) {
-     return key;
+      return key;
     }
   }
 
+  /**
+   * Tests the printEditYear method with multiple sectors and units.
+   * * <p>This test verifies:
+   * <ul>
+   * <li>Correct summation of entries into units.</li>
+   * <li>Correct summation of units into sectors.</li>
+   * <li>Correct grand total calculation for the entire year.</li>
+   * <li>Exception-free execution of the printing logic.</li>
+   * </ul>
+   * </p>
+   */
   @Test
   public void testPrintEditYearMultipleSectorsUnits() {
     // --- Create entries with various amounts ---
