@@ -1288,7 +1288,7 @@ All third-party dependencies use **permissive licenses** (Apache 2.0, EPL 2.0, G
 A: Currently only Environment Ministry supports editing. To extend, modify `env_budget_data.json` and add corresponding sectors.
 
 **Q: Are changes saved permanently?**  
-A: No, changes are in-memory only. Use CSV export to save modifications.
+A: No, changes are in-memory only. Use the export report functionality to save modifications.
 
 **Q: Can multiple users edit simultaneously?**  
 A: Yes in web interface (isolated sessions), but no collaboration features.
