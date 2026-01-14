@@ -1,6 +1,7 @@
 package gr.det.spinnovators.envdatamodel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -11,9 +12,9 @@ import org.junit.jupiter.api.Test;
  *
  * <p>The test suite covers:
  * <ul>
- *   <li>Getter methods (getJsonKey, getAmount)</li>
- *   <li>Setter method (setAmount) for updating budget values</li>
- *   <li>String representation (toString) formatting</li>
+ * <li>Getter methods (getJsonKey, getAmount)</li>
+ * <li>Setter method (setAmount) for updating budget values</li>
+ * <li>String representation (toString) formatting</li>
  * </ul>
  * </p>
  *
@@ -22,34 +23,46 @@ import org.junit.jupiter.api.Test;
  */
 public class EnvEntryTest {
 
-    @Test
-    public void testGetters() {
-        EnvEntry entry = new EnvEntry("personnel_costs", 2256000.0);
+  /**
+   * Tests the getter methods of EnvEntry.
+   * Verifies that the JSON key and amount are correctly initialized.
+   */
+  @Test
+  public void testGetters() {
+    EnvEntry entry = new EnvEntry("personnel_costs", 2256000.0);
 
-        assertEquals("personnel_costs", entry.getJsonKey(),
-            "getJsonKey should return the correct JSON key");
+    assertEquals("personnel_costs", entry.getJsonKey(),
+        "getJsonKey should return the correct JSON key");
 
-        assertEquals(2256000.0, entry.getAmount(),
-            "getAmount should return the correct amount");
-    }
+    assertEquals(2256000.0, entry.getAmount(),
+        "getAmount should return the correct amount");
+  }
 
-    @Test
-    public void testSetAmount() {
-        EnvEntry entry = new EnvEntry("personnel_costs", 2256000.0);
+  /**
+   * Tests the setAmount method.
+   * Verifies that the amount can be updated correctly after initialization.
+   */
+  @Test
+  public void testSetAmount() {
+    EnvEntry entry = new EnvEntry("personnel_costs", 2256000.0);
 
-        entry.setAmount(3000000.0);
+    entry.setAmount(3000000.0);
 
-        assertEquals(3000000.0, entry.getAmount(),
-            "setAmount should update the amount correctly");
-    }
+    assertEquals(3000000.0, entry.getAmount(),
+        "setAmount should update the amount correctly");
+  }
 
-    @Test
-    public void testToString() {
-        EnvEntry entry = new EnvEntry("personnel_costs", 2256000.0);
+  /**
+   * Tests the toString method.
+   * Verifies that the string representation follows the specific format {key: amount}.
+   */
+  @Test
+  public void testToString() {
+    EnvEntry entry = new EnvEntry("personnel_costs", 2256000.0);
 
-        String expected = "{personnel_costs: 2256000.0}";
+    String expected = "{personnel_costs: 2256000.0}";
 
-        assertEquals(expected, entry.toString(),
-            "toString should return the expected string format");
-    }
+    assertEquals(expected, entry.toString(),
+        "toString should return the expected string format");
+  }
 }
