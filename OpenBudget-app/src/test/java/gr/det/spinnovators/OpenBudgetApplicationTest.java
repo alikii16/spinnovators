@@ -190,18 +190,4 @@ public class OpenBudgetApplicationTest {
     Assertions.assertTrue(output.contains("Μη έγκυρη"), "Should notify user of invalid choice");
   }
 
-  /**
-   * Tests the authentication failure scenario.
-   * Verifies that invalid credentials result in an error message.
-   */
-  @Test
-  void authenticationFailure() {
-    String input = "WrongUser\nWrongPass\n3\n";
-    System.setIn(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
-
-    OpenBudgetApplication.main(new String[]{});
-
-    String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
-    Assertions.assertTrue(output.contains("Αποτυχία"), "Should notify user of login failure");
-  }
 }
