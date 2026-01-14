@@ -3,8 +3,8 @@
 
 [![Java](https://img.shields.io/badge/Java-21-blue.svg)](https://openjdk.org/)
 [![Maven](https://img.shields.io/badge/Maven-3.8+-red.svg)](https://maven.apache.org/)
-[![License](https://img.shields.io/badge/License-Educational-green.svg)](#license)
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](#testing-and-code-coverage)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Status](https://img.shields.io/badge/Status-completed-brightgreen)
 
 > *Spinnovators*
 
@@ -57,12 +57,12 @@ Users can input changes directly through the command line or web interface to th
 Automatic checks ensure that user modifications comply with fiscal and legal rules (e.g., no negative budgets, total spending cannot exceed total income, warnings for changes exceeding 30%).
 ### 4. Ministry of Environment and Energy Focus
 Special emphasis on environmental policies, green energy funding, and sustainability initiatives. 
-### 5. Yearly Budget Comparison
-Compare the current budget with previous years' data, highlighting increases or decreases per sector.
+### 5. Ministry Budget Share Calculation
+Calculates and displays the percentage of the Ministry of Environment and Energy’s total budget as a share of the overall national budget for each selected year (2023–2026).
 ### 6. ESG Score Evaluation
-Evaluate Environmental, Social, and Governance (ESG) indicators to measure how sustainable and responsible the proposed budget changes are. The system tags budget categories as "GREEN" or "NEUTRAL" and calculates a sustainability score (scale from 0 to 100).
+Evaluates Environmental, Social, and Governance (ESG) indicators to measure how sustainable and responsible the proposed budget changes are. The system tags budget categories as "GREEN" or "NEUTRAL" and calculates a sustainability score (scale from 0 to 100).
 ### 7. Updated and Initial Budget Comparison
-Compare the new budget, changed by the Minister, with the initial Ministry's of Environment and Energy budget, highlighting increases or decreases per sector, presenting pie charts and top changes.
+Compares the new budget, changed by the Minister, with the initial Ministry's of Environment and Energy budget, highlighting increases or decreases per sector, presenting pie charts and top changes.
 ### 8. Budget Comparison between two selected years 
 Direct comparison between any two fiscal years (2023–2026), calculating changes per sector and budget entry.  
 Increases and decreases are clearly highlighted, allowing users to identify budget shifts and ESG impact across different years.
@@ -93,7 +93,36 @@ By simulating the decision-making process, users can experience the challenges o
 
 ---
 
-### 2. **Data Model Layer**
+### 2. **Authentication Layer**
+**Package:** `authentication`
+
+**`FirstLogin.java`**
+- Handles login functionality
+- Supports Minister (`m1n1st3r`) and Employee (`3mpl0y33`) credentials
+- Enforces repeated attempts until valid credentials entered
+
+---
+
+### 3. **Data Layer**
+**Package:** `data`
+
+**`MinistryDataInput.java`**
+- Contains hardcoded budget data for years 2023-2026
+- Provides arrays of ministry names and budget amounts
+- Getter methods for fast lookup in CLI
+
+---
+
+### 4. **Data Editing**
+**Package:** `editor`
+
+| Class | Description |
+|-------|-------------|
+| `EnvBudgetEditor.java` | Orchestrates the interactive budget editing session for the user |
+
+---
+
+### 5. **Data Model Layer**
 **Package:** `envdatamodel`
 
 | Class | Description |
@@ -108,7 +137,7 @@ By simulating the decision-making process, users can experience the challenges o
 
 ---
 
-### 3. **Service Layer**
+### 6. **Service Layer**
 **Package:** `service`
 
 #### Data Management Services
@@ -164,7 +193,7 @@ By simulating the decision-making process, users can experience the challenges o
 
 ---
 
-### 4. **Printer Layer**
+### 7. **Printer Layer**
 **Package:** `printer`
 
 | Class | Description |
@@ -176,18 +205,17 @@ By simulating the decision-making process, users can experience the challenges o
 
 ---
 
-### 5. **Export Layer**
+### 8. **Export Layer**
 **Package:** `export`
 
 | Class | Description |
 |-------|-------------|
 | `EditedBudgetExporter.java` | Interface defining export contract (Strategy Pattern) |
-| `CsvExporter.java` | Exports budget changes to CSV format (Excel compatible with UTF-8 BOM) |
 | `TextReportExporter.java` | Generates formatted text reports resembling official government documents |
 
 ---
 
-### 6. **Web Layer**
+### 9. **Web Layer**
 **Package:** `web`
 
 **`LoginWebServer.java`**
@@ -211,31 +239,13 @@ By simulating the decision-making process, users can experience the challenges o
 
 ---
 
-### 7. **Authentication Layer**
-**Package:** `authentication`
-
-**`FirstLogin.java`**
-- Handles login functionality
-- Supports Minister (`m1n1st3r`) and Employee (`3mpl0y33`) credentials
-- Enforces repeated attempts until valid credentials entered
-
----
-
-### 8. **Data Layer**
-**Package:** `data`
-
-**`MinistryDataInput.java`**
-- Contains hardcoded budget data for years 2023-2026
-- Provides arrays of ministry names and budget amounts
-- Getter methods for fast lookup in CLI
-
----
-
 ##  Repository Structure
 
 ```
 .github\workflows
 ├── ci.yml
+images                                              # Visual Documentation Assets Folder - Useful for UML diagram display
+├── uml.diagram.png
 OpenBudget-app/
 ├── src/
 │   ├── main/
@@ -243,8 +253,10 @@ OpenBudget-app/
 │   │   │       ├── OpenBudgetApplication.java      # Main entry point
 │   │   │       ├── authentication/
 │   │   │       │   └── FirstLogin.java             # Login authentication
-│   │   │       ├── data/
-│   │   │       │   └── MinistryDataInput.java      
+│   │   │       ├── data/                           # Data input
+│   │   │       │   └── MinistryDataInput.java
+│   │   │       ├── editor/                         # Budget Editor 
+│   │   │       │   └── EnvBudgetEditor.java     
 │   │   │       ├── envdatamodel/                   # Data model layer
 │   │   │       │   ├── EnvBudgetData.java
 │   │   │       │   ├── EnvYear.java
@@ -253,6 +265,14 @@ OpenBudget-app/
 │   │   │       │   ├── EnvEntry.java
 │   │   │       │   ├── EsgCategory.java
 │   │   │       │   └── EsgReport.java
+│   │   │       ├── export/                         # Data export
+│   │   │       │   ├── EditedBudgetExporter.java
+│   │   │       │   └── TextReportExporter.java
+│   │   │       ├── printer/                        # Console output
+│   │   │       │   ├── FullBudgetPrinter.java
+│   │   │       │   ├── EnvBudgetPrinter.java
+│   │   │       │   ├── EditsPrinter.java
+│   │   │       │   └── EsgPrinter.java
 │   │   │       ├── service/                        # Business logic
 │   │   │       │   ├── EnvBudgetLoader.java
 │   │   │       │   ├── EnvBudgetTranslator.java
@@ -261,17 +281,9 @@ OpenBudget-app/
 │   │   │       │   ├── EsgClassifier.java
 │   │   │       │   ├── EsgScoreCalculator.java
 │   │   │       │   ├── EsgLoader.java
+│   │   │       │   ├── BudgetPercentageService.java
 │   │   │       │   ├── YeartoYearBudgetComparison.java
 │   │   │       │   └── InitialBudgetComparison.java
-│   │   │       ├── printer/                        # Console output
-│   │   │       │   ├── FullBudgetPrinter.java
-│   │   │       │   ├── EnvBudgetPrinter.java
-│   │   │       │   ├── EditsPrinter.java
-│   │   │       │   └── EsgPrinter.java
-│   │   │       ├── export/                         # Data export
-│   │   │       │   ├── EditedBudgetExporter.java
-│   │   │       │   ├── CsvExporter.java
-│   │   │       │   └── TextReportExporter.java
 │   │   │       └── web/                            # Web interface
 │   │   │           ├── LoginWebServer.java
 │   │   │           ├── BudgetComparisonWebDisplay.java
@@ -316,7 +328,6 @@ OpenBudget-app/
 │           │   ├── EsgPrinterTest.java                         
 │           │   └── FullBudgetPrinterTest.java                  
 │           ├── service/                                        # Service tests
-│           │   ├── BudgetPercentageServiceTest.java            
 │           │   ├── BudgetValidatorTest.java                    
 │           │   ├── EditsApplierTest.java                       
 │           │   ├── EnvBudgetLoaderTest.java                    
@@ -324,20 +335,22 @@ OpenBudget-app/
 │           │   ├── EsgClassifierTest.java                      
 │           │   ├── EsgLoaderTest.java                          
 │           │   ├── EsgScoreCalculatorTest.java                 
-│           │   ├── InitialBudgetComparisonTest.java            
-│           │   └── YeartoYearBudgetComparisonTest.java         
-│           └── web/                                            # Web tests
-│               ├── EsgWebDisplayTest.java                      
-│               ├── LoginWebServerTest.java                     
-│               └── OpenBudgetApplicationTest.java              # Main application test
+│           │   ├── InitialBudgetComparisonTest.java
+│           │   ├── YearToYearBudgetComparisonTest.java              
+│           │   └── BudgetPercentageServiceTest.java            
+│           ├── web/                                            # Web tests
+│           │   ├── EsgWebDisplayTest.java                      
+│           │   ├── LoginWebServerTest.java
+│           │   ├── BudgetComparisonWebDisplayTest.java
+│           │   └── YearComparisonWebDisplayTest.java                  
+│           └── OpenBudgetApplicationTest.java                  # Main application test
 ├── target/                                                     # Build output
 │  | └── classes/                                               # Compiled classes
 │  |    └── frontend/                                           # Compiled resources
 │  |         └── [HTML files]                                   # Built HTML files
 |  ├── pom.xml                                                  # Maven configuration
 ├── .gitignore
-├── images                                                      # Visual Documentation Assets Folder - Useful for UML diagram display
-│  | └── uml.diagram.png                                      
+├── LICENSE                                                     # Project license
 └── README.md                                                   # Project documentation - This file
 
 ```
@@ -486,8 +499,8 @@ Defines ESG evaluation rules:
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/yourusername/openbudget.git
-cd openbudget/OpenBudget-app
+git clone https://github.com/alikii16/spinnovators.git
+cd spinnovators/OpenBudget-app
 ```
 
 ### Step 2: Compile the Project
@@ -555,6 +568,7 @@ The application will:
 2. Choose fiscal year
 3. View detailed hierarchical breakdown:
    - Sector → Unit → Entry
+4. View the percentage of the Ministry’s total budget as a share of the overall national budget
 
 ---
 
@@ -884,11 +898,12 @@ Coverage report located at: `target/site/jacoco/index.html`
 |---------|----------------|----------|
 | `authentication` | `FirstLoginTest` | Login flows |
 | `data` | `MinistryDataInputTest` | Data integrity |
+| `editor` | `EnvBudgetEditor` | Budget editing |
 | `envdatamodel` | 7 test classes | Model completeness |
-| `export` | `CsvExporterTest`, `TextReportExporterTest` | Export formats |
+| `export` | `EditedBudgetExporter`, `TextReportExporterTest` | Export formats |
 | `printer` | 4 test classes | Output formatting |
-| `service` | 7 test classes | Business logic |
-| `web` | `EsgWebDisplayTest`, `LoginWebServerTest` | Web functionality |
+| `service` | 10 test classes | Business logic |
+| `web` | 4 test classes | Web functionality |
 
 ---
 
