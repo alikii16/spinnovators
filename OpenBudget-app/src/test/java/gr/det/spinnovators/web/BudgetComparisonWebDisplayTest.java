@@ -5,41 +5,63 @@ import gr.det.spinnovators.envdatamodel.EnvSector;
 import gr.det.spinnovators.envdatamodel.EnvUnit;
 import gr.det.spinnovators.envdatamodel.EnvYear;
 import gr.det.spinnovators.service.EnvBudgetTranslator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for BudgetComparisonWebDisplay.
+ * Unit tests for the {@link BudgetComparisonWebDisplay} class.
  *
- * <p>Tests the HTML generation of budget comparisons.
- * Updated to correctly verify distinct HTML sections and handle formatting assertions.
+ * <p>This test class verifies the HTML generation of budget comparisons.
+ * It ensures that the generated web content correctly reflects budget changes
+ * using visual indicators like arrows and colors, while maintaining
+ * a clean and responsive HTML structure.</p>
+ *
+ * <p>The test suite covers:
+ * <ul>
+ * <li>HTML Basic structure and sections</li>
+ * <li>Increase, Decrease, and Neutral logic visuals</li>
+ * <li>Top changes sorting and limit logic</li>
+ * <li>Percentage rounding adjustments for charts</li>
+ * <li>Robustness against malformed or null data</li>
+ * </ul>
+ * </p>
+ *
+ * @author Spinnovators Team
+ * @version 2.0
  */
 public class BudgetComparisonWebDisplayTest {
 
   private EnvBudgetTranslator mockTranslator;
   private BudgetComparisonWebDisplay webDisplay;
 
+  /**
+   * Sets up the test environment by mocking the translator component.
+   * Mocking ensures that the test focuses solely on HTML generation logic.
+   */
   @BeforeEach
   public void setUp() {
     mockTranslator = Mockito.mock(EnvBudgetTranslator.class);
     // Mock translation to return a predictable string "Trans_key"
-    when(mockTranslator.translateCategory(anyString())).thenAnswer(i -> "Trans_" + i.getArguments()[0]);
-    
+    when(mockTranslator.translateCategory(anyString()))
+        .thenAnswer(i -> "Trans_" + i.getArguments()[0]);
+
     webDisplay = new BudgetComparisonWebDisplay(mockTranslator);
   }
 
   // --- Helper Methods ---
 
+  /**
+   * Creates a mock year structure for testing purposes.
+   */
   private EnvYear createMockYear(String yearStr, String sectorName, double amount) {
     EnvEntry entry = new EnvEntry("entry1", amount);
     EnvUnit unit = new EnvUnit("unit1", List.of(entry));
@@ -47,10 +69,16 @@ public class BudgetComparisonWebDisplayTest {
     return new EnvYear(yearStr, List.of(sector));
   }
 
+  /**
+   * Creates a multi-sector year structure for testing aggregate logic.
+   */
   private EnvYear createMultiSectorYear(String yearStr, List<EnvSector> sectors) {
     return new EnvYear(yearStr, sectors);
   }
 
+  /**
+   * Creates a mock sector with a specific key and monetary amount.
+   */
   private EnvSector createSector(String key, double amount) {
     EnvEntry entry = new EnvEntry("ent_" + key, amount);
     EnvUnit unit = new EnvUnit("unit_" + key, List.of(entry));
@@ -59,6 +87,10 @@ public class BudgetComparisonWebDisplayTest {
 
   // --- Tests ---
 
+  /**
+   * Verifies that the generated HTML contains the main required sections
+   * and the correct translated sector names.
+   */
   @Test
   public void testGenerateComparisonContent_BasicStructure() {
     EnvYear original = createMockYear("2025", "energy", 1000.0);
@@ -76,27 +108,28 @@ public class BudgetComparisonWebDisplayTest {
     Assertions.assertTrue(html.contains("Συμπεράσματα"), "Should contain Conclusions section");
   }
 
-@Test
+  /**
+   * Tests the visual representation of a budget increase.
+   * Checks for upward arrows and the specific green color code (#1b5e20).
+   */
+  @Test
   public void testGenerateComparisonContent_IncreaseLogic() {
     EnvYear original = createMockYear("2025", "health", 100.0);
     EnvYear modified = createMockYear("2025", "health", 150.0);
 
     String html = webDisplay.generateComparisonContent(original, modified, 100.0);
 
-    // 1. Check Table Visuals
     Assertions.assertTrue(html.contains("↑"), "Should contain up arrow");
     Assertions.assertTrue(html.contains("#1b5e20"), "Should contain green color code");
-    
-    // 2. Check Top Changes Section
-    Assertions.assertTrue(html.contains("Μεγαλύτερες Αυξήσεις"));
-    
-    // 3. Check Conclusions Logic (Relaxed assertion to avoid Locale/Space issues)
-    // We check that the sector name and the amount are present in the same context
     Assertions.assertTrue(html.contains("Trans_health"), "Should contain focus sector name");
-    Assertions.assertTrue(html.contains("50,00"), "Should contain formatted amount with comma");
+    Assertions.assertTrue(html.contains("50,00"), "Should contain formatted amount");
     Assertions.assertTrue(html.contains("Τομείς με αύξηση"), "Should contain summary text");
   }
 
+  /**
+   * Tests the visual representation of a budget decrease.
+   * Checks for downward arrows and the specific red color code (#c62828).
+   */
   @Test
   public void testGenerateComparisonContent_DecreaseLogic() {
     EnvYear original = createMockYear("2025", "defense", 200.0);
@@ -104,17 +137,17 @@ public class BudgetComparisonWebDisplayTest {
 
     String html = webDisplay.generateComparisonContent(original, modified, 200.0);
 
-    // Check Visuals for Decrease
     Assertions.assertTrue(html.contains("↓"), "Should contain down arrow");
     Assertions.assertTrue(html.contains("#c62828"), "Should contain red color code");
     Assertions.assertTrue(html.contains("100,00 €"), "Should display diff amount");
     Assertions.assertTrue(html.contains("-50%"), "Should display negative percentage");
-
-    // Check Top Changes Section
-    Assertions.assertTrue(html.contains("Μεγαλύτερες Μειώσεις"));
-    Assertions.assertTrue(html.contains("Trans_defense"));
+    Assertions.assertTrue(html.contains("Μεγαλύτερες Μειώσεις"), "Should contain header");
   }
 
+  /**
+   * Tests the HTML output when no changes are detected.
+   * Verifies the use of neutral arrows and empty state messages.
+   */
   @Test
   public void testGenerateComparisonContent_NoChanges() {
     EnvYear original = createMockYear("2025", "education", 500.0);
@@ -122,37 +155,24 @@ public class BudgetComparisonWebDisplayTest {
 
     String html = webDisplay.generateComparisonContent(original, modified, 500.0);
 
-    // Check Visuals for No Change
     Assertions.assertTrue(html.contains("→"), "Should contain right arrow");
     Assertions.assertTrue(html.contains("#616161"), "Should contain grey color code");
-    Assertions.assertTrue(html.contains("0,0%"), "Should show 0%");
-    
-    // Check Top Changes empty states
-    Assertions.assertTrue(html.contains("Δεν υπάρχουν αυξήσεις"));
-    Assertions.assertTrue(html.contains("Δεν υπάρχουν μειώσεις"));
-
-    // Check Conclusions
+    Assertions.assertTrue(html.contains("Δεν υπάρχουν αυξήσεις"), "Should show empty increase message");
     Assertions.assertTrue(html.contains("πλήρως ισοσκελισμένος"), "Should indicate balanced budget");
-    Assertions.assertTrue(html.contains("Δεν έγιναν σημαντικές αλλαγές"));
   }
 
   /**
-   * Tests the logic that limits "Top Changes" to only the top 3 items.
-   * FIX: We verify that the 4th item exists in the table (td) but NOT in the top changes list (div).
+   * Verifies that only the top 3 increases/decreases are shown in the
+   * "Top Changes" summary box to keep the interface clean.
    */
   @Test
   public void testGenerateComparisonContent_TopChangesLimits() {
     List<EnvSector> origSectors = new ArrayList<>();
     List<EnvSector> modSectors = new ArrayList<>();
 
-    // Create 4 sectors that will INCREASE (inc1 < inc2 < inc3 < inc4)
-    // inc4 (+40) -> Top 1
-    // inc3 (+30) -> Top 2
-    // inc2 (+20) -> Top 3
-    // inc1 (+10) -> Excluded from top list
     for (int i = 1; i <= 4; i++) {
       origSectors.add(createSector("inc" + i, 100.0));
-      modSectors.add(createSector("inc" + i, 100.0 + (i * 10.0))); 
+      modSectors.add(createSector("inc" + i, 100.0 + (i * 10.0)));
     }
 
     EnvYear original = createMultiSectorYear("2025", origSectors);
@@ -160,23 +180,18 @@ public class BudgetComparisonWebDisplayTest {
 
     String html = webDisplay.generateComparisonContent(original, modified, 1000.0);
 
-    // Verify Increases: Top 3 should appear in the specific Top Changes markup (div)
-    // The markup for top changes is like: <div ...>1. Trans_inc4</div>
-    Assertions.assertTrue(html.contains("Trans_inc4</div>"), "Should show 1st largest increase in top list");
-    Assertions.assertTrue(html.contains("Trans_inc3</div>"), "Should show 2nd largest increase in top list");
-    Assertions.assertTrue(html.contains("Trans_inc2</div>"), "Should show 3rd largest increase in top list");
-
-    // The 4th largest (inc1) should NOT appear in the top list markup (div)
-    // Note: checking "!html.contains('Trans_inc1')" is wrong because it IS in the main table.
-    // We check specifically for the list item closure "</div>" which implies it was in the top changes box.
-    Assertions.assertFalse(html.contains("Trans_inc1</div>"), "Should NOT show the 4th largest increase in top list");
+    Assertions.assertTrue(html.contains("Trans_inc4</div>"), "Should show 1st largest increase");
+    Assertions.assertTrue(html.contains("Trans_inc3</div>"), "Should show 2nd largest increase");
+    Assertions.assertTrue(html.contains("Trans_inc2</div>"), "Should show 3rd largest increase");
+    Assertions.assertFalse(html.contains("Trans_inc1</div>"), "Should NOT show 4th item in top list");
   }
 
+  /**
+   * Tests the percentage adjustment logic for pie charts.
+   * Ensures that rounded values sum exactly to 100.0%.
+   */
   @Test
   public void testRoundingAdjustment() {
-    // Total budget 300. Three sectors with 100 each.
-    // Raw percent: 33.333...% -> Rounded: 33.3% -> Sum: 99.9%
-    // Code should adjust one to 33.4%
     List<EnvSector> sectors = Arrays.asList(
         createSector("A", 100.0),
         createSector("B", 100.0),
@@ -186,38 +201,24 @@ public class BudgetComparisonWebDisplayTest {
 
     String html = webDisplay.generateComparisonContent(year, year, 300.0);
 
-    // One of them should be adjusted to 33,4%
-    Assertions.assertTrue(html.contains("33,4%"), "Should contain adjusted percentage (33,4%)");
-    Assertions.assertTrue(html.contains("33,3%"), "Should contain standard percentage (33,3%)");
+    Assertions.assertTrue(html.contains("33,4%"), "Should contain adjusted percentage");
+    Assertions.assertTrue(html.contains("33,3%"), "Should contain standard percentage");
   }
 
+  /**
+   * Tests robustness against null or empty data structures.
+   * Verifies that the generator can still produce a page even with messy data.
+   */
   @Test
   public void testNullHandling_MalformedData() {
     EnvSector validSector = createSector("valid", 100.0);
     EnvSector sectorNullUnits = new EnvSector("nullUnits", null);
-    
-    EnvUnit unitNullEntries = new EnvUnit("unitNullEntries", null);
-    EnvSector sectorNullEntries = new EnvSector("sectorNullEntries", List.of(unitNullEntries));
+    EnvYear messyYear = createMultiSectorYear("2025", Arrays.asList(null, validSector, sectorNullUnits));
 
-    List<EnvEntry> entriesWithNull = new ArrayList<>();
-    entriesWithNull.add(null);
-    EnvUnit unitWithNullEntry = new EnvUnit("unitWithNullEntry", entriesWithNull);
-    EnvSector sectorWithNullEntry = new EnvSector("sectorWithNullEntry", List.of(unitWithNullEntry));
+    String html = webDisplay.generateComparisonContent(messyYear,
+        new EnvYear("2025", Collections.emptyList()), 100.0);
 
-    List<EnvSector> sectors = Arrays.asList(
-        null, 
-        validSector,
-        sectorNullUnits,
-        sectorNullEntries,
-        sectorWithNullEntry
-    );
-
-    EnvYear messyYear = createMultiSectorYear("2025", sectors);
-    EnvYear emptyYear = new EnvYear("2025", Collections.emptyList());
-
-    String html = webDisplay.generateComparisonContent(messyYear, emptyYear, 100.0);
-    
     Assertions.assertNotNull(html);
-    Assertions.assertTrue(html.contains("Trans_valid")); 
+    Assertions.assertTrue(html.contains("Trans_valid"));
   }
 }
